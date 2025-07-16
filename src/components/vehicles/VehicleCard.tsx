@@ -1,101 +1,104 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Car, Fuel, Calendar, Settings } from "lucide-react";
+import { MapPin, Calendar, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import LazyImage from "@/components/ui/LazyImage";
 
-export interface VehicleProps {
-  id?: string;
-  name?: string;
-  brand?: string;
-  model?: string;
-  year?: number;
-  price?: number;
+export interface VehicleCardProps {
+  slug?: string;
   image?: string;
-  category?: string;
-  fuelType?: string;
-  transmission?: string;
+  name?: string;
+  price?: string;
+  monthly?: string;
+  city?: string;
+  date?: string;
   onClick?: () => void;
 }
 
 const VehicleCard = ({
-  id = "1",
-  name = "Porsche 911 Carrera",
-  brand = "Porsche",
-  model = "911 Carrera",
-  year = 2023,
-  price = 1299,
-  image = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
-  category = "Sports",
-  fuelType = "Essence",
-  transmission = "Automatique",
+  slug = "toyota-corolla-touring-18-hybrid-sports-active",
+  image = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=640&q=80",
+  name = "TOYOTA COROLLA TOURING 1.8i 122 HK HYBRID SPORTS ACTIVE",
+  price = "22990",
+  monthly = "405",
+  city = "Épinay-sur-Seine 93800",
+  date = "2024-01-15",
   onClick = () => {},
-}: VehicleProps) => {
-  const [isHovered, setIsHovered] = useState(false);
+}: VehicleCardProps) => {
+  const { ref, isIntersecting } = useIntersectionObserver(0.15);
+
+  const priceNumber = parseInt(price.replace(/\s/g, ""));
+  const monthlyNumber = parseInt(monthly.replace(/\s/g, ""));
+  const formattedDate = new Date(date).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300 }}
+    <motion.article
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isIntersecting ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:shadow-lg cursor-pointer"
+      onClick={handleClick}
     >
-      <Card
-        className={`overflow-hidden transition-all duration-300 bg-black border-gray-800 h-full ${isHovered ? "shadow-xl" : ""}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={onClick}
-      >
-        <div className="relative aspect-[16/9] overflow-hidden">
-          <img
-            src={image}
-            alt={name}
-            className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? "scale-110" : "scale-100"}`}
-          />
-          <div className="absolute top-2 right-2 bg-[#DA1212] text-white text-xs font-bold px-2 py-1 rounded">
-            {category}
-          </div>
+      {/* visuel 16/9 */}
+      <figure className="relative overflow-hidden aspect-[16/9]">
+        <LazyImage
+          src={image}
+          alt={name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </figure>
+
+      {/* contenu */}
+      <div className="flex flex-1 flex-col gap-3 px-4 py-5">
+        {/* titre */}
+        <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 font-inter leading-tight">
+          {name}
+        </h3>
+
+        {/* prix */}
+        <div className="flex flex-wrap items-baseline gap-2">
+          <span className="text-xl font-bold text-[#E50914] font-premium">
+            {priceNumber.toLocaleString("fr-FR")} €
+          </span>
+          <span className="text-sm text-gray-500 font-inter">
+            {monthlyNumber.toLocaleString("fr-FR")} €/mois
+          </span>
         </div>
 
-        <CardContent className="p-5">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <h3 className="text-xl font-bold text-white">{name}</h3>
-              <p className="text-gray-400 text-sm">
-                {brand} • {year}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[#DA1212] font-bold">{price}€</p>
-              <p className="text-gray-400 text-xs">par mois</p>
-            </div>
-          </div>
+        {/* localisation + date */}
+        <div className="space-y-1">
+          <p className="flex items-center gap-1 text-xs text-gray-500 font-inter">
+            <MapPin size={14} className="shrink-0" />
+            {city}
+          </p>
+          <p className="flex items-center gap-1 text-xs text-gray-500 font-inter">
+            <Calendar size={14} className="shrink-0" />
+            {formattedDate}
+          </p>
+        </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
-            <div className="flex items-center text-gray-400">
-              <Car size={16} className="mr-2 text-[#DA1212]" />
-              <span>{model}</span>
-            </div>
-            <div className="flex items-center text-gray-400">
-              <Fuel size={16} className="mr-2 text-[#DA1212]" />
-              <span>{fuelType}</span>
-            </div>
-            <div className="flex items-center text-gray-400">
-              <Calendar size={16} className="mr-2 text-[#DA1212]" />
-              <span>{year}</span>
-            </div>
-            <div className="flex items-center text-gray-400">
-              <Settings size={16} className="mr-2 text-[#DA1212]" />
-              <span>{transmission}</span>
-            </div>
-          </div>
-
-          <Button
-            className={`w-full mt-4 transition-all duration-300 ${isHovered ? "bg-[#DA1212] hover:bg-[#B50F0F]" : "bg-gray-800 hover:bg-gray-700"}`}
-          >
-            Voir les détails
-          </Button>
-        </CardContent>
-      </Card>
-    </motion.div>
+        {/* CTA */}
+        <Link
+          to={`/vehicules/${slug}`}
+          className="mt-auto inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 py-2 text-sm font-medium text-gray-800 transition-all duration-300 hover:border-[#E50914] hover:text-[#E50914] font-inter"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Voir le véhicule
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+    </motion.article>
   );
 };
 

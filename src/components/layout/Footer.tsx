@@ -1,141 +1,121 @@
 import { Link } from "react-router-dom";
-import {
-  Facebook,
-  Instagram,
-  Twitter,
-  Mail,
-  Phone,
-  MapPin,
-  Car,
-  RefreshCw,
-  Wallet,
-  Users,
-  Briefcase,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { useCarrosserie } from "@/App";
 
 const Footer = () => {
+  const { theme } = useCarrosserie();
+
   return (
-    <footer className="w-full bg-black text-white py-12 border-t border-gray-800">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
-        <div>
-          <h3 className="text-2xl font-bold mb-4">
-            Lease<span className="text-[#DA1212]">Auto</span>
-          </h3>
-          <p className="text-gray-400 mb-4">
-            Votre partenaire pour l'achat, la vente et le financement de
-            véhicules à Épinay-sur-Seine.
-          </p>
-          <div className="flex space-x-4">
-            <a href="#" className="text-gray-400 hover:text-[#DA1212]">
-              <Facebook size={20} />
+    <motion.footer
+      className="w-full relative py-8 px-4 overflow-hidden"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
+      {/* Carrosserie background effect */}
+      <div className="absolute inset-0">
+        <div
+          className={`h-full w-full ${
+            theme === "glossy"
+              ? "carrosserie-glossy carrosserie-glossy-shadow"
+              : "carrosserie-matte carrosserie-matte-shadow"
+          }`}
+        />
+
+        {/* Noise texture overlay */}
+        <div
+          className={`absolute inset-0 carrosserie-noise ${
+            theme === "glossy"
+              ? "opacity-15 mix-blend-overlay"
+              : "opacity-5 mix-blend-multiply"
+          }`}
+        />
+
+        {/* Animated shine for glossy theme */}
+        {theme === "glossy" && (
+          <div className="absolute inset-0 carrosserie-shine" />
+        )}
+      </div>
+      {/* Content */}
+      <div className="relative container mx-auto max-w-6xl">
+        {/* Social Media Links */}
+        <div className="flex justify-center space-x-8 mb-6">
+          <motion.a
+            href="https://www.instagram.com/leaseauto.epinay"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 text-[#CCCCCC] hover:text-white transition-colors duration-300 group"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Instagram
+              size={20}
+              className="group-hover:text-[#E50914] transition-colors"
+            />
+            <span className="font-inter text-sm">Instagram</span>
+          </motion.a>
+
+          <motion.a
+            href="https://www.tiktok.com/@leaseauto.epinay"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 text-[#CCCCCC] hover:text-white transition-colors duration-300 group"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="w-5 h-5 group-hover:text-[#E50914] transition-colors">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-.88-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43V7.83a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.26z" />
+              </svg>
+            </div>
+            <span className="font-inter text-sm">TikTok</span>
+          </motion.a>
+        </div>
+
+        {/* Contact Info */}
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-8 mb-6 text-[#CCCCCC] text-sm font-inter">
+          <div className="flex items-center space-x-2">
+            <Phone size={16} className="text-[#E50914]" />
+            <a
+              href="tel:0184218393"
+              className="hover:text-white transition-colors"
+            >
+              01 84 21 83 93
             </a>
-            <a href="#" className="text-gray-400 hover:text-[#DA1212]">
-              <Instagram size={20} />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Mail size={16} className="text-[#E50914]" />
+            <a
+              href="mailto:leaseauto.epinay@gmail.com"
+              className="hover:text-white transition-colors"
+            >
+              leaseauto.epinay@gmail.com
             </a>
-            <a href="#" className="text-gray-400 hover:text-[#DA1212]">
-              <Twitter size={20} />
-            </a>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <MapPin size={16} className="text-[#E50914]" />
+            <span>42 Bd Foch, 93800 Épinay-sur-Seine</span>
           </div>
         </div>
 
-        <div>
-          <h4 className="text-lg font-semibold mb-4">Liens Rapides</h4>
-          <ul className="space-y-2">
-            <li>
-              <Link to="/" className="text-gray-400 hover:text-[#DA1212]">
-                Accueil
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/vehicles"
-                className="text-gray-400 hover:text-[#DA1212]"
-              >
-                Véhicules
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/services"
-                className="text-gray-400 hover:text-[#DA1212]"
-              >
-                Services
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className="text-gray-400 hover:text-[#DA1212]">
-                À Propos
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/contact"
-                className="text-gray-400 hover:text-[#DA1212]"
-              >
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-lg font-semibold mb-4">Nos Services</h4>
-          <ul className="space-y-2">
-            <li className="flex items-center">
-              <Car size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">Achat de véhicules</span>
-            </li>
-            <li className="flex items-center">
-              <RefreshCw size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">Reprise / vente</span>
-            </li>
-            <li className="flex items-center">
-              <Wallet size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">Financement</span>
-            </li>
-            <li className="flex items-center">
-              <Users size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">Accompagnement</span>
-            </li>
-            <li className="flex items-center">
-              <Briefcase size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">Service Pro</span>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-lg font-semibold mb-4">Contactez-Nous</h4>
-          <ul className="space-y-2">
-            <li className="flex items-center">
-              <Phone size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">+33 (0)1 23 45 67 89</span>
-            </li>
-            <li className="flex items-center">
-              <Mail size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">contact@lease-auto.fr</span>
-            </li>
-            <li className="flex items-center">
-              <MapPin size={16} className="mr-2 text-[#DA1212]" />
-              <span className="text-gray-400">
-                123 Avenue d'Épinay, 93800 Épinay-sur-Seine
-              </span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="container mx-auto mt-8 pt-8 border-t border-gray-800 px-4">
-        <div className="flex flex-col items-center justify-center space-y-2">
-          <p className="text-gray-500 text-center">
-            © {new Date().getFullYear()} Lease Auto. Tous droits réservés.
-          </p>
-          <p className="text-[#DA1212] font-bold text-center">
-            Super Youssouph 👑
+        {/* Copyright */}
+        <div
+          className={`text-center pt-6 border-t ${
+            theme === "glossy" ? "border-white/10" : "border-white/5"
+          }`}
+        >
+          <p
+            className={`font-inter text-sm font-light ${
+              theme === "glossy" ? "text-[#CCCCCC]" : "text-[#c5c5c5]"
+            }`}
+          >
+            © {new Date().getFullYear()} Lease Auto — Tous droits réservés.
           </p>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

@@ -22,17 +22,12 @@ const AdminLogin = () => {
     setIsLoading(true);
     setError("");
 
-    // Simulate login - in a real app, this would call an authentication API
+    // TEMPORARY BYPASS - accept any input for development
     setTimeout(() => {
       setIsLoading(false);
-      // For demo purposes only - in a real app, never hardcode credentials
-      if (email === "admin@lease-auto.fr" && password === "admin123") {
-        // Redirect to admin dashboard
-        window.location.href = "/admin/dashboard";
-      } else {
-        setError("Identifiants invalides. Veuillez réessayer.");
-      }
-    }, 1500);
+      localStorage.setItem("isAdmin", "true");
+      window.location.href = "/admin/dashboard";
+    }, 500);
   };
 
   return (
