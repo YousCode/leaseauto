@@ -3,15 +3,18 @@ import { useNavigate } from "react-router-dom";
 import VehicleCard, {
   VehicleCardProps,
 } from "@/components/vehicles/VehicleCard";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useVehicles } from "@/hooks/useVehicles";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const VehicleListingsSection = () => {
   const navigate = useNavigate();
   const { data: publishedVehicles = [] } = useVehicles("published");
+  const [activeTab, setActiveTab] = useState("all");
 
-  // Fallback static vehicles for demo
-  const staticVehicles: VehicleCardProps[] = [
+  // Fallback static vehicles for demo with categories
+  const staticVehicles: (VehicleCardProps & { category: string })[] = [
     {
       slug: "bmw-x2",
       image:
@@ -21,6 +24,7 @@ const VehicleListingsSection = () => {
       monthly: "548",
       city: "Épinay-sur-Seine 93800",
       date: "2024-01-15",
+      category: "suv",
     },
     {
       slug: "tesla-model-3",
@@ -31,6 +35,7 @@ const VehicleListingsSection = () => {
       monthly: "493",
       city: "Levallois-Perret 92300",
       date: "2024-01-05",
+      category: "electriques",
     },
     {
       slug: "audi-a1",
@@ -41,6 +46,7 @@ const VehicleListingsSection = () => {
       monthly: "466",
       city: "Paris 75017",
       date: "2024-02-01",
+      category: "citadines",
     },
     {
       slug: "toyota-corolla",
@@ -51,6 +57,7 @@ const VehicleListingsSection = () => {
       monthly: "405",
       city: "Épinay-sur-Seine 93800",
       date: "2024-01-20",
+      category: "hybrides",
     },
     {
       slug: "bmw-serie1",
@@ -61,6 +68,7 @@ const VehicleListingsSection = () => {
       monthly: "466",
       city: "Saint-Denis 93200",
       date: "2024-02-10",
+      category: "citadines",
     },
     {
       slug: "skoda-kodiaq",
@@ -71,14 +79,52 @@ const VehicleListingsSection = () => {
       monthly: "596",
       city: "Argenteuil 95100",
       date: "2024-02-12",
+      category: "suv",
     },
   ];
+
+  // Categorize vehicles based on energy type and model
+  const categorizeVehicle = (vehicle: any) => {
+    const title = (vehicle.title || vehicle.name || "").toLowerCase();
+    const energy = (vehicle.energy || "").toLowerCase();
+    const brand = (vehicle.brand || "").toLowerCase();
+
+    if (
+      energy.includes("électrique") ||
+      energy.includes("electric") ||
+      brand.includes("tesla")
+    ) {
+      return "electriques";
+    }
+    if (energy.includes("hybride") || energy.includes("hybrid")) {
+      return "hybrides";
+    }
+    if (
+      title.includes("suv") ||
+      title.includes("x2") ||
+      title.includes("x3") ||
+      title.includes("kodiaq") ||
+      title.includes("c-hr")
+    ) {
+      return "suv";
+    }
+    if (
+      title.includes("a1") ||
+      title.includes("série 1") ||
+      title.includes("serie 1") ||
+      title.includes("polo") ||
+      title.includes("clio")
+    ) {
+      return "citadines";
+    }
+    return "autres";
+  };
 
   // Use published vehicles from Supabase or fallback to static data
   const vehicles =
     publishedVehicles.length > 0
       ? publishedVehicles.map((v: any) => ({
-          slug: v.id,
+          slug: v.slug || v.id,
           image:
             v.images?.[0] ||
             "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=640&q=80",
@@ -87,14 +133,26 @@ const VehicleListingsSection = () => {
           monthly: v.monthly?.toString() || "0",
           city: v.city || "Paris",
           date: v.created_at || new Date().toISOString(),
+          category: categorizeVehicle(v),
         }))
       : staticVehicles;
 
+  // Filter vehicles by category
+  const filteredVehicles =
+    activeTab === "all"
+      ? vehicles
+      : vehicles.filter((v) => v.category === activeTab);
+
+  // Count vehicles by category
+  const getCategoryCount = (category: string) => {
+    if (category === "all") return vehicles.length;
+    return vehicles.filter((v) => v.category === category).length;
+  };
+
   const handleVehicleClick = (index: number) => {
-    const vehicle = vehicles[index];
-    if (vehicle.slug) {
-      navigate(`/vehicules/${vehicle.slug}`);
-    }
+    const vehicle = filteredVehicles[index];
+    const slug = vehicle.slug || `vehicle-${index + 1}`;
+    navigate(`/vehicules/${slug}`);
   };
 
   return (
@@ -116,16 +174,73 @@ const VehicleListingsSection = () => {
           </p>
         </motion.header>
 
-        {/* grille responsive */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {vehicles.map((vehicle, index) => (
-            <VehicleCard
-              key={vehicle.slug || index}
-              {...vehicle}
-              onClick={() => handleVehicleClick(index)}
-            />
-          ))}
-        </div>
+        {/* Tabs pour filtrer par catégorie */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-12">
+          <TabsList className="grid w-full grid-cols-5 max-w-2xl mx-auto">
+            <TabsTrigger value="all" className="flex items-center gap-2">
+              Tous
+              <Badge variant="secondary" className="ml-1">
+                {getCategoryCount("all")}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="suv" className="flex items-center gap-2">
+              SUV
+              <Badge variant="secondary" className="ml-1">
+                {getCategoryCount("suv")}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="citadines" className="flex items-center gap-2">
+              Citadines
+              <Badge variant="secondary" className="ml-1">
+                {getCategoryCount("citadines")}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="hybrides" className="flex items-center gap-2">
+              Hybrides
+              <Badge variant="secondary" className="ml-1">
+                {getCategoryCount("hybrides")}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger
+              value="electriques"
+              className="flex items-center gap-2"
+            >
+              Électriques
+              <Badge variant="secondary" className="ml-1">
+                {getCategoryCount("electriques")}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={activeTab} className="mt-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+              >
+                {filteredVehicles.length > 0 ? (
+                  filteredVehicles.map((vehicle, index) => (
+                    <VehicleCard
+                      key={vehicle.slug || index}
+                      {...vehicle}
+                      onClick={() => handleVehicleClick(index)}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-gray-500 text-lg font-inter">
+                      Aucun véhicule dans cette catégorie.
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </TabsContent>
+        </Tabs>
 
         {/* CTA global */}
         <motion.div

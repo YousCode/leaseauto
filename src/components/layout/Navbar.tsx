@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Palette } from "lucide-react";
+import { Menu, X, Palette, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 import { useScrollRaf } from "@/hooks/useScrollRaf";
 import { useCarrosserie } from "@/App";
@@ -158,6 +158,19 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Instagram link */}
+          <motion.a
+            href="https://www.instagram.com/leaseauto.epinay"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram Lease Auto"
+            className="hidden md:flex text-white/70 hover:text-[#E50914] transition-colors duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Instagram size={20} />
+          </motion.a>
+
           {/* Theme toggle button */}
           <motion.button
             onClick={() => setTheme(theme === "glossy" ? "matte" : "glossy")}
@@ -262,6 +275,17 @@ const Navbar = () => {
                 Contact
               </button>
               {/* Mobile theme toggle */}
+              <a
+                href="https://www.instagram.com/leaseauto.epinay"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram Lease Auto"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center space-x-2 text-white/70 hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
+              >
+                <Instagram size={20} />
+                <span>Instagram</span>
+              </a>
               <button
                 onClick={() => {
                   setTheme(theme === "glossy" ? "matte" : "glossy");

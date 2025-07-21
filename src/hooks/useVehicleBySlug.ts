@@ -2,38 +2,41 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useEffect } from "react";
 
-export function useVehicles(status?: "draft" | "published" | "archived") {
+export function useVehicleBySlug(slug: string) {
   const qc = useQueryClient();
-  const qKey = ["vehicles", status ?? "all"];
+  const qKey = ["vehicle", slug];
 
   const query = useQuery({
     queryKey: qKey,
     queryFn: async () => {
-      let q = supabase
+      const { data, error } = await supabase
         .from("vehicles")
-        .select(
-          "id,title,slug,brand,model,year,price,monthly,images,status,created_at,city",
-        )
-        .order("created_at", { ascending: false });
-      if (status) q = q.eq("status", status);
-      const { data } = await q;
-      return data ?? [];
+        .select("*")
+        .eq("slug", slug)
+        .eq("status", "published")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
     },
+    enabled: !!slug,
   });
 
   useEffect(() => {
     const ch = supabase
-      .channel("rt-veh")
+      .channel("rt-veh-detail")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "vehicles" },
-        () => qc.invalidateQueries({ queryKey: ["vehicles"] }),
+        () => {
+          qc.invalidateQueries({ queryKey: ["vehicles"] });
+          qc.invalidateQueries({ queryKey: ["vehicle", slug] });
+        },
       )
       .subscribe();
     return () => {
       ch.unsubscribe();
     };
-  }, [qc]);
+  }, [qc, slug]);
 
   return query;
 }

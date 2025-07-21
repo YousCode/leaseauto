@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Calendar } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
+import { Helmet } from "react-helmet-async";
 
 export interface VehicleProps {
   id?: string;
@@ -213,12 +216,50 @@ const VehicleListing = () => {
   const navigate = useNavigate();
   const { data: publishedVehicles = [] } = useVehicles("published");
   const [searchValue, setSearchValue] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+
+  // Categorize vehicles based on energy type and model
+  const categorizeVehicle = (vehicle: any) => {
+    const title = (vehicle.title || vehicle.name || "").toLowerCase();
+    const energy = (vehicle.energy || "").toLowerCase();
+    const brand = (vehicle.brand || "").toLowerCase();
+
+    if (
+      energy.includes("électrique") ||
+      energy.includes("electric") ||
+      brand.includes("tesla")
+    ) {
+      return "electriques";
+    }
+    if (energy.includes("hybride") || energy.includes("hybrid")) {
+      return "hybrides";
+    }
+    if (
+      title.includes("suv") ||
+      title.includes("x2") ||
+      title.includes("x3") ||
+      title.includes("kodiaq") ||
+      title.includes("c-hr")
+    ) {
+      return "suv";
+    }
+    if (
+      title.includes("a1") ||
+      title.includes("série 1") ||
+      title.includes("serie 1") ||
+      title.includes("polo") ||
+      title.includes("clio")
+    ) {
+      return "citadines";
+    }
+    return "autres";
+  };
 
   // Convert Supabase vehicles to component format or use static fallback
   const vehicles =
     publishedVehicles.length > 0
       ? publishedVehicles.map((v: any) => ({
-          id: v.id,
+          id: v.slug || v.id,
           name: v.title || "Véhicule",
           brand: v.brand,
           model: v.model,
@@ -238,10 +279,11 @@ const VehicleListing = () => {
           equipment: [],
           options: v.options || [],
           warranty: "Garantie incluse",
+          category: categorizeVehicle(v),
         }))
-      : PREMIUM_VEHICLES;
+      : PREMIUM_VEHICLES.map((v) => ({ ...v, category: categorizeVehicle(v) }));
 
-  // Filter vehicles based on search
+  // Filter vehicles based on search and category
   const filteredVehicles = vehicles.filter((vehicle) => {
     const matchesSearch =
       searchValue === "" ||
@@ -250,66 +292,142 @@ const VehicleListing = () => {
       vehicle.model?.toLowerCase().includes(searchValue.toLowerCase()) ||
       vehicle.city?.toLowerCase().includes(searchValue.toLowerCase());
 
-    return matchesSearch;
+    const matchesCategory =
+      activeTab === "all" || vehicle.category === activeTab;
+
+    return matchesSearch && matchesCategory;
   });
+
+  // Count vehicles by category
+  const getCategoryCount = (category: string) => {
+    if (category === "all") return vehicles.length;
+    return vehicles.filter((v) => v.category === category).length;
+  };
 
   const handleVehicleClick = (vehicleId: string) => {
     navigate(`/vehicules/${vehicleId}`);
   };
 
   return (
-    <div className="min-h-screen bg-white py-24 px-4">
-      <div className="container mx-auto max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-3xl md:text-4xl font-light text-gray-900 mb-4 font-premium tracking-wide">
-            Nos Véhicules Disponibles
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto font-inter leading-relaxed font-light">
-            Découvrez notre sélection de véhicules premium disponibles en
-            leasing. Trouvez le véhicule qui correspond à vos besoins et à votre
-            style.
-          </p>
-        </motion.div>
+    <>
+      <Helmet>
+        <title>Nos Véhicules Disponibles - Lease Auto</title>
+        <meta
+          name="description"
+          content="Découvrez notre sélection de véhicules premium disponibles en leasing. SUV, citadines, hybrides et électriques. Trouvez le véhicule qui correspond à vos besoins."
+        />
+      </Helmet>
 
-        <div className="mb-12">
-          <div className="relative max-w-md mx-auto">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <Input
-              placeholder="Rechercher un véhicule, marque ou ville..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              className="pl-10 bg-white border-gray-300 text-gray-900 w-full font-inter"
-            />
-          </div>
-        </div>
+      <div className="min-h-screen bg-white py-24 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <h1 className="text-3xl md:text-4xl font-light text-gray-900 mb-4 font-premium tracking-wide">
+              Nos Véhicules Disponibles
+            </h1>
+            <p className="text-gray-600 max-w-2xl mx-auto font-inter leading-relaxed font-light">
+              Découvrez notre sélection de véhicules premium disponibles en
+              leasing. Trouvez le véhicule qui correspond à vos besoins et à
+              votre style.
+            </p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredVehicles.length > 0 ? (
-            filteredVehicles.map((vehicle) => (
-              <VehicleCard
-                key={vehicle.id}
-                vehicle={vehicle}
-                onClick={() => handleVehicleClick(vehicle.id || "1")}
+          <div className="mb-12">
+            <div className="relative max-w-md mx-auto">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={18}
               />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500 text-lg font-inter">
-                Aucun véhicule ne correspond à votre recherche.
-              </p>
+              <Input
+                placeholder="Rechercher un véhicule, marque ou ville..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="pl-10 bg-white border-gray-300 text-gray-900 w-full font-inter"
+              />
             </div>
-          )}
+          </div>
+
+          {/* Tabs pour filtrer par catégorie */}
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="mb-12"
+          >
+            <TabsList className="grid w-full grid-cols-5 max-w-2xl mx-auto">
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                Tous
+                <Badge variant="secondary" className="ml-1">
+                  {getCategoryCount("all")}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="suv" className="flex items-center gap-2">
+                SUV
+                <Badge variant="secondary" className="ml-1">
+                  {getCategoryCount("suv")}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger
+                value="citadines"
+                className="flex items-center gap-2"
+              >
+                Citadines
+                <Badge variant="secondary" className="ml-1">
+                  {getCategoryCount("citadines")}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="hybrides" className="flex items-center gap-2">
+                Hybrides
+                <Badge variant="secondary" className="ml-1">
+                  {getCategoryCount("hybrides")}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger
+                value="electriques"
+                className="flex items-center gap-2"
+              >
+                Électriques
+                <Badge variant="secondary" className="ml-1">
+                  {getCategoryCount("electriques")}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={activeTab} className="mt-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                >
+                  {filteredVehicles.length > 0 ? (
+                    filteredVehicles.map((vehicle) => (
+                      <VehicleCard
+                        key={vehicle.id}
+                        vehicle={vehicle}
+                        onClick={() => handleVehicleClick(vehicle.id || "1")}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-gray-500 text-lg font-inter">
+                        Aucun véhicule ne correspond à votre recherche.
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

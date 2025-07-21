@@ -56,8 +56,10 @@ export type Database = {
           model: string | null
           monthly: number | null
           options: string[] | null
+          owner_id: string | null
           price: number | null
           search: unknown | null
+          slug: string | null
           status: string | null
           title: string | null
           updated_at: string | null
@@ -77,8 +79,10 @@ export type Database = {
           model?: string | null
           monthly?: number | null
           options?: string[] | null
+          owner_id?: string | null
           price?: number | null
           search?: unknown | null
+          slug?: string | null
           status?: string | null
           title?: string | null
           updated_at?: string | null
@@ -98,8 +102,10 @@ export type Database = {
           model?: string | null
           monthly?: number | null
           options?: string[] | null
+          owner_id?: string | null
           price?: number | null
           search?: unknown | null
+          slug?: string | null
           status?: string | null
           title?: string | null
           updated_at?: string | null

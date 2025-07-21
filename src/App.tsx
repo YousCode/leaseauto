@@ -3,6 +3,7 @@ import { useRoutes, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import Home from "./components/home";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import FloatingWhatsApp from "./components/ui/FloatingWhatsApp";
 
 import routes from "tempo-routes";
 
@@ -22,6 +23,7 @@ const VehicleDetailPage = lazy(
 const VehicleListing = lazy(
   () => import("./components/vehicles/VehicleListing"),
 );
+const VehiclePage = lazy(() => import("./pages/VehiclePage"));
 
 const AdminLayout = lazy(() => import("./pages/admin/_layout"));
 const Dashboard = lazy(() => import("./pages/admin/dashboard"));
@@ -46,7 +48,7 @@ function App() {
         }
       >
         <Routes>
-          {/* Public routes with layout */}
+          {/* HOME */}
           <Route
             path="/"
             element={
@@ -55,50 +57,79 @@ function App() {
               >
                 <Navbar />
                 <main className="flex-grow pt-20">
-                  <Outlet />
+                  <Home />
                 </main>
                 <Footer />
               </div>
             }
-          >
-            <Route index element={<Home />} />
-            <Route path="vehicules" element={<VehicleListing />} />
-            <Route
-              path="vehicules/:vehicleId"
-              element={<VehicleDetailPage />}
-            />
-            {/* Redirection de l'ancienne route anglaise vers la route française */}
-            <Route
-              path="vehicles"
-              element={<Navigate to="/vehicules" replace />}
-            />
-            <Route
-              path="vehicles/:vehicleId"
-              element={
-                <Navigate
-                  to={(location) =>
-                    `/vehicules/${location.pathname.split("/")[2]}`
-                  }
-                  replace
-                />
-              }
-            />
-          </Route>
+          />
+
+          {/* LISTE PUBLIC */}
+          <Route
+            path="/vehicules"
+            element={
+              <div
+                className={`flex flex-col min-h-screen bg-black ${carrosserieTheme}`}
+              >
+                <Navbar />
+                <main className="flex-grow pt-20">
+                  <VehicleListing />
+                </main>
+                <Footer />
+              </div>
+            }
+          />
+
+          {/* FICHE DÉTAIL */}
+          <Route
+            path="/vehicules/:slug"
+            element={
+              <div
+                className={`flex flex-col min-h-screen bg-black ${carrosserieTheme}`}
+              >
+                <Navbar />
+                <main className="flex-grow pt-20">
+                  <VehiclePage />
+                </main>
+                <Footer />
+              </div>
+            }
+          />
+
+          {/* redirection legacy /vehicles → /vehicules */}
+          <Route
+            path="/vehicles"
+            element={<Navigate to="/vehicules" replace />}
+          />
+          <Route
+            path="/vehicles/:slug"
+            element={
+              <Navigate
+                to={({ params }) => `/vehicules/${params!.slug}`}
+                replace
+              />
+            }
+          />
 
           {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin/*" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="vehicles" element={<VehiclesAdmin />} />
+            <Route path="vehicles/:id" element={<VehicleForm />} />
             <Route path="new" element={<VehicleForm />} />
             <Route path="edit/:id" element={<VehicleForm />} />
           </Route>
 
           {/* Tempo routes */}
           {import.meta.env.VITE_TEMPO === "true" && (
-            <Route path="/tempobook/*" />
+            <Route path="/tempobook/*" element={<div />} />
           )}
+
+          {/* Fallback 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+        <FloatingWhatsApp />
       </Suspense>
     </CarrosserieContext.Provider>
   );
