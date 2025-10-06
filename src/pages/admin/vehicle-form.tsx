@@ -2,8 +2,10 @@ import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { z } from "zod";
-import slugify from "slugify";
+import { slugify } from "@/lib/slug";
+import { extractEquipments } from "@/lib/extractEquipments";
 import { supabase } from "@/lib/supabase";
+import { BrandLogo } from "@/lib/BrandLogo";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,32 +70,42 @@ type VehicleFormData = z.infer<typeof vehicleSchema>;
 
 // Common brands with logos
 const BRANDS = [
-  { name: "Audi", logo: "🅰️" },
-  { name: "BMW", logo: "🔵" },
-  { name: "Mercedes", logo: "⭐" },
-  { name: "Volkswagen", logo: "🚗" },
-  { name: "Peugeot", logo: "🦁" },
-  { name: "Renault", logo: "🔶" },
-  { name: "Citroën", logo: "🔺" },
-  { name: "Toyota", logo: "🔴" },
-  { name: "Honda", logo: "🅷" },
-  { name: "Ford", logo: "🔵" },
-  { name: "Opel", logo: "⚡" },
-  { name: "Nissan", logo: "🔴" },
-  { name: "Hyundai", logo: "🅷" },
-  { name: "Kia", logo: "🅺" },
-  { name: "Mazda", logo: "Ⓜ️" },
-  { name: "Seat", logo: "🅢" },
-  { name: "Skoda", logo: "🅢" },
-  { name: "Volvo", logo: "🔷" },
-  { name: "Fiat", logo: "🔴" },
-  { name: "Mini", logo: "🔴" },
-  { name: "Alfa Romeo", logo: "🐍" },
-  { name: "Jeep", logo: "🚙" },
-  { name: "Land Rover", logo: "🟢" },
-  { name: "Porsche", logo: "🏁" },
-  { name: "Tesla", logo: "⚡" },
-];
+  "Alfa Romeo",
+  "Aston Martin",
+  "Audi",
+  "BMW",
+  "Citroën",
+  "Dacia",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Honda",
+  "Hyundai",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Lamborghini",
+  "Land Rover",
+  "Lexus",
+  "Maserati",
+  "Mazda",
+  "Mercedes Benz",
+  "Mini",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Renault",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Tesla",
+  "Toyota",
+  "Volkswagen",
+  "Volvo",
+] as const;
 
 // Equipment options
 const EQUIPMENT_OPTIONS = [
@@ -291,33 +303,44 @@ export default function VehicleForm() {
   // Upload images to Supabase
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const bucket = "vehicle-images";
-    const folder = crypto.randomUUID();
+    const userId = crypto.randomUUID(); // Generate unique folder ID
 
     try {
       const urls = await Promise.all(
         files.slice(0, 12).map(async (file, i) => {
-          const path = `${folder}/${i}_${file.name}`;
-          const { error } = await supabase.storage
+          // Use unique path without leading slash
+          const path = `${userId}/${crypto.randomUUID()}-${file.name}`;
+          
+          const { data, error } = await supabase.storage
             .from(bucket)
-            .upload(path, file, { upsert: true });
+            .upload(path, file, { 
+              cacheControl: '3600',
+              upsert: true, // Prevents "resource already exists" errors
+              contentType: file.type || 'application/octet-stream',
+            });
 
           if (error) {
+            console.error('SUPABASE UPLOAD ERROR:', error);
             toast({
               title: "❌ Échec upload",
-              description: `Échec upload photo ${i + 1} / ${files.length}`,
+              description: `Erreur photo ${i + 1}: ${error.message}`,
               variant: "destructive",
             });
             throw error;
           }
 
-          return supabase.storage.from(bucket).getPublicUrl(path).data
-            .publicUrl;
+          const { data: publicUrlData } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(path);
+            
+          return publicUrlData.publicUrl;
         }),
       );
 
       return urls;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      console.error('SUPABASE UPLOAD ERROR:', error);
+      throw new Error(error?.message || 'Upload failed');
     }
   };
 
@@ -327,7 +350,9 @@ export default function VehicleForm() {
     setErrors({});
 
     try {
-      // Upload images first
+      setIsSubmitting(true);
+
+      // Upload images first with proper error handling
       const imageUrls = await uploadImages(images.map((img) => img.file));
 
       // Validate form data
@@ -339,11 +364,15 @@ export default function VehicleForm() {
       setIsSubmitting(true);
 
       // Generate slug
-      const baseSlug = slugify(
-        `${validatedData.marque}-${validatedData.modele}-${validatedData.annee}`,
-        { lower: true },
+      const slug = slugify(
+        `${validatedData.marque}-${validatedData.modele}-${Date.now()}`,
       );
-      const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 6)}`;
+      const equip = [
+        ...new Set([
+          ...(validatedData.equipements || []),
+          ...extractEquipments(validatedData.description || ""),
+        ]),
+      ];
 
       // Create title
       const title = `${validatedData.marque} ${validatedData.modele} ${validatedData.annee}`;
@@ -357,6 +386,8 @@ export default function VehicleForm() {
           model: validatedData.modele,
           year: validatedData.annee,
           mileage: validatedData.kilometrage,
+          km: validatedData.kilometrage,
+          fuel: validatedData.carburant,
           energy: validatedData.carburant,
           gearbox: validatedData.boite,
           price: validatedData.prix,
@@ -364,6 +395,7 @@ export default function VehicleForm() {
           description: validatedData.description,
           images: validatedData.images,
           options: validatedData.equipements,
+          equipments: equip,
           status: publishNow ? "published" : "draft",
           created_at: new Date().toISOString(),
         },
@@ -381,6 +413,8 @@ export default function VehicleForm() {
 
       navigate("/admin/vehicles");
     } catch (error: any) {
+      console.error('FORM SUBMISSION ERROR:', error);
+      
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -390,14 +424,12 @@ export default function VehicleForm() {
         });
         setErrors(fieldErrors);
 
-        // Toast for validation errors
         toast({
           title: "❌ Erreur de validation",
           description: "Veuillez corriger les champs en rouge",
           variant: "destructive",
         });
 
-        // Scroll to first error
         setTimeout(() => {
           firstErrorRef.current?.scrollIntoView({
             behavior: "smooth",
@@ -407,7 +439,7 @@ export default function VehicleForm() {
       } else {
         toast({
           title: "❌ Erreur",
-          description: `Erreur : ${error.message}`,
+          description: error?.message || 'Une erreur est survenue',
           variant: "destructive",
         });
       }
@@ -543,28 +575,46 @@ export default function VehicleForm() {
                     Marque *
                     <Info size={12} className="text-gray-400" />
                   </Label>
-                  <Select
-                    value={formData.marque}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, marque: value }))
-                    }
-                  >
-                    <SelectTrigger
-                      className={errors.marque ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Sélectionner une marque" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BRANDS.map((brand) => (
-                        <SelectItem key={brand.name} value={brand.name}>
-                          <div className="flex items-center gap-2">
-                            <span>{brand.logo}</span>
-                            <span>{brand.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-3 items-center">
+                    <div className="relative flex-1">
+                      <select
+                        id="marque"
+                        value={formData.marque || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            marque: e.target.value,
+                          }))
+                        }
+                        className={`w-full appearance-none border rounded pl-3 pr-8 py-2 bg-white dark:bg-zinc-900 dark:border-zinc-700 focus:ring-2 focus:ring-red-600 ${
+                          errors.marque ? "border-red-500" : "border-gray-300"
+                        }`}
+                      >
+                        <option value="" disabled hidden>
+                          — Sélectionne la marque —
+                        </option>
+                        {BRANDS.map((brand) => (
+                          <option key={brand} value={brand}>
+                            {brand}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Chevron */}
+                      <svg
+                        className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M6 8l4 4 4-4" />
+                      </svg>
+                    </div>
+
+                    {/* aperçu en live à droite du sélecteur */}
+                    <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center border rounded bg-gray-50">
+                      <BrandLogo brand={formData.marque} size={24} />
+                    </div>
+                  </div>
                   {errors.marque && (
                     <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                       <AlertCircle size={14} />

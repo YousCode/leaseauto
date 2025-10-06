@@ -23,6 +23,15 @@ module.exports = {
         premium: ["Montserrat", "Helvetica Neue", "Arial", "sans-serif"],
       },
       colors: {
+        brand: {
+          primary: "#E50914",
+        },
+        "bg-main": "#0d0d0f",
+        "surface-card": "#1a1a1f",
+        "surface-alt": "#ffffff",
+        "text-primary": "#f5f5f7",
+        accent: "#e10032",
+        "accent-lite": "#ff4060",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

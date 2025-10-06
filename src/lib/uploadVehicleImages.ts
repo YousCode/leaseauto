@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 
 /**
- * Upload all files to the "vehicle-images" bucket under <vehicleId>/<timestamp>_<i>.<ext>
+ * Upload all files to the "vehicle-images" bucket with safe upload pattern
  * Returns an array of public URLs.
  */
 export async function uploadVehicleImages(
@@ -11,67 +11,86 @@ export async function uploadVehicleImages(
   const urls: string[] = [];
 
   for (const [i, file] of files.entries()) {
-    // Vérification du type de fichier
-    if (!file.type.startsWith("image/")) {
-      throw new Error(`Le fichier ${file.name} n'est pas une image valide`);
+    try {
+      // File validation
+      if (!file.type.startsWith("image/")) {
+        throw new Error(`Le fichier ${file.name} n'est pas une image valide`);
+      }
+
+      if (file.size > 6 * 1024 * 1024) { // 6MB limit
+        throw new Error(`Le fichier ${file.name} est trop volumineux (max 6MB)`);
+      }
+
+      // Use unique path without leading slash
+      const path = `${vehicleId}/${crypto.randomUUID()}-${file.name}`;
+      
+      const { data, error } = await supabase.storage
+        .from("vehicle-images")
+        .upload(path, file, {
+          contentType: file.type || 'application/octet-stream',
+          cacheControl: "3600",
+          upsert: true, // Prevents "resource already exists" errors
+        });
+
+      if (error) {
+        console.error('SUPABASE UPLOAD ERROR:', error);
+        throw error;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("vehicle-images")
+        .getPublicUrl(path);
+      urls.push(publicUrlData.publicUrl);
+    } catch (error: any) {
+      console.error('SUPABASE UPLOAD ERROR:', error);
+      throw new Error(error?.message || `Upload failed for ${file.name}`);
     }
-
-    // Vérification de la taille (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      throw new Error(`Le fichier ${file.name} est trop volumineux (max 5MB)`);
-    }
-
-    const ext = file.name.split(".").pop() || "jpg";
-    const path = `${vehicleId}/${Date.now()}_${i}.${ext}`;
-    const { error } = await supabase.storage
-      .from("vehicle-images")
-      .upload(path, file, {
-        contentType: file.type,
-        cacheControl: "43200", // 12 heures
-        upsert: false, // évite l'écrasement
-      });
-
-    if (error) throw error;
-
-    const { data } = supabase.storage.from("vehicle-images").getPublicUrl(path);
-    urls.push(data.publicUrl);
   }
   return urls;
 }
 
 /**
- * Upload a single file to the vehicle-images bucket
+ * Upload a single file to the vehicle-images bucket with safe pattern
  * Returns the public URL
  */
 export async function uploadFile(
   file: File,
   vehicleId: string,
 ): Promise<string> {
-  // Vérification du type de fichier
-  if (!file.type.startsWith("image/")) {
-    throw new Error(`Le fichier ${file.name} n'est pas une image valide`);
+  try {
+    // File validation
+    if (!file.type.startsWith("image/")) {
+      throw new Error(`Le fichier ${file.name} n'est pas une image valide`);
+    }
+
+    if (file.size > 6 * 1024 * 1024) { // 6MB limit
+      throw new Error(`Le fichier ${file.name} est trop volumineux (max 6MB)`);
+    }
+
+    // Use unique path without leading slash
+    const path = `${vehicleId}/${crypto.randomUUID()}-${file.name}`;
+
+    const { data, error } = await supabase.storage
+      .from("vehicle-images")
+      .upload(path, file, {
+        contentType: file.type || 'application/octet-stream',
+        cacheControl: "3600",
+        upsert: true, // Prevents "resource already exists" errors
+      });
+
+    if (error) {
+      console.error('SUPABASE UPLOAD ERROR:', error);
+      throw error;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("vehicle-images")
+      .getPublicUrl(path);
+    return publicUrlData.publicUrl;
+  } catch (error: any) {
+    console.error('SUPABASE UPLOAD ERROR:', error);
+    throw new Error(error?.message || `Upload failed for ${file.name}`);
   }
-
-  // Vérification de la taille (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error(`Le fichier ${file.name} est trop volumineux (max 5MB)`);
-  }
-
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${vehicleId}/${Date.now()}-${file.name}`;
-
-  const { error } = await supabase.storage
-    .from("vehicle-images")
-    .upload(path, file, {
-      contentType: file.type,
-      cacheControl: "43200", // 12 heures
-      upsert: false,
-    });
-
-  if (error) throw error;
-
-  const { data } = supabase.storage.from("vehicle-images").getPublicUrl(path);
-  return data.publicUrl;
 }
 
 /**

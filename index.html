@@ -4,46 +4,62 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lease Auto - Véhicules Premium en Leasing</title>
-
-    <!-- DNS Prefetch & Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://images.unsplash.com" />
-
-    <!-- Font Preloading -->
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap"
-    />
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap"
-    />
-
-    <!-- Load fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Preload hero video -->
-    <link
-      rel="preload"
-      as="video"
-      href="/videos/hero-video.mp4"
-      type="video/mp4"
-    />
+    <title>Vite + React + TS</title>
+    <script>
+      // Suppress Tempo devtools CSS warnings immediately
+      (function() {
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const originalLog = console.log;
+        
+        const suppressPatterns = [
+          'extractCssCustomProperties',
+          'cssRules',
+          'SecurityError',
+          'Cannot access rules',
+          'tempo.build/devtools',
+          'CSSStyleSheet',
+          'MessagePort.i',
+          'Failed to read the \'cssRules\' property'
+        ];
+        
+        const shouldSuppress = (message) => {
+          return suppressPatterns.some(pattern => 
+            String(message).includes(pattern)
+          );
+        };
+        
+        console.error = function(...args) {
+          if (!args.some(arg => shouldSuppress(arg))) {
+            originalError.apply(console, args);
+          }
+        };
+        
+        console.warn = function(...args) {
+          if (!args.some(arg => shouldSuppress(arg))) {
+            originalWarn.apply(console, args);
+          }
+        };
+        
+        console.log = function(...args) {
+          if (!args.some(arg => shouldSuppress(arg))) {
+            originalLog.apply(console, args);
+          }
+        };
+        
+        // Suppress window errors
+        window.addEventListener('error', function(e) {
+          if (shouldSuppress(e.message)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script src="https://api.tempolabs.ai/proxy-asset?url=https://storage.googleapis.com/tempo-public-assets/error-handling.js"></script>
   </body>
 </html>

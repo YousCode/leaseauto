@@ -26,6 +26,62 @@ export type Database = {
         }
         Relationships: []
       }
+      makes: {
+        Row: {
+          created_at: string | null
+          id: number
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      models: {
+        Row: {
+          created_at: string | null
+          first_year: number | null
+          id: number
+          last_year: number | null
+          make_id: number | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          first_year?: number | null
+          id?: number
+          last_year?: number | null
+          make_id?: number | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          first_year?: number | null
+          id?: number
+          last_year?: number | null
+          make_id?: number | null
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "models_make_id_fkey"
+            columns: ["make_id"]
+            isOneToOne: false
+            referencedRelation: "makes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_options: {
         Row: {
           id: number
@@ -45,70 +101,109 @@ export type Database = {
         Row: {
           brand: string | null
           city: string | null
+          co2_emissions: number | null
           color: string | null
+          consumption_mixed: number | null
           created_at: string | null
+          critair: number | null
           description: string | null
+          dimensions: Json | null
+          doors: number | null
           energy: string | null
+          first_owner: boolean | null
           gearbox: string | null
           id: string
           images: string[] | null
+          location_lat: number | null
+          location_lng: number | null
           mileage: number | null
           model: string | null
           monthly: number | null
           options: string[] | null
           owner_id: string | null
+          power_din: number | null
+          power_fiscal: number | null
           price: number | null
           search: unknown | null
+          seller_info: Json | null
+          seller_type: string | null
           slug: string | null
           status: string | null
           title: string | null
           updated_at: string | null
+          weight: number | null
           year: number | null
         }
         Insert: {
           brand?: string | null
           city?: string | null
+          co2_emissions?: number | null
           color?: string | null
+          consumption_mixed?: number | null
           created_at?: string | null
+          critair?: number | null
           description?: string | null
+          dimensions?: Json | null
+          doors?: number | null
           energy?: string | null
+          first_owner?: boolean | null
           gearbox?: string | null
           id?: string
           images?: string[] | null
+          location_lat?: number | null
+          location_lng?: number | null
           mileage?: number | null
           model?: string | null
           monthly?: number | null
           options?: string[] | null
           owner_id?: string | null
+          power_din?: number | null
+          power_fiscal?: number | null
           price?: number | null
           search?: unknown | null
+          seller_info?: Json | null
+          seller_type?: string | null
           slug?: string | null
           status?: string | null
           title?: string | null
           updated_at?: string | null
+          weight?: number | null
           year?: number | null
         }
         Update: {
           brand?: string | null
           city?: string | null
+          co2_emissions?: number | null
           color?: string | null
+          consumption_mixed?: number | null
           created_at?: string | null
+          critair?: number | null
           description?: string | null
+          dimensions?: Json | null
+          doors?: number | null
           energy?: string | null
+          first_owner?: boolean | null
           gearbox?: string | null
           id?: string
           images?: string[] | null
+          location_lat?: number | null
+          location_lng?: number | null
           mileage?: number | null
           model?: string | null
           monthly?: number | null
           options?: string[] | null
           owner_id?: string | null
+          power_din?: number | null
+          power_fiscal?: number | null
           price?: number | null
           search?: unknown | null
+          seller_info?: Json | null
+          seller_type?: string | null
           slug?: string | null
           status?: string | null
           title?: string | null
           updated_at?: string | null
+          weight?: number | null
           year?: number | null
         }
         Relationships: []
@@ -118,6 +213,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_monthly_payment: {
+        Args: {
+          price: number
+          down_payment?: number
+          duration_months?: number
+          interest_rate?: number
+        }
+        Returns: number
+      }
       gtrgm_compress: {
         Args: { "": unknown }
         Returns: unknown
@@ -137,6 +241,26 @@ export type Database = {
       gtrgm_out: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      search_vehicles: {
+        Args: { search_query: string }
+        Returns: {
+          id: string
+          title: string
+          brand: string
+          model: string
+          year: number
+          price: number
+          monthly: number
+          images: string[]
+          slug: string
+          mileage: number
+          energy: string
+          gearbox: string
+          city: string
+          created_at: string
+          rank: number
+        }[]
       }
       set_limit: {
         Args: { "": number }

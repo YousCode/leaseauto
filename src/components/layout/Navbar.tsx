@@ -1,16 +1,14 @@
 import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Palette, Instagram } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useScrollRaf } from "@/hooks/useScrollRaf";
-import { useCarrosserie } from "@/App";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { theme, setTheme } = useCarrosserie();
 
   const handleScroll = useCallback((scrollY: number) => {
     setIsScrolled(scrollY > 10);
@@ -37,34 +35,13 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full h-16 fixed top-0 z-50 overflow-hidden">
-      {/* Carrosserie background effect */}
-      <div className="absolute inset-0">
-        <div
-          className={`h-full w-full transition-all duration-300 ${
-            theme === "glossy"
-              ? "carrosserie-glossy carrosserie-glossy-shadow"
-              : "carrosserie-matte carrosserie-matte-shadow"
-          } ${isScrolled ? "opacity-95" : "opacity-80"}`}
-        />
-
-        {/* Noise texture overlay */}
-        <div
-          className={`absolute inset-0 carrosserie-noise ${
-            theme === "glossy"
-              ? "opacity-15 mix-blend-overlay"
-              : "opacity-5 mix-blend-multiply"
-          }`}
-        />
-
-        {/* Animated shine for glossy theme */}
-        {theme === "glossy" && (
-          <div className="absolute inset-0 carrosserie-shine" />
-        )}
-      </div>
-
+    <nav className={`w-full h-16 fixed top-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? "bg-gray-900/95 backdrop-blur-md shadow-lg" 
+        : "bg-gray-900/90 backdrop-blur-sm"
+    }`}>
       {/* Content */}
-      <div className="relative flex items-center justify-between px-6 md:px-12 h-full">
+      <div className="flex items-center justify-between px-6 md:px-12 h-full max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -76,13 +53,13 @@ const Navbar = () => {
               navigate("/");
               setTimeout(() => scrollToSection("hero"), 100);
             }}
-            className="text-xl font-premium font-light text-white tracking-wide hover:scale-105 transition-transform duration-300"
+            className="text-2xl font-bold text-white tracking-tight hover:scale-105 transition-transform duration-300"
           >
-            Lease<span className="text-[#E50914]">Auto</span>
+            Lease<span className="text-red-500">Auto</span>
           </button>
         </motion.div>
 
-        <div className="hidden md:flex items-center space-x-10">
+        <div className="hidden md:flex items-center space-x-8">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -93,10 +70,10 @@ const Navbar = () => {
                 navigate("/");
                 setTimeout(() => scrollToSection("hero"), 100);
               }}
-              className="text-white/90 hover:text-white transition-all duration-300 font-light font-inter relative group text-sm tracking-wide"
+              className="text-white/90 hover:text-white transition-all duration-300 font-medium relative group"
             >
               <span className="relative z-10">Accueil</span>
-              <span className="absolute bottom-0 left-0 w-0 h-px bg-[#E50914] transition-all duration-500 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 transition-all duration-300 group-hover:w-full"></span>
             </button>
           </motion.div>
 
@@ -107,10 +84,10 @@ const Navbar = () => {
           >
             <Link
               to="/vehicules"
-              className="text-white/90 hover:text-white transition-all duration-300 font-light font-inter relative group text-sm tracking-wide"
+              className="text-white/90 hover:text-white transition-all duration-300 font-medium relative group"
             >
               <span className="relative z-10">Véhicules</span>
-              <span className="absolute bottom-0 left-0 w-0 h-px bg-[#E50914] transition-all duration-500 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </motion.div>
 
@@ -121,10 +98,10 @@ const Navbar = () => {
           >
             <button
               onClick={() => scrollToSection("services")}
-              className="text-white/90 hover:text-white transition-all duration-300 font-light font-inter relative group text-sm tracking-wide"
+              className="text-white/90 hover:text-white transition-all duration-300 font-medium relative group"
             >
               <span className="relative z-10">Services</span>
-              <span className="absolute bottom-0 left-0 w-0 h-px bg-[#E50914] transition-all duration-500 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 transition-all duration-300 group-hover:w-full"></span>
             </button>
           </motion.div>
 
@@ -135,10 +112,10 @@ const Navbar = () => {
           >
             <button
               onClick={() => scrollToSection("about")}
-              className="text-white/90 hover:text-white transition-all duration-300 font-light font-inter relative group text-sm tracking-wide"
+              className="text-white/90 hover:text-white transition-all duration-300 font-medium relative group"
             >
               <span className="relative z-10">À Propos</span>
-              <span className="absolute bottom-0 left-0 w-0 h-px bg-[#E50914] transition-all duration-500 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 transition-all duration-300 group-hover:w-full"></span>
             </button>
           </motion.div>
 
@@ -149,40 +126,15 @@ const Navbar = () => {
           >
             <button
               onClick={() => scrollToSection("contact")}
-              className="text-white/90 hover:text-white transition-all duration-300 font-light font-inter relative group text-sm tracking-wide"
+              className="text-white/90 hover:text-white transition-all duration-300 font-medium relative group"
             >
               <span className="relative z-10">Contact</span>
-              <span className="absolute bottom-0 left-0 w-0 h-px bg-[#E50914] transition-all duration-500 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 transition-all duration-300 group-hover:w-full"></span>
             </button>
           </motion.div>
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* Instagram link */}
-          <motion.a
-            href="https://www.instagram.com/leaseauto.epinay"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Instagram Lease Auto"
-            className="hidden md:flex text-white/70 hover:text-[#E50914] transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Instagram size={20} />
-          </motion.a>
-
-          {/* Theme toggle button */}
-          <motion.button
-            onClick={() => setTheme(theme === "glossy" ? "matte" : "glossy")}
-            className="hidden md:flex items-center space-x-2 text-white/70 hover:text-white transition-colors duration-300 text-xs font-inter"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title={`Passer en mode ${theme === "glossy" ? "mat" : "brillant"}`}
-          >
-            <Palette size={16} />
-            <span>{theme === "glossy" ? "Mat" : "Brillant"}</span>
-          </motion.button>
-
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -191,7 +143,7 @@ const Navbar = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={() => scrollToSection("contact")}
-                className="bg-[#E50914] hover:bg-[#E50914]/90 text-white font-light font-inter hidden md:inline-flex transition-all duration-300 px-6 py-2 text-sm tracking-wide rounded-sm border border-[#E50914]/20"
+                className="bg-red-600 hover:bg-red-700 text-white font-medium hidden md:inline-flex transition-all duration-300 px-6 py-2 rounded-lg shadow-md hover:shadow-lg"
               >
                 Demander un Devis
               </Button>
@@ -199,7 +151,7 @@ const Navbar = () => {
           </motion.div>
 
           <button
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white/90 p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -210,102 +162,64 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 top-16 z-40">
-          {/* Mobile menu background with carrosserie effect */}
-          <div className="absolute inset-0">
-            <div
-              className={`h-full w-full ${
-                theme === "glossy"
-                  ? "carrosserie-glossy carrosserie-glossy-shadow"
-                  : "carrosserie-matte carrosserie-matte-shadow"
-              }`}
-            />
-            <div
-              className={`absolute inset-0 carrosserie-noise ${
-                theme === "glossy"
-                  ? "opacity-15 mix-blend-overlay"
-                  : "opacity-5 mix-blend-multiply"
-              }`}
-            />
-          </div>
+          <div className="bg-gray-900/95 backdrop-blur-md h-full">
+            <div className="p-6">
+              <div className="flex flex-col space-y-6">
+                <button
+                  onClick={() => {
+                    navigate("/");
+                    setTimeout(() => scrollToSection("hero"), 100);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
+                >
+                  Accueil
+                </button>
+                <Link
+                  to="/vehicules"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left block"
+                >
+                  Véhicules
+                </Link>
+                <button
+                  onClick={() => {
+                    scrollToSection("services");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
+                >
+                  Services
+                </button>
+                <button
+                  onClick={() => {
+                    scrollToSection("about");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
+                >
+                  À Propos
+                </button>
+                <button
+                  onClick={() => {
+                    scrollToSection("contact");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
+                >
+                  Contact
+                </button>
 
-          <div className="relative p-4">
-            <div className="flex flex-col space-y-4">
-              <button
-                onClick={() => {
-                  navigate("/");
-                  setTimeout(() => scrollToSection("hero"), 100);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-white hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
-              >
-                Accueil
-              </button>
-              <Link
-                to="/vehicules"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left block"
-              >
-                Véhicules
-              </Link>
-              <button
-                onClick={() => {
-                  scrollToSection("services");
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-white hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
-              >
-                Services
-              </button>
-              <button
-                onClick={() => {
-                  scrollToSection("about");
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-white hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
-              >
-                À Propos
-              </button>
-              <button
-                onClick={() => {
-                  scrollToSection("contact");
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-white hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
-              >
-                Contact
-              </button>
-              {/* Mobile theme toggle */}
-              <a
-                href="https://www.instagram.com/leaseauto.epinay"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram Lease Auto"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-2 text-white/70 hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
-              >
-                <Instagram size={20} />
-                <span>Instagram</span>
-              </a>
-              <button
-                onClick={() => {
-                  setTheme(theme === "glossy" ? "matte" : "glossy");
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center space-x-2 text-white/70 hover:text-[#E50914] transition-colors font-medium py-3 border-b border-gray-800 text-left"
-              >
-                <Palette size={20} />
-                <span>Mode {theme === "glossy" ? "Mat" : "Brillant"}</span>
-              </button>
-
-              <Button
-                className="bg-[#E50914] hover:bg-[#E50914]/90 text-white font-medium w-full mt-4"
-                onClick={() => {
-                  scrollToSection("contact");
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                Demander un Devis
-              </Button>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium w-full mt-4 rounded-lg shadow-md"
+                  onClick={() => {
+                    scrollToSection("contact");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Demander un Devis
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -3,11 +3,13 @@ import { MapPin, Calendar, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 import LazyImage from "@/components/ui/LazyImage";
+import { BrandLogo } from "@/lib/BrandLogo";
 
 export interface VehicleCardProps {
   slug?: string;
   image?: string;
   name?: string;
+  brand?: string;
   price?: string;
   monthly?: string;
   city?: string;
@@ -19,6 +21,7 @@ const VehicleCard = ({
   slug = "toyota-corolla-touring-18-hybrid-sports-active",
   image = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=640&q=80",
   name = "TOYOTA COROLLA TOURING 1.8i 122 HK HYBRID SPORTS ACTIVE",
+  brand = "Toyota",
   price = "22990",
   monthly = "405",
   city = "Épinay-sur-Seine 93800",
@@ -61,10 +64,13 @@ const VehicleCard = ({
 
       {/* contenu */}
       <div className="flex flex-1 flex-col gap-3 px-4 py-5">
-        {/* titre */}
-        <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 font-inter leading-tight">
-          {name}
-        </h3>
+        {/* titre avec logo */}
+        <div className="flex items-start gap-2 mb-1">
+          <BrandLogo brand={brand} size={20} className="flex-shrink-0 mt-0.5" />
+          <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 font-inter leading-tight flex-1">
+            {name}
+          </h3>
+        </div>
 
         {/* prix */}
         <div className="flex flex-wrap items-baseline gap-2">

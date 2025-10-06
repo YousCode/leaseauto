@@ -79,19 +79,23 @@ export default function AdminVehicles() {
   };
 
   const askDelete = async (id: string) => {
+    if (!confirm("Archiver + supprimer images ?")) return;
+
     try {
       setDeletingId(id);
-      const { data, error } = await supabase.functions.invoke(
+      const { error } = await supabase.functions.invoke(
         "supabase-functions-delete-vehicle",
-        {
-          body: { id },
-        },
+        { body: { id } },
       );
-      if (error) throw error;
-      toast({
-        title: "Succès",
-        description: "Annonce archivée",
-      });
+      if (error) {
+        toast({
+          title: "Erreur de suppression",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({ title: "Annonce supprimée" });
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
     } catch (e) {
       toast({

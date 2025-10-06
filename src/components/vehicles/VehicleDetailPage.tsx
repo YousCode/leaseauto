@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import useEmblaCarousel from "embla-carousel-react";
 import { useVehicleBySlug } from "@/hooks/useVehicleBySlug";
+import { BrandLogo } from "@/lib/getBrandLogo.tsx";
 import {
   ArrowLeft,
   MapPin,
@@ -353,9 +354,16 @@ const VehicleDetailPage = () => {
             {/* Overlay with vehicle info */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8">
               <div className="max-w-4xl">
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  {displayVehicle.brand} {displayVehicle.model}
-                </h1>
+                <div className="flex items-center gap-3 mb-4">
+                  <BrandLogo
+                    brand={displayVehicle.brand}
+                    size={48}
+                    className="text-white"
+                  />
+                  <h1 className="text-3xl md:text-4xl font-bold text-white">
+                    {displayVehicle.brand} {displayVehicle.model}
+                  </h1>
+                </div>
                 <div className="flex flex-wrap items-center gap-4 mb-4">
                   <span className="text-3xl font-bold text-[#E50914]">
                     {displayVehicle.price?.toLocaleString()}€
