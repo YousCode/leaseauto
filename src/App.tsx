@@ -1,15 +1,28 @@
 import { Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useRoutes } from "react-router-dom";
-import routes from "tempo-routes";
+import { Routes, Route, Navigate, useRoutes } from "react-router-dom";
 import Home from "@/components/home";
 import VehicleListing from "@/components/vehicles/VehicleListing";
 import VehicleDetailPage from "@/components/vehicles/VehicleDetailPage";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import AdminVehicleManager from "@/components/admin/AdminVehicleManager";
 import VehicleForm from "@/components/admin/VehicleForm";
+import TempoBooking from "@/components/booking/TempoBooking";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 import { Toaster } from "@/components/ui/toaster";
+
+// Conditional tempo routes import
+function TempoRoutes() {
+  try {
+    if (import.meta.env.VITE_TEMPO === "true") {
+      // Dynamic import for tempo routes
+      const routes = require("tempo-routes").default;
+      return useRoutes(routes);
+    }
+  } catch (e) {
+    // Tempo routes not available, ignore
+  }
+  return null;
+}
 
 function App() {
   return (
@@ -24,6 +37,10 @@ function App() {
         <Routes>
           {/* HOME */}
           <Route path="/" element={<Home />} />
+
+          {/* RÉSERVATION TEMPO - PLEIN ÉCRAN */}
+          <Route path="/reservation" element={<TempoBooking />} />
+          <Route path="/booking" element={<TempoBooking />} />
 
           {/* LISTE PUBLIC */}
           <Route path="/vehicules" element={<VehicleListing />} />
@@ -54,7 +71,7 @@ function App() {
         </Routes>
         
         {/* Tempo routes for storyboards */}
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+        <TempoRoutes />
         
         <FloatingWhatsApp />
         <Toaster />

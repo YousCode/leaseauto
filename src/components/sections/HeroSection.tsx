@@ -1,144 +1,62 @@
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React from "react";
 
-gsap.registerPlugin(ScrollTrigger);
-
-const HeroSection = () => {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const buttonsRef = useRef<HTMLDivElement>(null);
-  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Initial setup - hide elements
-      gsap.set([titleRef.current, subtitleRef.current, buttonsRef.current, scrollIndicatorRef.current], {
-        opacity: 0,
-        y: 50
-      });
-
-      // Create timeline for hero entrance
-      const tl = gsap.timeline({ delay: 0.5 });
-
-      // Title animation with split text effect
-      tl.to(titleRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out"
-      })
-      .to(subtitleRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power2.out"
-      }, "-=0.6")
-      .to(buttonsRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "back.out(1.7)"
-      }, "-=0.4")
-      .to(scrollIndicatorRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, "-=0.2");
-
-      // Floating animation for buttons
-      gsap.to(buttonsRef.current?.children, {
-        y: -5,
-        duration: 2,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut",
-        stagger: 0.2
-      });
-
-      // Parallax effect for video
-      gsap.to(".hero-video", {
-        yPercent: -30,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
-      });
-
-      // Scroll indicator pulse
-      gsap.to(scrollIndicatorRef.current, {
-        scale: 1.1,
-        duration: 1.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut"
-      });
-
-    }, heroRef);
-
-    return () => ctx.revert();
-  }, []);
-
+export function HeroSection() {
   return (
-    <div ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
-      {/* Background Video */}
+    <section className="relative w-screen h-screen overflow-hidden bg-black">
+      {/* 🎬 Vidéo Vimeo en fond - VRAIMENT plein écran */}
       <div className="absolute inset-0 w-full h-full">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="hero-video w-full h-full object-cover opacity-80"
-        >
-          <source src="/videos/hero-video.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/40"></div>
+        <iframe
+          src="https://player.vimeo.com/video/1125140032?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0"
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          className="absolute pointer-events-none"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: '100vw',
+            height: '56.25vw', // 16:9 aspect ratio
+            minHeight: '100vh',
+            minWidth: '177.78vh', // 16:9 aspect ratio
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1
+          }}
+          title="Lease Auto video background"
+        ></iframe>
       </div>
 
-      {/* Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="max-w-4xl mx-auto">
-          
-          {/* Main Heading */}
-          <h1 ref={titleRef} className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
-            Votre véhicule de
-            <span className="text-red-500"> rêve</span>
-            <br />
-            en leasing premium
-          </h1>
+      {/* 💬 Contenu centré au-dessus de la vidéo */}
+      <div className="relative z-20 flex flex-col items-center justify-center text-center text-white px-4 h-full">
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight drop-shadow-2xl">
+          Votre véhicule de <span className="text-red-500">rêve</span>
+          <br />
+          en leasing premium
+        </h1>
 
-          {/* Subtitle */}
-          <p ref={subtitleRef} className="text-xl md:text-2xl text-gray-200 mb-12 leading-relaxed max-w-3xl mx-auto drop-shadow-md">
-            Découvrez notre collection exclusive de véhicules haut de gamme avec des solutions 
-            de financement flexibles et un service d'exception.
-          </p>
+        <p className="text-lg md:text-xl mt-6 max-w-2xl drop-shadow-xl">
+          Découvrez notre collection exclusive de véhicules haut de gamme
+          avec des solutions de financement flexibles et un service d'exception.
+        </p>
 
-          {/* CTA Buttons */}
-          <div ref={buttonsRef} className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transform hover:scale-105 transition-all duration-200 shadow-2xl">
-              DÉCOUVRIR NOS VÉHICULES
-            </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-black transition-all duration-200 backdrop-blur-sm">
-              DEMANDER UN DEVIS
-            </button>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-4 mt-10">
+          <a 
+            href="/vehicules"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-md uppercase tracking-wide transition-all duration-200 shadow-lg hover:shadow-red-700/40 inline-block"
+          >
+            Découvrir nos véhicules
+          </a>
+
+          <a 
+            href="/reservation"
+            className="border-2 border-white text-white font-semibold py-3 px-8 rounded-md uppercase tracking-wide hover:bg-white hover:text-black transition-all duration-200 shadow-lg hover:shadow-white/40 inline-block"
+          >
+            Réserver maintenant
+          </a>
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <div ref={scrollIndicatorRef} className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white">
-        <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
-};
+}
 
-export { HeroSection };
 export default HeroSection;

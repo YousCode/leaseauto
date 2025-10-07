@@ -1,0 +1,57 @@
+# Large video files
+public/videos/
+dist/videos/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# Build output
+dist/
+.next/
+
+# Development files
+node_modules/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temp files
+*.log
+.DS_Store
+Thumbs.db
+
+# Reference images and large assets
+header-reference.png
+image.png
+*.backup.*
+
+# Storybook and development assets
+src/tempobook/
+tempobook/
+
+# Large dependencies that aren't needed in production
+.nvmrc
+.vscode/
+README.md
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# Source maps (if any)
+*.map
+
+# Test files
+**/*.test.*
+**/*.spec.*
+
+# Git files
+.git/
+
+# Large built assets
+dist/assets/*.js
+dist/assets/*.css
