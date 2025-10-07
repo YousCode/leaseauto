@@ -1,14 +1,10 @@
 {
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "functions": {
-    "app/api/**/*.js": {
-      "maxDuration": 10
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  },
+  ],
   "headers": [
     {
       "source": "/(.*)",
