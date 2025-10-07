@@ -200,7 +200,14 @@ const VehicleDetailPage = () => {
 
   // Fallback to static data if no vehicle found in Supabase
   const fallbackVehicle = PREMIUM_VEHICLES[0];
-  const displayVehicle = vehicle || fallbackVehicle;
+  const displayVehicle = vehicle ? {
+    ...vehicle,
+    images: vehicle.images || fallbackVehicle.images,
+    options: vehicle.options || fallbackVehicle.options,
+    equipment: fallbackVehicle.equipment,
+    history: fallbackVehicle.history,
+    documents: fallbackVehicle.documents,
+  } : fallbackVehicle;
 
   // Calculate monthly payment
   const calculateMonthly = () => {
@@ -233,21 +240,6 @@ const VehicleDetailPage = () => {
     );
   }
 
-  if (error && !fallbackVehicle) {
-    return (
-      <div className="w-full min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Véhicule non trouvé
-          </h1>
-          <Button onClick={() => navigate("/vehicules")}>
-            Retour au catalogue
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   const vehicleImages = displayVehicle.images || [
     "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1280&q=80",
   ];
@@ -262,7 +254,7 @@ const VehicleDetailPage = () => {
     const message = encodeURIComponent(
       `Bonjour, je suis intéressé par le véhicule ${displayVehicle.title} au prix de ${displayVehicle.price?.toLocaleString()}€`,
     );
-    window.open(`https://wa.me/33123456789?text=${message}`, "_blank");
+    window.open(`https://wa.me/33767793106?text=${message}`, "_blank");
   };
 
   const generatePDF = () => {
@@ -299,6 +291,18 @@ const VehicleDetailPage = () => {
       </Helmet>
 
       <div className="w-full bg-white min-h-screen">
+        {/* Back button */}
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/vehicules")}
+            className="mb-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Retour aux véhicules
+          </Button>
+        </div>
+
         {/* Hero Section with Carousel */}
         <div className="relative max-w-screen-xl mx-auto">
           <div className="aspect-video relative overflow-hidden">
@@ -886,7 +890,7 @@ const VehicleDetailPage = () => {
         {/* Sticky Action Bar */}
         <div className="fixed inset-x-0 bottom-0 bg-white/90 backdrop-blur border-t p-4 flex gap-3 z-50">
           <Button
-            onClick={() => window.open("tel:+33123456789", "_self")}
+            onClick={() => window.open("tel:+33767793106", "_self")}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Phone size={18} className="mr-2" />

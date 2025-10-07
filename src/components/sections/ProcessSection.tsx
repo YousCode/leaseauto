@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ProcessSection() {
+const ProcessSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -277,4 +277,7 @@ export default function ProcessSection() {
       </div>
     </div>
   );
-}
+};
+
+export { ProcessSection };
+export default ProcessSection;

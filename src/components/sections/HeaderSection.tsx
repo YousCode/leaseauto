@@ -1,7 +1,7 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
-export default function HeaderSection() {
+const HeaderSection = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
@@ -79,4 +79,7 @@ export default function HeaderSection() {
       </div>
     </header>
   );
-}
+};
+
+export { HeaderSection };
+export default HeaderSection;

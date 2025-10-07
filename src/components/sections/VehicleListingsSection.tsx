@@ -8,80 +8,80 @@ import { useVehicles } from "@/hooks/useVehicles";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
+// Export MOCK_VEHICLES for admin use
+export const MOCK_VEHICLES = [
+  {
+    id: "1",
+    slug: "bmw-x2",
+    image: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=640&q=80",
+    name: "BMW X2 F39 SDRIVE 20iA 192 CH M SPORT",
+    brand: "BMW",
+    model: "X2",
+    price: "26990",
+    monthly: "548",
+    city: "Épinay-sur-Seine 93800",
+    date: "2024-01-15",
+    category: "suv",
+    year: "2022",
+    mileage: 25000,
+    color: "Noir",
+    trim: "M Sport",
+    registration: "AB-123-CD",
+  },
+  {
+    id: "2",
+    slug: "tesla-model-3",
+    image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=640&q=80",
+    name: "TESLA MODEL 3 STANDARD PLUS RWD MY22",
+    brand: "Tesla",
+    model: "Model 3",
+    price: "27990",
+    monthly: "493",
+    city: "Levallois-Perret 92300",
+    date: "2024-01-05",
+    category: "electriques",
+    year: "2022",
+    mileage: 18000,
+    color: "Blanc",
+    trim: "Standard Plus",
+    registration: "EF-456-GH",
+  },
+  {
+    id: "3",
+    slug: "audi-a1",
+    image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=640&q=80",
+    name: "AUDI A1 SPORTBACK 30 TFSI 110 CH ADVANCED",
+    brand: "Audi",
+    model: "A1",
+    price: "26990",
+    monthly: "466",
+    city: "Paris 75017",
+    date: "2024-02-01",
+    category: "citadines",
+    year: "2023",
+    mileage: 12000,
+    color: "Rouge",
+    trim: "Advanced",
+    registration: "IJ-789-KL",
+  },
+];
+
 const VehicleListingsSection = () => {
   const navigate = useNavigate();
   const { data: publishedVehicles = [] } = useVehicles("published");
   const [activeTab, setActiveTab] = useState("all");
 
-  // Fallback static vehicles for demo with categories
-  const staticVehicles: (VehicleCardProps & { category: string })[] = [
-    {
-      slug: "bmw-x2",
-      image:
-        "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=640&q=80",
-      name: "BMW X2 F39 SDRIVE 20iA 192 CH M SPORT",
-      price: "26990",
-      monthly: "548",
-      city: "Épinay-sur-Seine 93800",
-      date: "2024-01-15",
-      category: "suv",
-    },
-    {
-      slug: "tesla-model-3",
-      image:
-        "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=640&q=80",
-      name: "TESLA MODEL 3 STANDARD PLUS RWD MY22",
-      price: "27990",
-      monthly: "493",
-      city: "Levallois-Perret 92300",
-      date: "2024-01-05",
-      category: "electriques",
-    },
-    {
-      slug: "audi-a1",
-      image:
-        "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=640&q=80",
-      name: "AUDI A1 SPORTBACK 30 TFSI 110 CH ADVANCED",
-      price: "26990",
-      monthly: "466",
-      city: "Paris 75017",
-      date: "2024-02-01",
-      category: "citadines",
-    },
-    {
-      slug: "toyota-corolla",
-      image:
-        "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=640&q=80",
-      name: "TOYOTA COROLLA TOURING 1.8 HYBRID SPORTS ACTIVE",
-      price: "22990",
-      monthly: "405",
-      city: "Épinay-sur-Seine 93800",
-      date: "2024-01-20",
-      category: "hybrides",
-    },
-    {
-      slug: "bmw-serie1",
-      image:
-        "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=640&q=80",
-      name: "BMW SÉRIE 1 F40 120i 178 CH M-SPORT DKG7",
-      price: "25990",
-      monthly: "466",
-      city: "Saint-Denis 93200",
-      date: "2024-02-10",
-      category: "citadines",
-    },
-    {
-      slug: "skoda-kodiaq",
-      image:
-        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=640&q=80",
-      name: "SKODA KODIAQ 1.5 TSI 150 CH STYLE DSG7 7 PL",
-      price: "32990",
-      monthly: "596",
-      city: "Argenteuil 95100",
-      date: "2024-02-12",
-      category: "suv",
-    },
-  ];
+  // Use MOCK_VEHICLES as staticVehicles
+  const staticVehicles: (VehicleCardProps & { category: string })[] = MOCK_VEHICLES.map(vehicle => ({
+    slug: vehicle.slug,
+    image: vehicle.image,
+    name: vehicle.name,
+    price: vehicle.price,
+    monthly: vehicle.monthly,
+    city: vehicle.city,
+    date: vehicle.date,
+    category: vehicle.category,
+  }));
 
   // Categorize vehicles based on energy type and model
   const categorizeVehicle = (vehicle: any) => {
@@ -262,4 +262,5 @@ const VehicleListingsSection = () => {
   );
 };
 
+export { VehicleListingsSection };
 export default VehicleListingsSection;

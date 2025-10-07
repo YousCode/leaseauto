@@ -1,6 +1,6 @@
 import { Car, Users, Headphones, Shield, Zap, Award } from "lucide-react";
 
-export default function ServicesSection() {
+const ServicesSection = () => {
   const services = [
     {
       icon: Car,
@@ -135,4 +135,7 @@ export default function ServicesSection() {
       </div>
     </div>
   );
-}
+};
+
+export { ServicesSection };
+export default ServicesSection;

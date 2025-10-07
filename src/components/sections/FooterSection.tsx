@@ -1,6 +1,6 @@
 import { MapPin, Phone, Mail, Clock, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 
-export default function FooterSection() {
+const FooterSection = () => {
   const currentYear = new Date().getFullYear();
 
   const navigationLinks = [
@@ -139,4 +139,7 @@ export default function FooterSection() {
       </div>
     </footer>
   );
-}
+};
+
+export { FooterSection };
+export default FooterSection;

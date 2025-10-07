@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function HeroSection() {
+const HeroSection = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
@@ -138,4 +138,7 @@ export default function HeroSection() {
       </div>
     </div>
   );
-}
+};
+
+export { HeroSection };
+export default HeroSection;
