@@ -45,6 +45,7 @@ import {
   History,
   Calculator,
 } from "lucide-react";
+import HeaderSection from "@/components/sections/HeaderSection";
 
 interface VehicleProps {
   id?: string;
@@ -290,22 +291,25 @@ const VehicleDetailPage = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
-      <div className="w-full bg-white min-h-screen">
+      {/* Header fixe */}
+      <HeaderSection />
+
+      <div className="w-full bg-[#F9FAFB] min-h-screen pt-[72px]">
         {/* Back button */}
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-12 py-4 bg-white">
           <Button
             variant="ghost"
             onClick={() => navigate("/vehicules")}
-            className="mb-4"
+            className="text-[#6B7280] hover:text-[#111111] hover:bg-transparent"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Retour aux véhicules
           </Button>
         </div>
 
-        {/* Hero Section with Carousel */}
-        <div className="relative max-w-screen-xl mx-auto">
-          <div className="aspect-video relative overflow-hidden">
+        {/* Hero Section with Carousel - Compact */}
+        <div className="relative max-w-[1440px] mx-auto bg-white">
+          <div className="aspect-[21/9] max-h-[500px] relative overflow-hidden bg-[#F9FAFB]">
             <div className="embla" ref={emblaRef}>
               <div className="embla__container flex">
                 {vehicleImages.map((image, index) => (
@@ -323,12 +327,12 @@ const VehicleDetailPage = () => {
                       <img
                         src={image}
                         alt={`${displayVehicle.title} - ${index + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.02]"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-500 flex items-center justify-center">
                         <ZoomIn
-                          className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                          size={48}
+                          className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          size={40}
                         />
                       </div>
                     </div>
@@ -337,73 +341,47 @@ const VehicleDetailPage = () => {
               </div>
             </div>
 
-            {/* Navigation buttons */}
+            {/* Navigation buttons - Compact */}
             {vehicleImages.length > 1 && (
               <>
                 <button
                   onClick={() => emblaApi?.scrollPrev()}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-3 transition-all duration-200 shadow-lg"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-[#111111] rounded-full p-2.5 transition-all duration-300 backdrop-blur-sm"
                 >
-                  <ChevronLeft size={24} />
+                  <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={() => emblaApi?.scrollNext()}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-3 transition-all duration-200 shadow-lg"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-[#111111] rounded-full p-2.5 transition-all duration-300 backdrop-blur-sm"
                 >
-                  <ChevronRight size={24} />
+                  <ChevronRight size={20} />
                 </button>
               </>
             )}
 
-            {/* Overlay with vehicle info */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8">
-              <div className="max-w-4xl">
-                <div className="flex items-center gap-3 mb-4">
-                  <BrandLogo
-                    brand={displayVehicle.brand}
-                    size={48}
-                    className="text-white"
-                  />
-                  <h1 className="text-3xl md:text-4xl font-bold text-white">
-                    {displayVehicle.brand} {displayVehicle.model}
-                  </h1>
-                </div>
-                <div className="flex flex-wrap items-center gap-4 mb-4">
-                  <span className="text-3xl font-bold text-[#E50914]">
-                    {displayVehicle.price?.toLocaleString()}€
-                  </span>
-                  <span className="text-xl text-white/80">
-                    {displayVehicle.monthly}€/mois
-                  </span>
-                  <Badge
-                    className={`${
-                      displayVehicle.status === "Disponible"
-                        ? "bg-green-500 text-white"
-                        : "bg-orange-500 text-white"
-                    }`}
-                  >
-                    {displayVehicle.status || "Disponible"}
-                  </Badge>
-                </div>
-                <div className="flex items-center text-white/80">
-                  <MapPin size={16} className="mr-2" />
-                  <span>{displayVehicle.city}</span>
-                </div>
-              </div>
-            </div>
+            {/* Fullscreen button */}
+            <button
+              onClick={() => {
+                setLightboxIndex(selectedIndex);
+                setLightboxOpen(true);
+              }}
+              className="absolute top-4 right-4 bg-white/80 hover:bg-white text-[#111111] rounded-lg p-2.5 transition-all duration-300 backdrop-blur-sm"
+            >
+              <ZoomIn size={18} />
+            </button>
           </div>
 
-          {/* Thumbnails */}
+          {/* Thumbnails - Compact */}
           {vehicleImages.length > 1 && (
-            <div className="flex gap-2 p-4 overflow-x-auto">
+            <div className="flex gap-2 p-4 overflow-x-auto bg-white border-b border-[#E5E7EB]">
               {vehicleImages.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => emblaApi?.scrollTo(index)}
-                  className={`flex-shrink-0 w-20 h-12 rounded overflow-hidden border-2 transition-all duration-200 ${
+                  className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border transition-all duration-300 ${
                     index === selectedIndex
-                      ? "border-[#E50914]"
-                      : "border-gray-300 hover:border-gray-400"
+                      ? "border-[#111111] border-2 shadow-md"
+                      : "border-[#E5E7EB] hover:border-[#6B7280]"
                   }`}
                 >
                   <img
@@ -419,7 +397,7 @@ const VehicleDetailPage = () => {
 
         {/* Lightbox Dialog */}
         <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-          <DialogContent className="max-w-6xl w-full p-0 bg-black">
+          <DialogContent className="max-w-7xl w-full p-0 bg-black">
             <div className="relative">
               <img
                 src={vehicleImages[lightboxIndex]}
@@ -456,525 +434,404 @@ const VehicleDetailPage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* About this vehicle */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Car className="text-[#E50914]" size={20} />À propos de ce
-                    véhicule
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Année</span>
-                      <span className="font-semibold">
+        {/* Main Content - BMW Grid Layout */}
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-12 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left Column - 8/12 */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* Vehicle Title Card - Compact */}
+              <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <BrandLogo
+                    brand={displayVehicle.brand}
+                    size={40}
+                    className="text-[#111111]"
+                  />
+                  <div>
+                    <h1 className="text-xl font-bold text-[#111111] uppercase tracking-wide">
+                      {displayVehicle.brand} {displayVehicle.model}
+                    </h1>
+                    <p className="text-sm text-[#6B7280] mt-0.5">
+                      {displayVehicle.version}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-[#6B7280] text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin size={14} />
+                    <span>Disponible à {displayVehicle.city}</span>
+                  </div>
+                  <Badge
+                    className="bg-gray-100 text-gray-700 border border-gray-200 text-xs"
+                  >
+                    {displayVehicle.status || "Neuf"}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* À propos de ce véhicule - Compact */}
+              <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#E5E7EB]">
+                  <Car className="text-[#111111]" size={18} />
+                  <h2 className="text-base font-semibold text-[#111111]">
+                    À propos de ce véhicule
+                  </h2>
+                </div>
+
+                {/* Specifications Grid - BMW 2 columns */}
+                <div className="p-6">
+                  <div className="grid grid-cols-2 gap-x-8">
+                    {/* Row 1 */}
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Année</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.year}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Kilométrage</span>
-                      <span className="font-semibold">
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Kilométrage</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.mileage?.toLocaleString()} km
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Puiss. DIN</span>
-                      <span className="font-semibold">
+
+                    {/* Row 2 */}
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Puissance DIN</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.power || displayVehicle.dinPower} ch
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Puiss. fiscale</span>
-                      <span className="font-semibold">
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Puissance fiscale</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.fiscalPower} CV
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Énergie</span>
-                      <span className="font-semibold">
+
+                    {/* Row 3 */}
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Énergie</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.energy}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Boîte</span>
-                      <span className="font-semibold">
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Boîte</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.gearbox}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Couleur</span>
-                      <span className="font-semibold">
+
+                    {/* Row 4 */}
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Couleur</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.color}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Crit'Air</span>
-                      <span className="font-semibold">
+                    <div className="flex items-center justify-between py-3 border-b border-[#E5E7EB]">
+                      <span className="text-[#6B7280] text-sm">Crit'Air</span>
+                      <span className="font-semibold text-[#111111] text-sm">
                         {displayVehicle.critAir || "1"}
                       </span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Detailed Tabs */}
-              <Tabs defaultValue="description" className="w-full">
-                <TabsList className="grid w-full grid-cols-5">
-                  <TabsTrigger value="description">
-                    <FileText size={16} className="mr-1" />
+              {/* Description Section - Compact */}
+              <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#E5E7EB]">
+                  <FileText className="text-[#111111]" size={18} />
+                  <h2 className="text-base font-semibold text-[#111111]">
                     Description
-                  </TabsTrigger>
-                  <TabsTrigger value="equipment">
-                    <Settings size={16} className="mr-1" />
+                  </h2>
+                </div>
+                <div className="p-6">
+                  <div
+                    className="prose prose-sm max-w-none text-[#6B7280] leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: renderMarkdown(
+                        displayVehicle.description ||
+                          "Description détaillée du véhicule.",
+                      ),
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Equipment Section - Compact */}
+              <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#E5E7EB]">
+                  <Settings className="text-[#111111]" size={18} />
+                  <h2 className="text-base font-semibold text-[#111111]">
                     Équipements
-                  </TabsTrigger>
-                  <TabsTrigger value="history">
-                    <History size={16} className="mr-1" />
-                    Historique
-                  </TabsTrigger>
-                  <TabsTrigger value="financing">
-                    <Calculator size={16} className="mr-1" />
-                    Financement
-                  </TabsTrigger>
-                  <TabsTrigger value="documents">
-                    <FileText size={16} className="mr-1" />
-                    Documents
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="description" className="mt-6">
-                  <Card>
-                    <CardContent className="pt-6">
+                  </h2>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    {(displayVehicle.options || []).map((option, index) => (
                       <div
-                        className="prose max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: renderMarkdown(
-                            displayVehicle.description ||
-                              "Description détaillée du véhicule.",
-                          ),
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                        key={index}
+                        className="flex items-center gap-2.5 p-3 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]"
+                      >
+                        <CheckCircle
+                          size={16}
+                          className="text-[#111111] flex-shrink-0"
+                        />
+                        <span className="text-[#111111] text-sm">
+                          {option}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-                <TabsContent value="equipment" className="mt-6">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {(displayVehicle.options || []).map((option, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center p-3 bg-green-50 rounded-lg"
-                          >
-                            <CheckCircle
-                              size={16}
-                              className="mr-3 text-green-600"
+              {/* History Section - Compact */}
+              {displayVehicle.history && displayVehicle.history.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#E5E7EB]">
+                    <History className="text-[#111111]" size={18} />
+                    <h2 className="text-base font-semibold text-[#111111]">
+                      Historique du véhicule
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <ol className="relative border-l-2 border-[#E5E7EB]">
+                      {displayVehicle.history.map((event, index) => (
+                        <li key={index} className="mb-8 ml-6 last:mb-0">
+                          <span className="absolute flex items-center justify-center w-6 h-6 bg-[#111111] rounded-full -left-3 ring-4 ring-white">
+                            <Clock className="w-3 h-3 text-white" />
+                          </span>
+                          <h3 className="text-sm font-semibold text-[#111111] mb-1">
+                            {event.event}
+                          </h3>
+                          <time className="block mb-1.5 text-xs text-[#6B7280]">
+                            {new Date(event.date).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric"
+                            })}
+                          </time>
+                          {event.details && (
+                            <p className="text-sm text-[#6B7280] leading-relaxed">
+                              {event.details}
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+              )}
+
+              {/* Documents Section - Compact */}
+              {displayVehicle.documents && displayVehicle.documents.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#E5E7EB]">
+                    <FileText className="text-[#111111]" size={18} />
+                    <h2 className="text-base font-semibold text-[#111111]">
+                      Documents
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-2.5">
+                      {displayVehicle.documents.map((doc, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB] hover:bg-white transition-colors duration-200"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <FileText
+                              className="text-[#6B7280]"
+                              size={18}
                             />
-                            <span className="text-green-800 font-medium">
-                              {option}
-                            </span>
+                            <span className="font-medium text-[#111111] text-sm">{doc.name}</span>
                           </div>
-                        ))}
-                      </div>
-                      {displayVehicle.equipment && (
-                        <div className="mt-6">
-                          <h4 className="font-semibold mb-3">
-                            Équipements de sécurité
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {displayVehicle.equipment.map((item, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center p-3 bg-blue-50 rounded-lg"
-                              >
-                                <Shield
-                                  size={16}
-                                  className="mr-3 text-blue-600"
-                                />
-                                <span className="text-blue-800 font-medium">
-                                  {item}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="history" className="mt-6">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <ol className="relative border-l border-gray-200">
-                        {(displayVehicle.history || []).map((event, index) => (
-                          <li key={index} className="mb-10 ml-6">
-                            <span className="absolute flex items-center justify-center w-6 h-6 bg-[#E50914] rounded-full -left-3 ring-8 ring-white">
-                              <Clock className="w-3 h-3 text-white" />
-                            </span>
-                            <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900">
-                              {event.event}
-                            </h3>
-                            <time className="block mb-2 text-sm font-normal leading-none text-gray-400">
-                              {new Date(event.date).toLocaleDateString("fr-FR")}
-                            </time>
-                            {event.details && (
-                              <p className="mb-4 text-base font-normal text-gray-500">
-                                {event.details}
-                              </p>
-                            )}
-                          </li>
-                        ))}
-                      </ol>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="financing" className="mt-6">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="space-y-6">
-                        <div>
-                          <Label htmlFor="downPayment">
-                            Apport: {financeParams.downPayment.toLocaleString()}
-                            €
-                          </Label>
-                          <input
-                            id="downPayment"
-                            type="range"
-                            min="0"
-                            max={displayVehicle.price || 30000}
-                            step="500"
-                            value={financeParams.downPayment}
-                            onChange={(e) =>
-                              setFinanceParams({
-                                ...financeParams,
-                                downPayment: parseInt(e.target.value),
-                              })
-                            }
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="duration">
-                            Durée: {financeParams.duration} mois
-                          </Label>
-                          <input
-                            id="duration"
-                            type="range"
-                            min="12"
-                            max="72"
-                            step="6"
-                            value={financeParams.duration}
-                            onChange={(e) =>
-                              setFinanceParams({
-                                ...financeParams,
-                                duration: parseInt(e.target.value),
-                              })
-                            }
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="residualValue">
-                            Valeur résiduelle:{" "}
-                            {financeParams.residualValue.toLocaleString()}€
-                          </Label>
-                          <input
-                            id="residualValue"
-                            type="range"
-                            min="0"
-                            max={(displayVehicle.price || 30000) * 0.6}
-                            step="500"
-                            value={financeParams.residualValue}
-                            onChange={(e) =>
-                              setFinanceParams({
-                                ...financeParams,
-                                residualValue: parseInt(e.target.value),
-                              })
-                            }
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                          />
-                        </div>
-                        <div className="bg-[#E50914] text-white p-4 rounded-lg text-center">
-                          <div className="text-2xl font-bold">
-                            {calculateMonthly()}€/mois
-                          </div>
-                          <div className="text-sm opacity-90">
-                            Mensualité calculée en temps réel
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="documents" className="mt-6">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="space-y-3">
-                        {(displayVehicle.documents || []).map((doc, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-3 border rounded-lg"
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-[#6B7280] border-[#E5E7EB] hover:bg-[#F9FAFB] text-xs"
+                            disabled
                           >
-                            <div className="flex items-center">
-                              <FileText
-                                className="mr-3 text-gray-500"
-                                size={20}
-                              />
-                              <span className="font-medium">{doc.name}</span>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-gray-500"
-                              disabled
-                            >
-                              <Download size={16} className="mr-1" />
-                              Réservé admin
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+                            <Download size={14} className="mr-1.5" />
+                            Réservé admin
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Right Column - Sticky Finance Component */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-6">
-                {/* Finance Card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Euro className="text-[#E50914]" size={20} />
-                      Financement
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-[#E50914]">
-                        {displayVehicle.price?.toLocaleString()}€
-                      </div>
-                      <div className="text-lg text-gray-600">
-                        {calculateMonthly()}€/mois
-                      </div>
+            {/* Right Column - 4/12 - Sticky Card */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-24 space-y-4">
+                
+                {/* Price & Finance Card - Compact */}
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+                  <div className="text-center mb-5">
+                    <div className="text-xs text-[#6B7280] mb-1.5">Loyer Mensuel</div>
+                    <div className="text-3xl font-bold text-[#111111] mb-0.5">
+                      {calculateMonthly()} €
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span>Apport</span>
-                        <span>
+                    <div className="text-xs text-[#6B7280]">/ mois</div>
+                  </div>
+                  
+                  <div className="border-t border-[#E5E7EB] pt-5 mb-5">
+                    <div className="text-xs text-[#6B7280] mb-1.5">Prix total</div>
+                    <div className="text-xl font-bold text-[#111111]">
+                      {displayVehicle.price?.toLocaleString()} €
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <Button
+                      className="w-full bg-[#E53935] hover:bg-[#C62828] text-white h-11 text-sm rounded-lg font-semibold shadow-sm hover:shadow-md transition-all duration-200"
+                    >
+                      Demander des détails
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 border-[#E53935] text-[#E53935] hover:bg-[#E53935] hover:text-white h-11 text-sm rounded-lg font-semibold transition-all duration-200"
+                    >
+                      Réserver en ligne
+                    </Button>
+                  </div>
+
+                  <div className="mt-5 pt-5 border-t border-[#E5E7EB]">
+                    <div className="flex items-center gap-2 text-xs text-[#6B7280]">
+                      <MapPin size={14} />
+                      <span>Disponible à {displayVehicle.city}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Card - Compact */}
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-5">
+                  <h3 className="text-sm font-semibold text-[#111111] mb-3">
+                    Besoin d'aide ?
+                  </h3>
+                  <div className="space-y-2.5">
+                    <Button
+                      onClick={() => window.open("tel:+33767793106", "_self")}
+                      variant="outline"
+                      className="w-full border border-[#E5E7EB] text-[#111111] hover:bg-[#F9FAFB] h-10 text-sm rounded-lg"
+                    >
+                      <Phone size={16} className="mr-2" />
+                      Appeler
+                    </Button>
+                    <Button
+                      onClick={handleWhatsApp}
+                      variant="outline"
+                      className="w-full border border-[#E5E7EB] text-[#111111] hover:bg-[#F9FAFB] h-10 text-sm rounded-lg"
+                    >
+                      <MessageCircle size={16} className="mr-2" />
+                      WhatsApp
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Financing Calculator - New Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-5">
+                  <h3 className="text-sm font-semibold text-[#111111] mb-4">
+                    Simulateur de financement
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <Label htmlFor="downPayment" className="text-xs text-[#6B7280]">
+                          Apport
+                        </Label>
+                        <span className="text-xs font-semibold text-[#111111]">
                           {financeParams.downPayment.toLocaleString()}€
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Durée</span>
-                        <span>{financeParams.duration} mois</span>
+                      <input
+                        id="downPayment"
+                        type="range"
+                        min="0"
+                        max={displayVehicle.price || 30000}
+                        step="500"
+                        value={financeParams.downPayment}
+                        onChange={(e) =>
+                          setFinanceParams({
+                            ...financeParams,
+                            downPayment: parseInt(e.target.value),
+                          })
+                        }
+                        className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#E53935]"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <Label htmlFor="duration" className="text-xs text-[#6B7280]">
+                          Durée
+                        </Label>
+                        <span className="text-xs font-semibold text-[#111111]">
+                          {financeParams.duration} mois
+                        </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Valeur résiduelle</span>
-                        <span>
+                      <input
+                        id="duration"
+                        type="range"
+                        min="12"
+                        max="72"
+                        step="6"
+                        value={financeParams.duration}
+                        onChange={(e) =>
+                          setFinanceParams({
+                            ...financeParams,
+                            duration: parseInt(e.target.value),
+                          })
+                        }
+                        className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#E53935]"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <Label htmlFor="residualValue" className="text-xs text-[#6B7280]">
+                          Valeur résiduelle
+                        </Label>
+                        <span className="text-xs font-semibold text-[#111111]">
                           {financeParams.residualValue.toLocaleString()}€
                         </span>
                       </div>
+                      <input
+                        id="residualValue"
+                        type="range"
+                        min="0"
+                        max={(displayVehicle.price || 30000) * 0.6}
+                        step="500"
+                        value={financeParams.residualValue}
+                        onChange={(e) =>
+                          setFinanceParams({
+                            ...financeParams,
+                            residualValue: parseInt(e.target.value),
+                          })
+                        }
+                        className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#E53935]"
+                      />
                     </div>
                     <Button
                       onClick={generatePDF}
-                      className="w-full bg-[#E50914] hover:bg-[#B50F0F]"
+                      variant="outline"
+                      className="w-full border border-[#E5E7EB] text-[#111111] hover:bg-[#F9FAFB] h-10 text-sm rounded-lg"
                     >
                       <Download size={16} className="mr-2" />
-                      Recevoir l'offre PDF
+                      Télécharger l'offre PDF
                     </Button>
-
-                    {/* WhatsApp Share */}
-                    <div className="flex justify-center">
-                      <WhatsAppShare
-                        url={window.location.href}
-                        title={displayVehicle.title || "Véhicule Lease Auto"}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Contact Card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Intéressé par ce véhicule ?</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleContactSubmit} className="space-y-4">
-                      <div>
-                        <Label htmlFor="contact-name">Nom</Label>
-                        <Input
-                          id="contact-name"
-                          placeholder="Votre nom"
-                          value={contactForm.name}
-                          onChange={(e) =>
-                            setContactForm({
-                              ...contactForm,
-                              name: e.target.value,
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="contact-email">Email</Label>
-                        <Input
-                          id="contact-email"
-                          type="email"
-                          placeholder="Votre email"
-                          value={contactForm.email}
-                          onChange={(e) =>
-                            setContactForm({
-                              ...contactForm,
-                              email: e.target.value,
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="contact-phone">Téléphone</Label>
-                        <Input
-                          id="contact-phone"
-                          placeholder="Votre téléphone"
-                          value={contactForm.phone}
-                          onChange={(e) =>
-                            setContactForm({
-                              ...contactForm,
-                              phone: e.target.value,
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="contact-message">Message</Label>
-                        <Textarea
-                          id="contact-message"
-                          placeholder="Votre message (optionnel)"
-                          value={contactForm.message}
-                          onChange={(e) =>
-                            setContactForm({
-                              ...contactForm,
-                              message: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full bg-[#E50914] hover:bg-[#B50F0F]"
-                      >
-                        Envoyer ma demande
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Sticky Action Bar */}
-        <div className="fixed inset-x-0 bottom-0 bg-white/90 backdrop-blur border-t p-4 flex gap-3 z-50">
-          <Button
-            onClick={() => window.open("tel:+33767793106", "_self")}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Phone size={18} className="mr-2" />
-            Appeler
-          </Button>
-          <Button
-            onClick={handleWhatsApp}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-          >
-            <MessageCircle size={18} className="mr-2" />
-            WhatsApp
-          </Button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="flex-1 bg-[#E50914] hover:bg-[#B50F0F] text-white">
-                <Mail size={18} className="mr-2" />
-                Demander une offre
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Demander une offre</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleContactSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="modal-name">Nom</Label>
-                  <Input
-                    id="modal-name"
-                    placeholder="Votre nom"
-                    value={contactForm.name}
-                    onChange={(e) =>
-                      setContactForm({ ...contactForm, name: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="modal-email">Email</Label>
-                  <Input
-                    id="modal-email"
-                    type="email"
-                    placeholder="Votre email"
-                    value={contactForm.email}
-                    onChange={(e) =>
-                      setContactForm({ ...contactForm, email: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="modal-phone">Téléphone</Label>
-                  <Input
-                    id="modal-phone"
-                    placeholder="Votre téléphone"
-                    value={contactForm.phone}
-                    onChange={(e) =>
-                      setContactForm({ ...contactForm, phone: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="modal-message">Message</Label>
-                  <Textarea
-                    id="modal-message"
-                    placeholder="Votre message (optionnel)"
-                    value={contactForm.message}
-                    onChange={(e) =>
-                      setContactForm({
-                        ...contactForm,
-                        message: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-[#E50914] hover:bg-[#B50F0F]"
-                >
-                  Envoyer ma demande
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </>

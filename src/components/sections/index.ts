@@ -3,7 +3,7 @@ export { HeaderSection } from "./HeaderSection";
 export { HeroSection } from "./HeroSection";
 export { ServicesSection } from "./ServicesSection";
 export { VehicleListingsSection, MOCK_VEHICLES } from "./VehicleListingsSection";
-export { ProcessSection } from "./ProcessSection";
+export { default as ProcessSection } from './ProcessSection';
 export { ContactSection } from "./ContactSection";
 export { FooterSection } from "./FooterSection";
 
