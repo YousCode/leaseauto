@@ -177,7 +177,7 @@ export default function AdminVehicles() {
             </h1>
             <p className="text-gray-600">Gérez votre inventaire de véhicules</p>
           </div>
-          <Link to="/admin/new">
+          <Link to="/admin/vehicles/new">
             <Button className="bg-red-600 hover:bg-red-700 text-white">
               <Plus size={16} className="mr-2" />
               Nouvelle annonce

@@ -112,7 +112,7 @@ export default function Dashboard() {
           </h3>
           <div className="space-y-3">
             <a
-              href="/admin/new"
+              href="/admin/vehicles/new"
               className="block w-full text-left p-3 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
             >
               <div className="font-medium text-red-900">Nouvelle annonce</div>

@@ -9,14 +9,13 @@ const HeaderSection = () => {
     { name: "VÉHICULES", href: "#vehicles" },
     { name: "SERVICES", href: "#services" },
     { name: "ESTIMER MON VÉHICULE", href: "#estimate" },
-    { name: "CONTACT", href: "#contact" }
+    { name: "CONTACT", href: "#contact" },
   ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black shadow-[0_2px_10px_rgba(0,0,0,0.3)] transition-all duration-300">
       <div className="max-w-[1440px] mx-auto px-12">
         <div className="flex items-center justify-between h-[72px]">
-          
           {/* Logo */}
           <div className="flex-shrink-0">
             <h1 className="text-2xl font-bold">

@@ -6,7 +6,7 @@ export default function AdminLayout() {
   const menu = [
     { to: "/admin", label: "Dashboard" },
     { to: "/admin/vehicles", label: "Annonces" },
-    { to: "/admin/new", label: "Nouvelle annonce" },
+  { to: "/admin/vehicles/new", label: "Nouvelle annonce" },
   ];
 
   return (

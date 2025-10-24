@@ -1,56 +1,97 @@
-import React from "react";
+import { useEffect, useRef } from "react";
+
+const HERO_VIDEO_URL =
+  "https://player.vimeo.com/video/1125140032?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0&autopause=0&playsinline=1&api=1";
 
 export function HeroSection() {
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  useEffect(() => {
+    const playVideo = () => {
+      const iframe = iframeRef.current;
+      if (!iframe?.contentWindow) return;
+
+      iframe.contentWindow.postMessage(
+        JSON.stringify({ method: "play" }),
+        "https://player.vimeo.com",
+      );
+    };
+
+    const handleLoad = () => playVideo();
+    const iframe = iframeRef.current;
+
+    if (iframe) {
+      iframe.addEventListener("load", handleLoad);
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        playVideo();
+      }
+    };
+
+    playVideo();
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      if (iframe) {
+        iframe.removeEventListener("load", handleLoad);
+      }
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
   return (
-    <section className="relative w-screen h-screen overflow-hidden bg-black">
-      {/* 🎬 Vidéo Vimeo en fond - VRAIMENT plein écran */}
+    <section
+      id="hero"
+      className="relative flex h-screen w-full flex-col justify-center overflow-hidden bg-[#05070d]"
+    >
+      {/* 🎬 Fond vidéo Vimeo */}
       <div className="absolute inset-0 w-full h-full">
         <iframe
-          src="https://player.vimeo.com/video/1125140032?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0"
+          ref={iframeRef}
+          src={HERO_VIDEO_URL}
           frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
-          className="absolute pointer-events-none"
+          loading="eager"
+          className="absolute top-1/2 left-1/2 pointer-events-none"
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '100vw',
-            height: '56.25vw', // 16:9 aspect ratio
-            minHeight: '100vh',
-            minWidth: '177.78vh', // 16:9 aspect ratio
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1
+            transform: "translate(-50%, -50%)",
+            width: "177.78vh", // 16:9 proportion
+            height: "100vh",
+            minWidth: "100vw",
+            minHeight: "56.25vw",
+            objectFit: "cover",
+            zIndex: 1,
           }}
-          title="Lease Auto video background"
+          title="Lease Auto - Vidéo de fond"
         ></iframe>
       </div>
 
-      {/* 💬 Contenu centré au-dessus de la vidéo */}
-      <div className="relative z-20 flex flex-col items-center justify-center text-center text-white px-4 h-full">
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight drop-shadow-2xl">
-          Votre véhicule de <span className="text-red-500">rêve</span>
+      {/* 🔳 Overlay léger pour contraste */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#05070d]/80 via-[#05070d]/70 to-[#0b162f]/60 mix-blend-multiply" />
+      <div className="gradient-radial" />
+
+      {/* 💬 Contenu centré */}
+      <div className="relative z-20 mx-auto flex h-full w-full max-w-6xl flex-col items-center justify-center px-6 text-center text-white">
+        <h1 className="brand-title brand-title-contrast text-4xl leading-tight md:text-6xl">
+          Votre véhicule de <span className="text-[#E50914]">rêve</span>
           <br />
           en leasing premium
         </h1>
 
-        <p className="text-lg md:text-xl mt-6 max-w-2xl drop-shadow-xl">
+        <p className="brand-subtitle mt-6 max-w-2xl text-base md:text-xl">
           Découvrez notre collection exclusive de véhicules haut de gamme
-          avec des solutions de financement flexibles et un service d'exception.
+          avec des solutions de financement flexibles et un service d&apos;exception.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 mt-10">
-          <a 
-            href="/vehicules"
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-md uppercase tracking-wide transition-all duration-200 shadow-lg hover:shadow-red-700/40 inline-block"
-          >
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <a href="/vehicules" className="brand-button">
             Découvrir nos véhicules
           </a>
 
-          <a 
-            href="/reservation"
-            className="border-2 border-white text-white font-semibold py-3 px-8 rounded-md uppercase tracking-wide hover:bg-white hover:text-black transition-all duration-200 shadow-lg hover:shadow-white/40 inline-block"
-          >
+          <a href="/reservation" className="brand-button-outline">
             Réserver maintenant
           </a>
         </div>

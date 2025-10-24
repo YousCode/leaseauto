@@ -43,7 +43,7 @@ export default function AdminLayout() {
                 Véhicules
               </NavLink>
               <NavLink
-                to="/admin/new"
+                to="/admin/vehicles/new"
                 className={({ isActive }) =>
                   `flex items-center px-3 py-2 rounded-md text-sm font-medium ${
                     isActive
