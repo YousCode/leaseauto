@@ -11,9 +11,7 @@ export function useVehicles(status?: "draft" | "published" | "archived") {
     queryFn: async () => {
       let q = supabase
         .from("vehicles")
-        .select(
-          "id,title,slug,brand,model,year,price,monthly,images,status,created_at,city",
-        )
+        .select("*")
         .order("created_at", { ascending: false });
       if (status) q = q.eq("status", status);
       const { data } = await q;

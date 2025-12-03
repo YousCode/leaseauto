@@ -60,10 +60,10 @@ interface VehicleProps {
   mileage?: number;
   energy?: string;
   gearbox?: string;
-  doors?: string;
-  seats?: string;
-  fiscalPower?: string;
-  dinPower?: string;
+  doors?: string | number;
+  seats?: string | number;
+  fiscalPower?: string | number;
+  dinPower?: string | number;
   color?: string;
   firstHand?: string;
   inspection?: string;
@@ -77,8 +77,8 @@ interface VehicleProps {
   duration?: string;
   residualValue?: string;
   extendedWarranty?: string;
-  critAir?: string;
-  power?: string;
+  critAir?: string | number;
+  power?: string | number;
   status?: string;
   equipment?: string[];
   history?: Array<{ date: string; event: string; details?: string }>;
@@ -201,14 +201,29 @@ const VehicleDetailPage = () => {
 
   // Fallback to static data if no vehicle found in Supabase
   const fallbackVehicle = PREMIUM_VEHICLES[0];
-  const displayVehicle = vehicle ? {
-    ...vehicle,
-    images: vehicle.images || fallbackVehicle.images,
-    options: vehicle.options || fallbackVehicle.options,
-    equipment: fallbackVehicle.equipment,
-    history: fallbackVehicle.history,
-    documents: fallbackVehicle.documents,
-  } : fallbackVehicle;
+  const remoteVehicle = vehicle as Record<string, any> | null;
+  const displayVehicle: VehicleProps = remoteVehicle
+    ? ({
+        ...fallbackVehicle,
+        ...remoteVehicle,
+        images:
+          (Array.isArray(remoteVehicle.images) && remoteVehicle.images.length > 0
+            ? remoteVehicle.images
+            : fallbackVehicle.images) ?? fallbackVehicle.images,
+        options:
+          (remoteVehicle.options as string[] | undefined) ??
+          fallbackVehicle.options,
+        equipment:
+          (remoteVehicle.equipment as string[] | undefined) ??
+          fallbackVehicle.equipment,
+        history:
+          (remoteVehicle.history as VehicleProps["history"]) ??
+          fallbackVehicle.history,
+        documents:
+          (remoteVehicle.documents as VehicleProps["documents"]) ??
+          fallbackVehicle.documents,
+      } as VehicleProps)
+    : fallbackVehicle;
 
   // Calculate monthly payment
   const calculateMonthly = () => {

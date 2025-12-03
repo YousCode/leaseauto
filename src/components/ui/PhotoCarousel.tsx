@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Car } from "lucide-react";
+import type { CarouselApi } from "@/components/ui/carousel";
 
 interface PhotoCarouselProps {
   imgs: string[];
@@ -21,6 +22,17 @@ export default function PhotoCarousel({
   model = "",
 }: PhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    const handleSelect = () => setCurrentIndex(carouselApi.selectedScrollSnap());
+    handleSelect();
+    carouselApi.on("select", handleSelect);
+    return () => {
+      carouselApi.off("select", handleSelect);
+    };
+  }, [carouselApi]);
 
   if (!imgs || imgs.length === 0) {
     return (
@@ -34,10 +46,7 @@ export default function PhotoCarousel({
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Carousel
-          className="w-full"
-          onSelect={(api) => setCurrentIndex(api?.selectedScrollSnap() || 0)}
-        >
+        <Carousel className="w-full" setApi={setCarouselApi}>
           <CarouselContent>
             {imgs.map((src, i) => (
               <CarouselItem key={i}>
@@ -69,7 +78,10 @@ export default function PhotoCarousel({
         {imgs.map((src, i) => (
           <button
             key={i}
-            onClick={() => setCurrentIndex(i)}
+            onClick={() => {
+              setCurrentIndex(i);
+              carouselApi?.scrollTo(i);
+            }}
             className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-colors ${
               i === currentIndex ? "border-accent" : "border-transparent"
             }`}

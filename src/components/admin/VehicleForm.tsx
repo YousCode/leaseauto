@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, X, Plus, FileText } from "lucide-react";
-import { VehicleProps } from "../vehicles/VehicleCard";
+import VehicleModelViewer from "@/components/vehicles/VehicleModelViewer";
 
 interface VehicleFormProps {
-  vehicle?: VehicleProps;
+  vehicle?: Record<string, any>;
   onSubmit: (vehicleData: any) => void;
   onCancel: () => void;
 }
@@ -103,12 +103,17 @@ const commonEquipments = [
 
 const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
   const [activeTab, setActiveTab] = useState("general");
-  const [vehicleData, setVehicleData] = useState(vehicle || {});
+  const [vehicleData, setVehicleData] = useState<Record<string, any>>(
+    vehicle || {},
+  );
   const [vehicleImages, setVehicleImages] = useState<File[]>([]);
   const [documents, setDocuments] = useState<{ name: string; file: File }[]>(
     [],
   );
   const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
+  const [model3dPreview, setModel3dPreview] = useState<string | undefined>(
+    vehicle?.model3dUrl,
+  );
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -151,6 +156,35 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
       setDocuments([...documents, ...newFiles]);
     }
   };
+
+  const handleModel3DUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const objectUrl = URL.createObjectURL(file);
+    setModel3dPreview((previous) => {
+      if (previous && previous.startsWith("blob:")) {
+        URL.revokeObjectURL(previous);
+      }
+      return objectUrl;
+    });
+    setVehicleData((prev) => ({
+      ...prev,
+      model3dUrl: objectUrl,
+      model3dFileName: file.name,
+    }));
+  };
+
+  useEffect(() => {
+    setModel3dPreview(vehicle?.model3dUrl);
+  }, [vehicle]);
+
+  useEffect(() => {
+    return () => {
+      if (model3dPreview && model3dPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(model3dPreview);
+      }
+    };
+  }, [model3dPreview]);
 
   const removeImage = (index: number) => {
     const updatedImages = [...vehicleImages];
@@ -744,19 +778,44 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
               <Label className="text-sm text-gray-400 block mb-2">
                 Modèle 3D (.glb)
               </Label>
-              <div className="flex items-center space-x-4">
-                <label className="cursor-pointer">
-                  <div className="flex items-center justify-center px-4 py-2 border border-dashed border-gray-700 rounded-md hover:bg-gray-800/30 transition-colors">
-                    <Upload size={18} className="mr-2" />
-                    <span>Télécharger un modèle 3D</span>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <label className="cursor-pointer">
+                    <div className="flex items-center justify-center px-4 py-2 border border-dashed border-gray-700 rounded-md hover:bg-gray-800/30 transition-colors">
+                      <Upload size={18} className="mr-2" />
+                      <span>Télécharger un modèle 3D</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".glb"
+                      className="hidden"
+                      onChange={handleModel3DUpload}
+                    />
+                  </label>
+                  {model3dPreview ? (
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        Modèle importé
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {vehicleData.model3dFileName ?? "Fichier personnalisé"}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">
+                      Importez votre fichier .glb (5 Mo max). Il sera visible
+                      sur la fiche et dans l'admin.
+                    </p>
+                  )}
+                </div>
+                {model3dPreview ? (
+                  <div className="rounded-lg border border-gray-800 bg-black/40 p-3">
+                    <VehicleModelViewer
+                      src={model3dPreview}
+                      className="h-48 rounded-xl border-0"
+                    />
                   </div>
-                  <input type="file" accept=".glb" className="hidden" />
-                </label>
-                {vehicleData.model3d && (
-                  <span className="text-sm text-gray-400">
-                    {vehicleData.model3d}
-                  </span>
-                )}
+                ) : null}
               </div>
             </div>
           </div>

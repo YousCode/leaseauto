@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import VehicleCard, { VehicleCardProps } from "@/components/vehicles/VehicleCard";
+import VehicleCard, {
+  VehicleCardProps,
+} from "@/components/vehicles/VehicleCard";
+import VehicleModelViewer from "@/components/vehicles/VehicleModelViewer";
 import { useVehicles } from "@/hooks/useVehicles";
 import {
   Dialog,
@@ -61,6 +64,7 @@ type VehicleListItem = VehicleCardProps & {
   color?: string;
   trim?: string;
   registration?: string;
+  model3dUrl?: string;
 };
 
 type PublishedVehicle = {
@@ -82,6 +86,7 @@ type PublishedVehicle = {
   color?: string | null;
   trim?: string | null;
   registration?: string | null;
+  model3d_url?: string | null;
 };
 
 type MockVehicle = {
@@ -102,6 +107,7 @@ type MockVehicle = {
   color: string;
   trim: string;
   registration: string;
+  model3dUrl?: string;
 };
 
 const DISPLAY_TABS: DisplayTabConfig[] = [
@@ -218,6 +224,7 @@ export const MOCK_VEHICLES: ReadonlyArray<MockVehicle> = [
     slug: "bmw-x2",
     image:
       "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=640&q=80",
+    model3dUrl: "/models/suv.glb",
     name: "BMW X2 F39 SDRIVE 20iA 192 CH M SPORT",
     brand: "BMW",
     model: "X2",
@@ -238,6 +245,7 @@ export const MOCK_VEHICLES: ReadonlyArray<MockVehicle> = [
     slug: "tesla-model-3",
     image:
       "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=640&q=80",
+    model3dUrl: "/models/sedan.glb",
     name: "TESLA MODEL 3 STANDARD PLUS RWD MY22",
     brand: "Tesla",
     model: "Model 3",
@@ -258,6 +266,7 @@ export const MOCK_VEHICLES: ReadonlyArray<MockVehicle> = [
     slug: "audi-a1",
     image:
       "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=640&q=80",
+    model3dUrl: "/models/city.glb",
     name: "AUDI A1 SPORTBACK 30 TFSI 110 CH ADVANCED",
     brand: "Audi",
     model: "A1",
@@ -280,6 +289,7 @@ const STATIC_VEHICLES: VehicleListItem[] = MOCK_VEHICLES.map(
     slug,
     image,
     name,
+    model3dUrl,
     price,
     monthly,
     city,
@@ -295,6 +305,7 @@ const STATIC_VEHICLES: VehicleListItem[] = MOCK_VEHICLES.map(
   }) => ({
     slug,
     image,
+    model3dUrl,
     name,
     brand,
     price,
@@ -409,6 +420,7 @@ const VehicleListingsSection = () => {
   const [activeTab, setActiveTab] = useState<TabsValue>(initialTab);
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehicleListItem | null>(null);
+  const [quickViewMode, setQuickViewMode] = useState<"glb" | "photo">("glb");
 
   // sync URL when activeTab changes
   useEffect(() => {
@@ -418,6 +430,11 @@ const VehicleListingsSection = () => {
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedVehicle?.model3dUrl) setQuickViewMode("glb");
+    else setQuickViewMode("photo");
+  }, [selectedVehicle]);
 
   const publishedVehicleItems = useMemo<VehicleListItem[]>(() => {
     if (!publishedVehicles?.length) return [];
@@ -437,6 +454,7 @@ const VehicleListingsSection = () => {
         image: primaryImage,
         name: vehicle.title ?? "Véhicule",
         brand: vehicle.brand ?? undefined,
+        model3dUrl: vehicle.model3d_url ?? undefined,
         price: toStringOrDefault(vehicle.price, "0"),
         monthly: toStringOrDefault(vehicle.monthly, "0"),
         city: vehicle.city ?? "Paris",
@@ -621,14 +639,50 @@ const VehicleListingsSection = () => {
                   initial={{ opacity: 0.6, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="relative overflow-hidden bg-neutral-100"
+                  className="relative min-h-[360px] overflow-hidden bg-neutral-100"
                 >
-                  <LazyImage
-                    src={selectedVehicle.image ?? FALLBACK_IMAGE}
-                    alt={selectedVehicle.name ?? "Véhicule"}
-                    containerClassName="h-full w-full"
-                    className="h-full w-full object-cover"
-                  />
+                  {selectedVehicle.model3dUrl ? (
+                    <div className="absolute left-4 top-4 z-10 flex items-center gap-2">
+                      <button
+                        type="button"
+                        className={[
+                          "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
+                          quickViewMode === "glb"
+                            ? "bg-black text-white"
+                            : "bg-white/80 text-neutral-800",
+                        ].join(" ")}
+                        onClick={() => setQuickViewMode("glb")}
+                      >
+                        Vue 3D
+                      </button>
+                      <button
+                        type="button"
+                        className={[
+                          "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
+                          quickViewMode === "photo"
+                            ? "bg-black text-white"
+                            : "bg-white/80 text-neutral-800",
+                        ].join(" ")}
+                        onClick={() => setQuickViewMode("photo")}
+                      >
+                        Photos
+                      </button>
+                    </div>
+                  ) : null}
+                  {quickViewMode === "glb" && selectedVehicle.model3dUrl ? (
+                    <VehicleModelViewer
+                      key={`viewer-${selectedVehicle.slug}`}
+                      src={selectedVehicle.model3dUrl}
+                      className="h-full min-h-[360px] border-0 rounded-none"
+                    />
+                  ) : (
+                    <LazyImage
+                      src={selectedVehicle.image ?? FALLBACK_IMAGE}
+                      alt={selectedVehicle.name ?? "Véhicule"}
+                      containerClassName="h-full w-full"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
                 </motion.div>
 
                 <motion.div

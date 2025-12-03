@@ -15,10 +15,12 @@ const VehicleListing = lazy(() => import("@/components/vehicles/VehicleListing")
 const VehicleDetailPage = lazy(() => import("@/components/vehicles/VehicleDetailPage"));
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
 const AdminVehicleManager = lazy(() => import("@/components/admin/AdminVehicleManager"));
-const VehicleForm = lazy(() => import("@/components/admin/VehicleForm"));
+const AdminVehicleFormPage = lazy(() => import("@/components/admin/VehicleFormPage"));
 const TempoBooking = lazy(() => import("@/components/booking/TempoBooking"));
 const ContactPage = lazy(() => import("@/pages/Contact"));
 const ServicesPage = lazy(() => import("@/pages/Services"));
+const DossierPage = lazy(() => import("@/pages/Dossier"));
+const DossierTrackingPage = lazy(() => import("@/pages/DossierTracking"));
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
           <Route path="/vehicules/:slug" element={<VehicleDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/dossier" element={<DossierPage />} />
+          <Route path="/dossier/mon-dossier" element={<DossierTrackingPage />} />
 
           {/* Redirections EN -> FR */}
           <Route path="/vehicles" element={<Navigate to="/vehicules" replace />} />
@@ -47,8 +51,8 @@ function App() {
           {/* Admin */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/vehicles" element={<AdminVehicleManager />} />
-          <Route path="/admin/vehicles/new" element={<VehicleForm />} />
-          <Route path="/admin/vehicles/:id/edit" element={<VehicleForm />} />
+          <Route path="/admin/vehicles/new" element={<AdminVehicleFormPage />} />
+          <Route path="/admin/vehicles/:id/edit" element={<AdminVehicleFormPage />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

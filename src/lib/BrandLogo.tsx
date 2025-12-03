@@ -2,6 +2,10 @@ import { Icon } from "@iconify/react";
 import type { IconifyIcon } from "@iconify/react";
 import simple from "@iconify-json/simple-icons/icons.json";
 
+const ICONS = (
+  simple as unknown as { icons: Record<string, IconifyIcon> }
+).icons;
+
 export function BrandLogo({
   brand,
   size = 32,
@@ -21,7 +25,7 @@ export function BrandLogo({
     .replace(/[^a-z0-9]/g, "") // keep alphanum
     .replace(/benz$/, ""); // ex : Mercedes Benz → mercedes
 
-  const data = (simple as Record<string, IconifyIcon>)[`si-${slug}`];
+  const data = ICONS[`si-${slug}`];
 
   if (!data)
     return (

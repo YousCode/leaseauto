@@ -17,34 +17,26 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Pencil, Trash2, Plus, Eye, EyeOff, Shield } from "lucide-react";
 import { MOCK_VEHICLES } from "../sections/VehicleListingsSection";
-import { VehicleProps } from "../vehicles/VehicleCard";
+import type { VehicleCardProps } from "../vehicles/VehicleCard";
 import VehicleForm from "./VehicleForm";
 
-interface ExtendedVehicleProps extends VehicleProps {
+type ExtendedVehicleProps = VehicleCardProps & {
+  id?: string;
+  category?: string;
+  year?: string | number;
+  mileage?: number | string;
+  price?: string | number | null;
   registration?: string;
-  mileage?: number;
-  color?: string;
   trim?: string;
   version?: string;
-  registrationDate?: string;
-  technicalInspectionDate?: string;
-  fiscalPower?: number;
-  enginePower?: number;
-  doors?: number;
-  seats?: number;
-  licenseRequired?: string;
-  upholstery?: string;
-  critAir?: string;
-  emissionClass?: string;
-  equipments?: string[];
-  additionalEquipment?: string;
-  title?: string;
-  documents?: string[];
-}
+  model?: string;
+  [key: string]: any;
+};
 
 const AdminVehicleManager = () => {
-  const [vehicles, setVehicles] =
-    useState<ExtendedVehicleProps[]>(MOCK_VEHICLES);
+  const [vehicles, setVehicles] = useState<ExtendedVehicleProps[]>(() =>
+    MOCK_VEHICLES.map((vehicle) => ({ ...vehicle })),
+  );
   const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] =
     useState<ExtendedVehicleProps | null>(null);

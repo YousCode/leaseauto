@@ -1,1076 +1,675 @@
-import { useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import slugify from "slugify";
+import VehicleModelViewer from "@/components/vehicles/VehicleModelViewer";
+import { MOCK_VEHICLES } from "@/components/sections/VehicleListingsSection";
+import type { VehicleCardProps } from "@/components/vehicles/VehicleCard";
+import { BrandLogo } from "@/lib/BrandLogo";
+import { useVehicles } from "@/hooks/useVehicles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+import VehicleForm from "./VehicleForm";
 import {
+  ArrowUpRight,
+  Eye,
   LogOut,
-  Trash2,
+  MapPin,
   Plus,
-  Upload,
-  X,
-  Loader2,
-  Camera,
-  ChevronLeft,
-  ChevronRight,
-  Car,
-  Calendar,
-  Settings,
-  Euro,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Users,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useDropzone } from "react-dropzone";
-import { FinanceSection } from "./FinanceSection";
 
-interface Vehicle {
-  id: number;
-  images: string[];
-  title: string;
-  brand: string;
-  model: string;
-  version: string;
-  year: string;
-  mileage: string;
-  energy: string;
-  gearbox: string;
-  doors: string;
-  seats: string;
-  fiscalPower: string;
-  dinPower: string;
-  power: string;
-  color: string;
-  firstHand: string;
-  inspection: string;
-  warranty: string;
-  price: string;
-  monthly: string;
-  city: string;
-  description: string;
-  options: string[];
-  date: string;
-  downPayment: string;
-  duration: string;
-  residualValue: string;
-  extendedWarranty: string;
-  registrationDate: string;
-}
+type AdminStatus = "published" | "review" | "draft";
+type StatusFilter = AdminStatus | "all";
+
+type AdminVehicle = VehicleCardProps & {
+  id: string;
+  status: AdminStatus;
+  leads: number;
+  visits: number;
+  updatedAt: string;
+  origin: "remote" | "local";
+  city?: string | null;
+  energy?: string | null;
+  mileage?: number | string;
+  year?: string | number;
+};
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80";
+
+const STATUS_ORDER: AdminStatus[] = ["published", "review", "draft"];
+
+const STATUS_CONFIG: Record<
+  AdminStatus,
+  { label: string; badge: string; dot: string; cta: string }
+> = {
+  published: {
+    label: "En ligne",
+    badge: "bg-emerald-100 text-emerald-700",
+    dot: "bg-emerald-500",
+    cta: "Mettre en pause",
+  },
+  review: {
+    label: "À vérifier",
+    badge: "bg-amber-100 text-amber-700",
+    dot: "bg-amber-500",
+    cta: "Publier",
+  },
+  draft: {
+    label: "Brouillon",
+    badge: "bg-neutral-200 text-neutral-800",
+    dot: "bg-neutral-500",
+    cta: "Mettre en ligne",
+  },
+};
+
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "Toutes" },
+  { value: "published", label: "En ligne" },
+  { value: "review", label: "En vérif" },
+  { value: "draft", label: "Brouillons" },
+];
+
+const formatPrice = (value?: string | number | null) => {
+  if (value == null) return "Prix sur demande";
+  const numeric =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(/[^\d]/g, ""));
+  if (!Number.isFinite(numeric)) return "Prix sur demande";
+  return `${numeric.toLocaleString("fr-FR")} €`;
+};
+
+const formatMonthly = (value?: string | number | null) => {
+  const price = formatPrice(value);
+  return price === "Prix sur demande" ? price : `${price}/mois`;
+};
+
+const formatMileage = (value?: string | number | null) => {
+  if (value == null) return "Kilométrage à préciser";
+  if (typeof value === "number") return `${value.toLocaleString("fr-FR")} km`;
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value.includes("km") ? value : `${value} km`;
+  }
+  return "Kilométrage à préciser";
+};
+
+const formatUpdatedLabel = (iso?: string) => {
+  if (!iso) return "Aujourd'hui";
+  try {
+    return new Date(iso).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "long",
+    });
+  } catch {
+    return "Aujourd'hui";
+  }
+};
+
+const buildVehicleFromForm = (
+  payload: Record<string, any>,
+  base?: AdminVehicle | null,
+): AdminVehicle => {
+  const composedName =
+    payload.title?.trim() ||
+    [payload.brand, payload.model, payload.version]
+      .filter(Boolean)
+      .join(" ")
+      .trim() ||
+    base?.name ||
+    "Véhicule";
+  const slug =
+    payload.slug ||
+    base?.slug ||
+    slugify(composedName, {
+      lower: true,
+      strict: true,
+      locale: "fr",
+    });
+
+  return {
+    id: base?.id ?? crypto.randomUUID(),
+    slug,
+    name: composedName,
+    brand: payload.brand ?? base?.brand,
+    price: payload.price ?? base?.price ?? null,
+    monthly:
+      payload.monthly ??
+      payload.monthlyRent ??
+      payload.rent ??
+      base?.monthly ??
+      null,
+    image:
+      (Array.isArray(payload.images) && payload.images[0]) ||
+      base?.image ||
+      FALLBACK_IMAGE,
+    model3dUrl: payload.model3dUrl ?? base?.model3dUrl,
+    city: payload.city ?? base?.city ?? "Épinay-sur-Seine 93800",
+    energy: payload.energy ?? base?.energy,
+    year: payload.year ?? base?.year,
+    mileage: payload.mileage ?? base?.mileage,
+    status: base?.status ?? "draft",
+    leads: base?.leads ?? 0,
+    visits: base?.visits ?? 0,
+    updatedAt: new Date().toISOString(),
+    origin: base?.origin ?? "local",
+  };
+};
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [form, setForm] = useState<Partial<Vehicle>>({
-    images: [],
-    title: "",
-    brand: "",
-    model: "",
-    version: "",
-    year: "",
-    mileage: "",
-    energy: "",
-    gearbox: "",
-    doors: "",
-    power: "",
-    color: "",
-    firstHand: "",
-    inspection: "",
-    warranty: "",
-    price: "",
-    monthly: "",
-    city: "Épinay-sur-Seine 93800",
-    description: "",
-    options: [],
-    downPayment: "3000",
-    duration: "48",
-    residualValue: "6000",
-    extendedWarranty: "",
-    registrationDate: "",
-    seats: "",
-    fiscalPower: "",
-    dinPower: "",
-  });
-
-  // Finance section state
-  const [apport, setApport] = useState(3000);
-  const [duree, setDuree] = useState(48);
-  const [valeurRes, setValeurRes] = useState(6000);
-  const [showVR, setShowVR] = useState(true); // For now, always show VR slider
-
-  const availableOptions = [
-    "Climatisation",
-    "Régulateur de vitesse",
-    "Système de navigation GPS",
-    "Aide au stationnement",
-    "Caméra de recul",
-    "Jantes alliage",
-    "Bluetooth",
-    "Apple CarPlay / Android Auto",
-    "Phares LED / Xenon",
-    "Détecteur de pluie",
-    "Contrôle pression des pneus",
-    "Fixations ISOFIX",
-    "Alerte franchissement de ligne",
-    "Capteur d'angle mort",
-    "Bouton démarrage",
-    "Smart Key (entrée sans clé)",
-    "Système Start & Stop",
-    "Éclairage d'ambiance",
-    "Wifi embarqué",
-  ];
-
-  const brands = [
-    "Audi",
-    "BMW",
-    "Citroën",
-    "Dacia",
-    "Fiat",
-    "Ford",
-    "Honda",
-    "Hyundai",
-    "Kia",
-    "Mercedes-Benz",
-    "Nissan",
-    "Opel",
-    "Peugeot",
-    "Renault",
-    "Seat",
-    "Skoda",
-    "Toyota",
-    "Volkswagen",
-    "Volvo",
-  ];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 30 }, (_, i) =>
-    (currentYear - i).toString(),
+  const { data: remoteData = [], isLoading } = useVehicles();
+  const [createdVehicles, setCreatedVehicles] = useState<AdminVehicle[]>([]);
+  const [overrides, setOverrides] = useState<Record<string, AdminVehicle>>({});
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
+  const [search, setSearch] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<AdminVehicle | null>(
+    null,
   );
 
-  useEffect(() => {
-    if (localStorage.getItem("isAdmin") !== "true") {
-      navigate("/admin");
+  const remoteVehicles = useMemo<AdminVehicle[]>(() => {
+    if (!Array.isArray(remoteData) || remoteData.length === 0) {
+      return MOCK_VEHICLES.map((vehicle, index) => ({
+        id: vehicle.id ?? `mock-${index}`,
+        slug: vehicle.slug,
+        name: vehicle.name,
+        brand: vehicle.brand,
+        price: vehicle.price,
+        monthly: vehicle.monthly,
+        image: vehicle.image,
+        model3dUrl: vehicle.model3dUrl,
+        city: vehicle.city,
+        energy: vehicle.energy,
+        year: vehicle.year,
+        mileage: vehicle.mileage,
+        status: STATUS_ORDER[index % STATUS_ORDER.length],
+        leads: 12 + index * 4,
+        visits: 180 + index * 23,
+        updatedAt: new Date(Date.now() - index * 36 * 60 * 60 * 1000).toISOString(),
+        origin: "remote",
+      }));
     }
-  }, [navigate]);
+
+    return remoteData.map((vehicle: Record<string, any>, index: number) => {
+      const name =
+        vehicle.title ||
+        [vehicle.brand, vehicle.model, vehicle.version]
+          .filter(Boolean)
+          .join(" ")
+          .trim() ||
+        `Véhicule ${index + 1}`;
+      const slug =
+        vehicle.slug ||
+        slugify(name, {
+          lower: true,
+          strict: true,
+          locale: "fr",
+        });
+      const primaryImage =
+        (Array.isArray(vehicle.images) && vehicle.images[0]) || FALLBACK_IMAGE;
+      const status: AdminStatus =
+        vehicle.status === "published"
+          ? "published"
+          : vehicle.status === "draft"
+            ? "draft"
+            : "review";
+
+      return {
+        id: vehicle.id ?? `remote-${index}`,
+        slug,
+        name,
+        brand: vehicle.brand ?? undefined,
+        price: vehicle.price ?? null,
+        monthly: vehicle.monthly ?? null,
+        image: primaryImage,
+        model3dUrl: vehicle.model3d_url ?? undefined,
+        city: vehicle.city ?? "Paris",
+        energy: vehicle.energy ?? undefined,
+        year: vehicle.year ?? undefined,
+        mileage: vehicle.mileage ?? vehicle.kilometers ?? undefined,
+        status,
+        leads: vehicle.leads ?? 6 + index * 3,
+        visits: vehicle.visits ?? 110 + index * 19,
+        updatedAt:
+          vehicle.updated_at ?? vehicle.created_at ?? new Date().toISOString(),
+        origin: "remote",
+      };
+    });
+  }, [remoteData]);
+
+  const mergedVehicles = useMemo(() => {
+    const remoteWithOverrides = remoteVehicles.map(
+      (vehicle) => overrides[vehicle.id] ?? vehicle,
+    );
+    return [...createdVehicles, ...remoteWithOverrides];
+  }, [createdVehicles, overrides, remoteVehicles]);
+
+  const counts = useMemo(() => {
+    return mergedVehicles.reduce(
+      (acc, vehicle) => {
+        acc.all += 1;
+        acc[vehicle.status] += 1;
+        return acc;
+      },
+      { all: 0, published: 0, review: 0, draft: 0 },
+    );
+  }, [mergedVehicles]);
+
+  const filteredVehicles = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return mergedVehicles.filter((vehicle) => {
+      if (filterStatus !== "all" && vehicle.status !== filterStatus) {
+        return false;
+      }
+      if (!term) return true;
+      const haystack = `${vehicle.name ?? ""} ${vehicle.brand ?? ""} ${
+        vehicle.city ?? ""
+      }`.toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [mergedVehicles, filterStatus, search]);
+
+  const metrics = useMemo(() => {
+    const leads = mergedVehicles.reduce((sum, vehicle) => sum + vehicle.leads, 0);
+    const visits = mergedVehicles.reduce(
+      (sum, vehicle) => sum + vehicle.visits,
+      0,
+    );
+    return {
+      published: counts.published,
+      drafts: counts.draft,
+      leads,
+      visits,
+    };
+  }, [counts, mergedVehicles]);
+
+  const handleCreate = () => {
+    setEditingVehicle(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (vehicle: AdminVehicle) => {
+    setEditingVehicle(vehicle);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSubmit = (payload: any) => {
+    const nextVehicle = buildVehicleFromForm(payload, editingVehicle);
+    if (editingVehicle) {
+      if (editingVehicle.origin === "local") {
+        setCreatedVehicles((prev) =>
+          prev.map((vehicle) =>
+            vehicle.id === editingVehicle.id ? nextVehicle : vehicle,
+          ),
+        );
+      } else {
+        setOverrides((prev) => ({
+          ...prev,
+          [editingVehicle.id]: nextVehicle,
+        }));
+      }
+      toast({
+        title: "Annonce mise à jour",
+        description: `${nextVehicle.name} a été actualisé.`,
+      });
+    } else {
+      setCreatedVehicles((prev) => [nextVehicle, ...prev]);
+      toast({
+        title: "Annonce créée",
+        description: `${nextVehicle.name} est prête à être publiée.`,
+      });
+    }
+    setIsFormOpen(false);
+    setEditingVehicle(null);
+  };
+
+  const updateVehicleStatus = useCallback(
+    (id: string, status: AdminStatus) => {
+      setCreatedVehicles((prev) =>
+        prev.map((vehicle) =>
+          vehicle.id === id ? { ...vehicle, status } : vehicle,
+        ),
+      );
+      setOverrides((prev) => {
+        const current =
+          prev[id] ?? remoteVehicles.find((vehicle) => vehicle.id === id);
+        if (!current) return prev;
+        return { ...prev, [id]: { ...current, status } };
+      });
+    },
+    [remoteVehicles],
+  );
+
+  const handleArchive = (id: string) => {
+    updateVehicleStatus(id, "draft");
+    toast({
+      title: "Annonce archivée",
+      description: "Vous pourrez la republier depuis vos brouillons.",
+    });
+  };
+
+  const handleStatusToggle = (vehicle: AdminVehicle) => {
+    const nextStatus =
+      vehicle.status === "published"
+        ? "draft"
+        : vehicle.status === "draft"
+          ? "published"
+          : "published";
+    updateVehicleStatus(vehicle.id, nextStatus);
+  };
+
+  const handleView = (vehicle: AdminVehicle) => {
+    if (vehicle.slug) {
+      navigate(`/vehicules/${vehicle.slug}`);
+    } else {
+      navigate("/vehicules");
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("isAdmin");
     navigate("/admin");
   };
 
-  const onDrop = (acceptedFiles: File[]) => {
-    const currentImages = form.images || [];
-    if (currentImages.length + acceptedFiles.length > 9) {
-      toast({
-        title: "Limite atteinte",
-        description: "Vous ne pouvez ajouter que 9 photos maximum.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    acceptedFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setForm((prev) => ({
-          ...prev,
-          images: [...(prev.images || []), result],
-        }));
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-    multiple: true,
-  });
-
-  const removeImage = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      images: prev.images?.filter((_, i) => i !== index) || [],
-    }));
-  };
-
-  const handleOptionChange = (option: string, checked: boolean) => {
-    setForm((prev) => ({
-      ...prev,
-      options: checked
-        ? [...(prev.options || []), option]
-        : (prev.options || []).filter((opt) => opt !== option),
-    }));
-  };
-
-  const addVehicle = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Validation
-    const requiredFields = [
-      "title",
-      "brand",
-      "model",
-      "year",
-      "mileage",
-      "energy",
-      "gearbox",
-      "doors",
-      "seats",
-      "fiscalPower",
-      "dinPower",
-      "color",
-      "firstHand",
-      "inspection",
-      "price",
-      "monthly",
-      "description",
-      "registrationDate",
-    ];
-
-    const missingFields = requiredFields.filter(
-      (field) => !form[field as keyof Vehicle],
-    );
-
-    if (missingFields.length > 0 || !form.images?.length) {
-      toast({
-        title: "Champs manquants",
-        description:
-          "Veuillez remplir tous les champs obligatoires et ajouter au moins une photo.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const newVehicle: Vehicle = {
-      id: Date.now(),
-      images: form.images || [],
-      title: form.title || "",
-      brand: form.brand || "",
-      model: form.model || "",
-      version: form.version || "",
-      year: form.year || "",
-      mileage: form.mileage || "",
-      energy: form.energy || "",
-      gearbox: form.gearbox || "",
-      doors: form.doors || "",
-      seats: form.seats || "",
-      fiscalPower: form.fiscalPower || "",
-      dinPower: form.dinPower || "",
-      power: form.power || "",
-      color: form.color || "",
-      firstHand: form.firstHand || "",
-      inspection: form.inspection || "",
-      warranty: form.warranty || "",
-      price: form.price || "",
-      monthly: form.monthly || "",
-      city: form.city || "Épinay-sur-Seine 93800",
-      description: form.description || "",
-      options: form.options || [],
-      date: new Date().toLocaleDateString("fr-FR"),
-      downPayment: apport.toString(),
-      duration: duree.toString(),
-      residualValue: valeurRes.toString(),
-      extendedWarranty: form.extendedWarranty || "",
-      registrationDate: form.registrationDate || "",
-    };
-
-    setVehicles([...vehicles, newVehicle]);
-
-    // Reset form
-    setForm({
-      images: [],
-      title: "",
-      brand: "",
-      model: "",
-      version: "",
-      year: "",
-      mileage: "",
-      energy: "",
-      gearbox: "",
-      doors: "",
-      power: "",
-      color: "",
-      firstHand: "",
-      inspection: "",
-      warranty: "",
-      price: "",
-      monthly: "",
-      city: "Épinay-sur-Seine 93800",
-      description: "",
-      options: [],
-      downPayment: "3000",
-      duration: "48",
-      residualValue: "6000",
-      extendedWarranty: "",
-      registrationDate: "",
-      seats: "",
-      fiscalPower: "",
-      dinPower: "",
-    });
-
-    // Reset finance sliders
-    setApport(3000);
-    setDuree(48);
-    setValeurRes(6000);
-
-    setIsLoading(false);
-    toast({
-      title: "Succès !",
-      description: "Véhicule ajouté avec succès.",
-    });
-  };
-
-  const deleteVehicle = (id: number) => {
-    setVehicles(vehicles.filter((v) => v.id !== id));
-    toast({
-      title: "Véhicule supprimé",
-      description: "Le véhicule a été supprimé avec succès.",
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Toaster />
-
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b py-4 px-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Admin — Gestion des Véhicules
-        </h1>
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          className="text-gray-600 hover:text-gray-900"
-        >
-          <LogOut size={18} className="mr-2" /> Déconnexion
-        </Button>
+    <div className="min-h-screen bg-[#f8f6f3] text-neutral-900">
+      <header className="border-b border-neutral-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-neutral-400">
+              Espace marchand
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold">
+              Gestion des annonces
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" /> Déconnexion
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/")}>
+              Retour au site
+            </Button>
+            <Button
+              className="bg-[#ff6e14] text-white hover:bg-[#e65d05]"
+              onClick={handleCreate}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Déposer une annonce
+            </Button>
+          </div>
+        </div>
       </header>
 
-      <div className="max-w-6xl mx-auto p-6 space-y-8">
-        {/* Formulaire d'ajout */}
-        <Card className="bg-white shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl font-semibold text-gray-900">
-              <Plus size={24} className="mr-3" />
-              Déposer une annonce véhicule
-            </CardTitle>
-            <p className="text-gray-600 mt-2">
-              Créez une annonce professionnelle pour votre véhicule
-            </p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={addVehicle} className="space-y-8">
-              {/* Section Photos */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Camera className="mr-2" size={20} />
-                  Photos du véhicule *
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Ajoutez jusqu'à 9 photos de qualité pour valoriser votre
-                  véhicule
-                </p>
+      <main className="mx-auto max-w-6xl px-6 py-10 space-y-10">
+        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-0 bg-gradient-to-br from-white to-neutral-50 shadow-sm">
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-neutral-500">En ligne</p>
+                <p className="text-3xl font-semibold">{metrics.published}</p>
+                <span className="text-xs text-neutral-500">
+                  annonces actives
+                </span>
+              </div>
+              <Sparkles className="h-10 w-10 text-[#ff6e14]" />
+            </CardContent>
+          </Card>
+          <Card className="border-0 bg-white shadow-sm">
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-neutral-500">Brouillons</p>
+                <p className="text-3xl font-semibold">{metrics.drafts}</p>
+                <span className="text-xs text-neutral-500">
+                  en attente de publication
+                </span>
+              </div>
+              <ShieldCheck className="h-10 w-10 text-neutral-600" />
+            </CardContent>
+          </Card>
+          <Card className="border-0 bg-white shadow-sm">
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-neutral-500">Leads 30 derniers jours</p>
+                <p className="text-3xl font-semibold">{metrics.leads}</p>
+                <span className="text-xs text-neutral-500">contacts qualifiés</span>
+              </div>
+              <Users className="h-10 w-10 text-neutral-600" />
+            </CardContent>
+          </Card>
+          <Card className="border-0 bg-white shadow-sm">
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-neutral-500">Vues cumulées</p>
+                <p className="text-3xl font-semibold">{metrics.visits}</p>
+                <span className="text-xs text-neutral-500">
+                  visites certifiées
+                </span>
+              </div>
+              <Eye className="h-10 w-10 text-neutral-600" />
+            </CardContent>
+          </Card>
+        </section>
 
-                {/* Drag & Drop Zone */}
-                <div
-                  {...getRootProps()}
-                  className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
-                    isDragActive
-                      ? "border-[#E50914] bg-red-50 scale-[1.02]"
-                      : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
-                  }`}
+        <section className="rounded-3xl border border-neutral-200 bg-white shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-200 px-6 py-5">
+            <div className="flex flex-wrap gap-2">
+              {STATUS_FILTERS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setFilterStatus(value)}
+                  className={[
+                    "rounded-full px-4 py-2 text-sm font-semibold transition-all",
+                    filterStatus === value
+                      ? "bg-black text-white shadow-sm"
+                      : "bg-neutral-100 text-neutral-600 hover:text-neutral-900",
+                  ].join(" ")}
                 >
-                  <input {...getInputProps()} />
-                  <div className="space-y-3">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    {isDragActive ? (
-                      <p className="text-[#E50914] font-medium text-lg">
-                        Déposez vos images ici...
-                      </p>
-                    ) : (
-                      <div>
-                        <p className="text-gray-700 font-medium text-lg">
-                          Glissez-déposez vos images ici
-                        </p>
-                        <p className="text-gray-500">
-                          ou cliquez pour sélectionner des fichiers
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">
-                          Maximum 9 photos • JPG, PNG acceptés
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Grid Preview */}
-                {form.images && form.images.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      {form.images.map((image, index) => (
-                        <div
-                          key={index}
-                          className="relative group aspect-square"
-                        >
-                          <img
-                            src={image}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-full object-cover rounded-lg border-2 border-gray-200 group-hover:border-gray-300 transition-all"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-2 right-2 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X size={16} />
-                          </Button>
-                          <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            {index + 1}/9
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Carousel Preview */}
-                    <div className="bg-gray-100 p-4 rounded-lg">
-                      <p className="text-sm font-medium text-gray-700 mb-3">
-                        Aperçu carousel :
-                      </p>
-                      <Carousel className="w-full max-w-md mx-auto">
-                        <CarouselContent>
-                          {form.images.map((image, index) => (
-                            <CarouselItem key={index}>
-                              <div className="aspect-video">
-                                <img
-                                  src={image}
-                                  alt={`Carousel ${index + 1}`}
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                              </div>
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </Carousel>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Section Informations générales */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex items-center">
-                  <Car className="mr-2" size={20} />
-                  Informations générales
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Titre de l'annonce *
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="ex: Peugeot 3008 GT Line 1.6 PureTech 180ch"
-                      value={form.title || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, title: e.target.value })
-                      }
-                      className="w-full"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Marque *
-                    </label>
-                    <Select
-                      value={form.brand || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, brand: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une marque" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {brands.map((brand) => (
-                          <SelectItem key={brand} value={brand}>
-                            {brand}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Modèle *
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="ex: 3008"
-                      value={form.model || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, model: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Version / Finition
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="ex: GT Line, Sport, Elegance"
-                      value={form.version || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, version: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Année de mise en circulation *
-                    </label>
-                    <Select
-                      value={form.year || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, year: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez l'année" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem key={year} value={year}>
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Kilométrage *
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="ex: 45000"
-                      value={form.mileage || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, mileage: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Énergie *
-                    </label>
-                    <Select
-                      value={form.energy || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, energy: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Type de carburant" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Essence">Essence</SelectItem>
-                        <SelectItem value="Diesel">Diesel</SelectItem>
-                        <SelectItem value="Hybride">Hybride</SelectItem>
-                        <SelectItem value="Electrique">Électrique</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Boîte de vitesse *
-                    </label>
-                    <Select
-                      value={form.gearbox || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, gearbox: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Type de boîte" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Manuelle">Manuelle</SelectItem>
-                        <SelectItem value="Automatique">Automatique</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre de portes *
-                    </label>
-                    <Select
-                      value={form.doors || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, doors: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Nombre de portes" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2">2 portes</SelectItem>
-                        <SelectItem value="3">3 portes</SelectItem>
-                        <SelectItem value="4">4 portes</SelectItem>
-                        <SelectItem value="5">5 portes</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre de places *
-                    </label>
-                    <Select
-                      value={form.seats || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, seats: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Nombre de places" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2">2 places</SelectItem>
-                        <SelectItem value="4">4 places</SelectItem>
-                        <SelectItem value="5">5 places</SelectItem>
-                        <SelectItem value="7">7 places</SelectItem>
-                        <SelectItem value="9">9 places</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Puissance fiscale (CV) *
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="ex: 8"
-                      value={form.fiscalPower || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, fiscalPower: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Puissance DIN (ch) *
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="ex: 155"
-                      value={form.dinPower || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, dinPower: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Couleur extérieure *
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="ex: Noir Perla Nera"
-                      value={form.color || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, color: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Première main *
-                    </label>
-                    <Select
-                      value={form.firstHand || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, firstHand: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Première main ?" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Oui">Oui</SelectItem>
-                        <SelectItem value="Non">Non</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contrôle technique *
-                    </label>
-                    <Select
-                      value={form.inspection || ""}
-                      onValueChange={(value) =>
-                        setForm({ ...form, inspection: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="État du contrôle" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Ok">OK</SelectItem>
-                        <SelectItem value="à prévoir">À prévoir</SelectItem>
-                        <SelectItem value="Neuf">Neuf</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Garantie
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="ex: 12 mois constructeur"
-                      value={form.warranty || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, warranty: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date de mise en circulation *
-                    </label>
-                    <Input
-                      type="date"
-                      value={form.registrationDate || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, registrationDate: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prix *
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="25000"
-                      value={form.price || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, price: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Loyer / mois *
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="399"
-                      value={form.monthly || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, monthly: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ville
-                    </label>
-                    <Input
-                      type="text"
-                      value={form.city || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, city: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description *
-                    </label>
-                    <Textarea
-                      placeholder="Décrivez votre véhicule en détail : état, historique, points forts..."
-                      value={form.description || ""}
-                      onChange={(e) =>
-                        setForm({ ...form, description: e.target.value })
-                      }
-                      rows={6}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Section Options */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex items-center">
-                  <Settings className="mr-2" size={20} />
-                  Options et équipements
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Sélectionnez les équipements présents sur votre véhicule
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {availableOptions.map((option) => (
-                    <div
-                      key={option}
-                      className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <Checkbox
-                        id={option}
-                        checked={(form.options || []).includes(option)}
-                        onCheckedChange={(checked) =>
-                          handleOptionChange(option, checked as boolean)
-                        }
-                      />
-                      <label
-                        htmlFor={option}
-                        className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
-                      >
-                        {option}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Section Financement */}
-              <FinanceSection
-                apport={apport}
-                setApport={setApport}
-                duree={duree}
-                setDuree={setDuree}
-                valeurRes={valeurRes}
-                setValeurRes={setValeurRes}
-                showVR={showVR}
-                extendedWarranty={form.extendedWarranty || ""}
-                setExtendedWarranty={(value) =>
-                  setForm({ ...form, extendedWarranty: value })
-                }
+                  {label}
+                  <span className="ml-2 text-xs text-neutral-500">
+                    {value === "all"
+                      ? counts.all
+                      : counts[value as AdminStatus]}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Input
+                placeholder="Rechercher un modèle"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="pl-10"
               />
+            </div>
+          </div>
 
-              {/* Submit Button */}
-              <div className="pt-6 border-t">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#E50914] hover:bg-[#B50F0F] text-white py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 shadow-lg"
+          {isLoading ? (
+            <div className="px-6 py-10 text-center text-sm text-neutral-500">
+              Synchronisation en cours...
+            </div>
+          ) : filteredVehicles.length === 0 ? (
+            <div className="px-6 py-16 text-center text-sm text-neutral-500">
+              Aucune annonce ne correspond à vos filtres. Relancez une recherche
+              ou ajoutez un véhicule.
+            </div>
+          ) : (
+            <div className="space-y-6 px-6 py-8">
+              {filteredVehicles.map((vehicle) => (
+                <motion.article
+                  key={vehicle.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 shadow-sm lg:grid-cols-[260px,1fr,220px]"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Ajout en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="mr-2 h-5 w-5" />
-                      Ajouter le véhicule
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Liste des véhicules */}
-        <Card className="bg-white shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900">
-              Véhicules en ligne ({vehicles.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {vehicles.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Camera className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-                <p className="text-lg font-medium">Aucun véhicule en ligne</p>
-                <p className="text-sm">
-                  Utilisez le formulaire ci-dessus pour ajouter votre premier
-                  véhicule.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {vehicles.map((vehicle) => (
-                  <div
-                    key={vehicle.id}
-                    className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-top-2"
-                  >
-                    <div className="flex flex-col lg:flex-row gap-6">
-                      {/* Carousel des images */}
-                      <div className="lg:w-1/3">
-                        {vehicle.images.length > 0 && (
-                          <Carousel className="w-full">
-                            <CarouselContent>
-                              {vehicle.images.map((image, index) => (
-                                <CarouselItem key={index}>
-                                  <div className="aspect-video">
-                                    <img
-                                      src={image}
-                                      alt={`${vehicle.title} - ${index + 1}`}
-                                      className="w-full h-full object-cover rounded-lg"
-                                    />
-                                  </div>
-                                </CarouselItem>
-                              ))}
-                            </CarouselContent>
-                            <CarouselPrevious />
-                            <CarouselNext />
-                          </Carousel>
-                        )}
-                      </div>
-
-                      {/* Informations du véhicule */}
-                      <div className="lg:w-2/3 space-y-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                              {vehicle.title}
-                            </h3>
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
-                              <span>
-                                {vehicle.brand} {vehicle.model}
-                              </span>
-                              <span>•</span>
-                              <span>{vehicle.year}</span>
-                              <span>•</span>
-                              <span>{vehicle.mileage} km</span>
-                              <span>•</span>
-                              <span>{vehicle.energy}</span>
-                              <span>•</span>
-                              <span>{vehicle.gearbox}</span>
-                            </div>
-                          </div>
-                          <Button
-                            onClick={() => deleteVehicle(vehicle.id)}
-                            variant="destructive"
-                            size="sm"
-                            className="bg-[#E50914] hover:bg-[#B50F0F]"
-                          >
-                            <Trash2 size={16} className="mr-1" />
-                            Supprimer
-                          </Button>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-500">Prix:</span>
-                            <p className="font-semibold text-lg text-[#E50914]">
-                              {vehicle.price} €
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Loyer:</span>
-                            <p className="font-semibold text-lg text-[#E50914]">
-                              {vehicle.monthly} €/mois
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Couleur:</span>
-                            <p className="font-medium">{vehicle.color}</p>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Contrôle:</span>
-                            <p className="font-medium">{vehicle.inspection}</p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <p className="text-gray-700 text-sm leading-relaxed">
-                            {vehicle.description}
-                          </p>
-                        </div>
-
-                        {vehicle.options.length > 0 && (
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">
-                              Équipements:
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {vehicle.options.map((option, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full"
-                                >
-                                  {option}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex justify-between items-center pt-3 border-t text-xs text-gray-500">
-                          <span>{vehicle.city}</span>
-                          <span>Ajouté le {vehicle.date}</span>
-                        </div>
-                      </div>
+                  <div className="space-y-3">
+                    <VehicleModelViewer
+                      src={vehicle.model3dUrl}
+                      className="h-52 rounded-2xl border-0"
+                    />
+                    <div className="flex items-center justify-between text-xs text-neutral-500">
+                      <span>
+                        Mis à jour le {formatUpdatedLabel(vehicle.updatedAt)}
+                      </span>
+                      {vehicle.model3dUrl ? (
+                        <span className="rounded-full bg-emerald-50 px-3 py-1 font-semibold text-emerald-600">
+                          GLB prêt
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-neutral-100 px-3 py-1 font-semibold">
+                          Photo
+                        </span>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-start gap-3">
+                      <BrandLogo brand={vehicle.brand} size={28} />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-lg font-semibold">
+                            {vehicle.name}
+                          </h3>
+                          <Badge
+                            className={[
+                              "flex items-center gap-1",
+                              STATUS_CONFIG[vehicle.status].badge,
+                            ].join(" ")}
+                          >
+                            <span
+                              className={`h-2 w-2 rounded-full ${STATUS_CONFIG[vehicle.status].dot}`}
+                            />
+                            {STATUS_CONFIG[vehicle.status].label}
+                          </Badge>
+                        </div>
+                        <p className="mt-1 flex items-center text-sm text-neutral-500">
+                          <MapPin className="mr-1 h-4 w-4" />
+                          {vehicle.city}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-neutral-600">
+                      {vehicle.energy && (
+                        <span className="rounded-full bg-neutral-100 px-3 py-1">
+                          {vehicle.energy}
+                        </span>
+                      )}
+                      {vehicle.year && (
+                        <span className="rounded-full bg-neutral-100 px-3 py-1">
+                          {vehicle.year}
+                        </span>
+                      )}
+                      {vehicle.mileage && (
+                        <span className="rounded-full bg-neutral-100 px-3 py-1">
+                          {formatMileage(vehicle.mileage)}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                      <p className="text-3xl font-semibold">
+                        {formatPrice(vehicle.price)}
+                      </p>
+                      {vehicle.monthly ? (
+                        <span className="rounded-full bg-neutral-900 px-4 py-1.5 text-sm font-medium text-white">
+                          {formatMonthly(vehicle.monthly)}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleView(vehicle)}
+                      >
+                        Voir sur le site
+                        <ArrowUpRight className="ml-2 h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" onClick={() => handleEdit(vehicle)}>
+                        Modifier
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="text-neutral-500"
+                        onClick={() => handleStatusToggle(vehicle)}
+                      >
+                        {STATUS_CONFIG[vehicle.status].cta}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col justify-between gap-4 rounded-3xl bg-neutral-50/80 p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2 text-sm">
+                        <span className="text-neutral-500">Leads 30j</span>
+                        <span className="font-semibold">{vehicle.leads}</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2 text-sm">
+                        <span className="text-neutral-500">Vues</span>
+                        <span className="font-semibold">{vehicle.visits}</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2 text-sm">
+                        <span className="text-neutral-500">Contacts directs</span>
+                        <span className="font-semibold">
+                          {Math.max(1, Math.round(vehicle.leads * 0.35))}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Button className="bg-[#ff6e14] text-white hover:bg-[#e65d05]">
+                        Booster la visibilité
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="text-neutral-500"
+                        onClick={() => handleArchive(vehicle.id)}
+                      >
+                        Archiver
+                      </Button>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto border border-neutral-200 bg-white p-0 sm:max-w-4xl">
+          <DialogHeader className="border-b border-neutral-200 px-6 py-4 text-left">
+            <DialogTitle className="text-2xl font-semibold">
+              {editingVehicle ? "Modifier l'annonce" : "Créer une annonce"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="bg-neutral-950 p-6 text-white">
+            <VehicleForm
+              vehicle={editingVehicle ?? undefined}
+              onSubmit={handleFormSubmit}
+              onCancel={() => setIsFormOpen(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

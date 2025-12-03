@@ -1,140 +1,212 @@
-import { MapPin, Phone, Mail, Clock, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+// src/components/sections/FooterSection.tsx
+
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Instagram,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
+const navItems = [
+  { label: "Catalogue", href: "/vehicules" },
+  { label: "Financement", href: "/financement" },
+  { label: "Assurances", href: "/assurances" },
+  { label: "Contact", href: "/contact" },
+  { label: "Dossier", href: "/dossier" },
+];
+
+const legalLinks = [
+  { label: "Mentions légales", href: "/mentions-legales" },
+  {
+    label: "Politique de confidentialité",
+    href: "/politique-de-confidentialite",
+  },
+  { label: "Conditions générales", href: "/conditions-generales" },
+  { label: "Cookies", href: "/cookies" },
+  { label: "Plan du site", href: "/plan-du-site" },
+];
 
 const FooterSection = () => {
   const currentYear = new Date().getFullYear();
 
-  const navigationLinks = [
-    "Accueil",
-    "Véhicules", 
-    "Services",
-    "À propos",
-    "Contact"
-  ];
-
-  const legalLinks = [
-    "Mentions légales",
-    "Politique de confidentialité",
-    "Conditions générales",
-    "Cookies",
-    "Plan du site"
-  ];
-
   return (
-    <footer className="bg-gray-900 text-white">
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
-          {/* Company Info */}
-          <div className="lg:col-span-1">
-            <h3 className="text-2xl font-bold text-red-500 mb-4">LeaseAuto</h3>
-            <p className="text-gray-300 leading-relaxed mb-6">
-              Votre partenaire de confiance pour la location de véhicules. 
-              Des solutions flexibles adaptées à tous vos besoins.
-            </p>
-            
-            {/* Contact Info */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-red-500 flex-shrink-0" />
-                <span className="text-gray-300">Lease auto 42 Bd Foch, 93800 Épinay-sur-Seine</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-red-500 flex-shrink-0" />
-                <span className="text-gray-300">01 84 21 83 93</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-red-500 flex-shrink-0" />
-                <span className="text-gray-300">leaseauto.epinay@gmail.com</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Clock className="h-5 w-5 text-red-500 flex-shrink-0" />
-                <span className="text-gray-300">Lundi - Samedi</span>
-              </div>
-            </div>
-          </div>
+    <footer className="relative mt-24 text-slate-100">
+      {/* Fond texturé plein écran */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#1f2937_0,transparent_55%),radial-gradient(circle_at_bottom,#020617_0,#020617_55%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-soft-light"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")",
+        }}
+      />
 
-          {/* Navigation */}
-          <div>
-            <h4 className="text-lg font-semibold mb-6">Navigation</h4>
-            <ul className="space-y-3">
-              {navigationLinks.map((link, index) => (
-                <li key={index}>
-                  <a href="#" className="text-gray-300 hover:text-red-500 transition-colors duration-200">
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Form */}
-          <div>
-            <h4 className="text-lg font-semibold mb-6">Nous contacter</h4>
-            <form className="space-y-4">
-              <input
-                type="text"
-                placeholder="Nom"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-500 text-white"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-500 text-white"
-              />
-              <textarea
-                placeholder="Message"
-                rows={3}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-500 text-white resize-none"
-              ></textarea>
-              <button className="w-full bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
-                Envoyer
-              </button>
-            </form>
-          </div>
-
-          {/* Social Media */}
-          <div>
-            <h4 className="text-lg font-semibold mb-6">Suivez-nous</h4>
-            <div className="flex space-x-3 mb-6">
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-200">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-200">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-200">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-200">
-                <Linkedin className="h-5 w-5" />
-              </a>
-            </div>
-
-            {/* Legal Links */}
+      {/* Contenu principal */}
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 pt-16 pb-10">
+        {/* Bloc glass plein dans la largeur utile */}
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_24px_80px_rgba(15,23,42,0.7)] px-6 md:px-10 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            {/* Colonne 1 : marque + contact + horaires */}
             <div>
-              <h5 className="text-sm font-semibold mb-3 text-gray-400">Informations légales</h5>
-              <ul className="space-y-2">
-                {legalLinks.map((link, index) => (
-                  <li key={index}>
-                    <a
-                      href="#"
-                      className="text-gray-400 hover:text-red-500 text-sm transition-colors duration-200"
+              <h3 className="text-2xl font-semibold mb-3">
+                <span className="text-[#E52127]">Lease</span>
+                <span className="text-slate-100">Auto</span>
+              </h3>
+              <p className="text-sm text-slate-200 leading-relaxed mb-6 max-w-xs">
+                Votre partenaire de confiance pour la location de véhicules.
+                Des solutions claires et flexibles, pensées pour votre budget.
+              </p>
+
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 text-[#E52127] mt-0.5" />
+                  <span className="text-slate-200">
+                    Lease Auto, 42 Bd Foch
+                    <br />
+                    93800 Épinay-sur-Seine
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-[#E52127]" />
+                  <a
+                    href="tel:0184218393"
+                    className="text-slate-200 hover:text-white"
+                  >
+                    01&nbsp;84&nbsp;21&nbsp;83&nbsp;93
+                  </a>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-[#E52127]" />
+                  <a
+                    href="mailto:leaseauto.epinay@gmail.com"
+                    className="text-slate-200 hover:text-white"
+                  >
+                    leaseauto.epinay@gmail.com
+                  </a>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Clock className="h-4 w-4 text-[#E52127] mt-0.5" />
+                  <div>
+                    <p className="text-slate-100">Lundi – Samedi</p>
+                    <p className="text-slate-300 text-xs">09:30 – 19:30</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Colonne 2 : navigation */}
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
+                Navigation
+              </h4>
+              <ul className="space-y-2 text-sm">
+                {navItems.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      to={item.href}
+                      className="text-slate-300 hover:text-[#E52127] transition-colors"
                     >
-                      {link}
-                    </a>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Colonne 3 : formulaire contact */}
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
+                Nous contacter
+              </h4>
+              <form
+                className="space-y-3 text-sm"
+                onSubmit={(e) => e.preventDefault()}
+              >
+                <input
+                  type="text"
+                  placeholder="Nom"
+                  className="w-full px-3 py-2 rounded-md bg-[#020618]/80 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#E52127]"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="w-full px-3 py-2 rounded-md bg-[#020618]/80 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#E52127]"
+                />
+                <textarea
+                  rows={3}
+                  placeholder="Message"
+                  className="w-full px-3 py-2 rounded-md bg-[#020618]/80 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#E52127] resize-none"
+                />
+                <button
+                  type="submit"
+                  className="w-full rounded-full bg-[#E52127] text-white font-medium py-2.5 text-sm hover:bg-[#c91c22] transition-colors"
+                >
+                  Envoyer
+                </button>
+              </form>
+            </div>
+
+            {/* Colonne 4 : réseaux + légal */}
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
+                Suivez-nous
+              </h4>
+              <div className="flex items-center gap-3 mb-6">
+                {/* Instagram */}
+                <a
+                  href="https://www.instagram.com/lease_auto/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="h-9 w-9 rounded-full bg-[#020618]/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-[#E52127] hover:border-[#E52127] hover:text-white transition-colors"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+
+                {/* TikTok (texte simple comme icône, à remplacer par une vraie icône si tu en ajoutes une) */}
+                <a
+                  href="https://www.tiktok.com/@leaseauto?_r=1&_t=ZN-91kVouJaR2U"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="h-9 w-9 rounded-full bg-[#020618]/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-[#E52127] hover:border-[#E52127] hover:text-white transition-colors"
+                >
+                  <span className="text-[11px] font-semibold tracking-wide">
+                    Tik
+                  </span>
+                </a>
+              </div>
+
+              <h5 className="text-xs font-semibold text-slate-300 uppercase tracking-[0.16em] mb-3">
+                Informations légales
+              </h5>
+              <ul className="space-y-2 text-sm">
+                {legalLinks.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.href}
+                      className="text-slate-400 hover:text-slate-100 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Copyright */}
-        <div className="border-t border-gray-800 mt-12 pt-8">
-          <div className="text-center text-gray-400 text-sm">
-            © {currentYear} LeaseAuto. Tous droits réservés. | SIRET: 123 456 789 00012 | RCS Paris
-          </div>
+      {/* Bas de page */}
+      <div className="relative border-t border-[#0b1220]/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 py-4">
+          <p className="text-center text-xs text-slate-500">
+            © {currentYear} LeaseAuto. Tous droits réservés.
+          </p>
         </div>
       </div>
     </footer>

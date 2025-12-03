@@ -1,11 +1,13 @@
-import { 
-  HeaderSection, 
-  HeroSection, 
+import {
+  HeaderSection,
+  HeroSection,
   ServicesSection,
-  VehicleListingsSection, 
+  VehicleListingsSection,
   ProcessSection,
-  ContactSection, 
-  FooterSection 
+  ContactSection,
+  FooterSection,
+  SignatureHighlightsSection,
+  CollectionsShowcaseSection,
 } from "@/components/sections";
 
 export default function Home() {
@@ -14,7 +16,9 @@ export default function Home() {
       <HeaderSection />
       <main>
         <HeroSection />
+        <SignatureHighlightsSection />
         <ServicesSection />
+        <CollectionsShowcaseSection />
         <VehicleListingsSection />
         <ProcessSection />
         <ContactSection />
