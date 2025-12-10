@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"; 
 import { BrandLogo } from "@/lib/BrandLogo";
 import LazyImage from "@/components/ui/LazyImage";
 import type { LucideIcon } from "lucide-react";

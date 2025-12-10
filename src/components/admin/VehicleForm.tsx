@@ -200,16 +200,19 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would create FormData and send files
     const formData = {
       ...vehicleData,
       equipments: selectedEquipments,
-      // In a real implementation, you would upload images and get URLs
       imageCount: vehicleImages.length,
       documentCount: documents.length,
     };
     onSubmit(formData);
   };
+
+  // --------- TOTAL / RÉCAP ---------
+  const leaseDuration = 36; // durée en mois (à rendre dynamique si besoin)
+  const monthlyPrice = Number(vehicleData.price) || 0;
+  const totalPrice = monthlyPrice * leaseDuration;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -882,13 +885,56 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         </TabsContent>
       </Tabs>
 
-      <div className="flex justify-end space-x-3 pt-6 border-t border-gray-800">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Annuler
-        </Button>
-        <Button type="submit" className="bg-[#DA1212] hover:bg-[#B50F0F]">
-          {vehicle ? "Mettre à jour" : "Ajouter le véhicule"}
-        </Button>
+      {/* Footer : Total + Boutons */}
+      <div className="space-y-4 pt-6 border-t border-gray-800">
+        <div className="mt-2 grid gap-4 md:grid-cols-[2fr,1fr] items-start">
+          <div className="space-y-2 text-sm text-gray-400">
+            <p>
+              Prix mensuel{" "}
+              <span className="font-semibold text-white">
+                {monthlyPrice.toFixed(0)} € / mois
+              </span>
+            </p>
+            <p className="text-xs text-gray-500">
+              Total estimé sur {leaseDuration} mois :{" "}
+              <span className="font-semibold text-white">
+                {totalPrice.toLocaleString("fr-FR")} €
+              </span>{" "}
+              hors frais de mise en route, assurances et options facultatives.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-zinc-900 via-black to-zinc-900 px-4 py-3 shadow-lg">
+            <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+              Récapitulatif du contrat
+            </p>
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-gray-400">Loyer mensuel</span>
+              <span className="text-2xl font-semibold text-white">
+                {monthlyPrice.toFixed(0)} €
+                <span className="text-xs font-normal text-gray-400">
+                  {" "}
+                  /mois
+                </span>
+              </span>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
+              <span>Total sur {leaseDuration} mois</span>
+              <span className="font-medium text-white">
+                {totalPrice.toLocaleString("fr-FR")} €
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Annuler
+          </Button>
+          <Button type="submit" className="bg-[#DA1212] hover:bg-[#B50F0F]">
+            {vehicle ? "Mettre à jour" : "Ajouter le véhicule"}
+          </Button>
+        </div>
       </div>
     </form>
   );

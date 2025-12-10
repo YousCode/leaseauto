@@ -1,6 +1,8 @@
+// src/components/layout/HeaderSection.tsx
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const navItems = [
   { name: "Accueil", href: "/" },
@@ -16,9 +18,7 @@ const HeaderSection = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const onScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -32,31 +32,37 @@ const HeaderSection = () => {
       className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-200 ${
         isScrolled
           ? "bg-white/95 border-slate-200 backdrop-blur shadow-sm"
-          : "bg-white border-transparent"
+          : "bg-white/90 border-transparent backdrop-blur-sm"
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 lg:px-6">
-        <div className="flex h-18 md:h-20 items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img
+        <div className="flex h-20 md:h-24 items-center justify-between">
+          {/* Logo XXL + animation douce */}
+          <Link to="/" className="flex items-center gap-3 shrink-0">
+            <motion.img
               src="src/assets/logo-lease-auto.png"
               alt="Lease Auto"
-              className="h-10 md:h-12 w-auto"
+              className="h-16 md:h-20 lg:h-24 w-auto"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             />
           </Link>
 
           {/* Navigation desktop */}
-          <nav className="hidden md:flex items-center gap-6 text-sm">
+          <nav className="hidden md:flex items-center gap-7 text-sm">
             {navItems.map((item) => {
-              const active = location.pathname === item.href;
+              const active =
+                item.href === "/"
+                  ? location.pathname === "/"
+                  : location.pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`transition-colors ${
                     active
-                      ? "text-slate-900 font-medium"
+                      ? "text-slate-900 font-semibold"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -66,11 +72,11 @@ const HeaderSection = () => {
             })}
           </nav>
 
-          {/* Actions droite */}
+          {/* CTA droite */}
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/devis"
-              className="inline-flex items-center rounded-full bg-[#E52127] text-white text-sm font-medium px-4 py-2 hover:bg-[#c91c22] transition-colors"
+              className="inline-flex items-center rounded-full bg-[#E52127] text-white text-sm font-medium px-6 py-2.5 hover:bg-[#c91c22] transition-colors shadow-[0_12px_32px_rgba(229,33,39,0.35)]"
             >
               Demander une offre
             </Link>
@@ -88,13 +94,13 @@ const HeaderSection = () => {
 
         {/* Menu mobile */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white">
+          <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm">
             <nav className="py-3 flex flex-col gap-1 text-sm">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="px-2 py-2 text-slate-800 hover:bg-slate-50"
+                  className="px-2 py-2 text-slate-800 hover:bg-slate-50 rounded-md"
                 >
                   {item.name}
                 </Link>
@@ -102,7 +108,7 @@ const HeaderSection = () => {
               <div className="px-2 pt-2 pb-3">
                 <Link
                   to="/devis"
-                  className="block w-full text-center rounded-full bg-[#E52127] text-white text-sm font-medium px-4 py-2 hover:bg-[#c91c22] transition-colors"
+                  className="block w-full text-center rounded-full bg-[#E52127] text-white text-sm font-medium px-4 py-2.5 hover:bg-[#c91c22] transition-colors"
                 >
                   Demander une offre
                 </Link>
