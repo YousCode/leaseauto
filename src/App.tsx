@@ -2,12 +2,15 @@ import { Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 import { Toaster } from "@/components/ui/toaster";
+import ComingSoon from "@/pages/ComingSoon";
 
 /** Wrapper pour rediriger /vehicles/:slug -> /vehicules/:slug */
 function RedirectVehicleSlug() {
   const { slug } = useParams();
   return <Navigate to={`/vehicules/${slug}`} replace />;
 }
+
+const MAINTENANCE_MODE = false;
 
 /** (Optionnel) Lazy-load pour tirer parti de <Suspense> */
 const Home = lazy(() => import("@/components/home"));
@@ -23,6 +26,10 @@ const DossierPage = lazy(() => import("@/pages/Dossier"));
 const DossierTrackingPage = lazy(() => import("@/pages/DossierTracking"));
 
 function App() {
+  if (MAINTENANCE_MODE) {
+    return <ComingSoon />;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Suspense
