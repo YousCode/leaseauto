@@ -1,8 +1,8 @@
 // src/components/layout/HeaderSection.tsx
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { name: "Accueil", href: "/" },
@@ -17,8 +17,9 @@ const HeaderSection = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
+  // Détection du scroll pour changer le style
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 10);
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -28,96 +29,119 @@ const HeaderSection = () => {
   }, [location.pathname]);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-200 ${
-        isScrolled
-          ? "bg-white/95 border-slate-200 backdrop-blur shadow-sm"
-          : "bg-white/90 border-transparent backdrop-blur-sm"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-4 lg:px-6">
-        <div className="flex h-20 md:h-24 items-center justify-between">
-          {/* Logo XXL + animation douce */}
-          <Link to="/" className="flex items-center gap-3 shrink-0">
-            <motion.img
-              src="src/assets/logo-lease-auto.png"
-              alt="Lease Auto"
-              className="h-16 md:h-20 lg:h-24 w-auto"
-              initial={{ y: -10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            />
-          </Link>
-
-          {/* Navigation desktop */}
-          <nav className="hidden md:flex items-center gap-7 text-sm">
-            {navItems.map((item) => {
-              const active =
-                item.href === "/"
-                  ? location.pathname === "/"
-                  : location.pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`transition-colors ${
-                    active
-                      ? "text-slate-900 font-semibold"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* CTA droite */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              to="/devis"
-              className="inline-flex items-center rounded-full bg-[#E52127] text-white text-sm font-medium px-6 py-2.5 hover:bg-[#c91c22] transition-colors shadow-[0_12px_32px_rgba(229,33,39,0.35)]"
-            >
-              Demander une offre
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out border-b ${
+          isScrolled
+            ? "bg-white/95 border-slate-200 backdrop-blur-md py-2 shadow-sm" // SCROLL: Fond Blanc + Ombre
+            : "bg-transparent border-transparent py-6" // TOP: Transparent
+        }`}
+      >
+        <div className="max-w-[1400px] mx-auto px-6">
+          <div className="flex items-center justify-between">
+            
+            {/* --- LOGO LEASE AUTO --- */}
+            <Link to="/" className="flex items-center gap-3 shrink-0 z-50">
+              <motion.img
+                src="src/assets/logo-lease-auto.png"
+                alt="Lease Auto"
+                // TOP: "brightness-0 invert" rend le logo tout BLANC
+                // SCROLL: Filtre retiré pour voir les COULEURS D'ORIGINE
+                className={`w-auto transition-all duration-300 ${
+                  isScrolled 
+                    ? "h-10 md:h-12" // Logo taille normale au scroll
+                    : "h-14 md:h-16 brightness-0 invert" // Logo Blanc + Grand au top
+                }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              />
             </Link>
+
+            {/* --- NAVIGATION DESKTOP --- */}
+            <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
+              {navItems.map((item) => {
+                const active = location.pathname === item.href;
+                // Couleurs du texte selon le scroll (Blanc ou Gris Foncé)
+                const textColor = isScrolled ? "text-slate-600 hover:text-[#E52127]" : "text-white hover:text-[#E52127]";
+                const activeColor = "text-[#E52127]";
+
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`relative group transition-colors duration-200 ${
+                      active ? activeColor : textColor
+                    }`}
+                  >
+                    {item.name}
+                    {/* Soulignement rouge animé */}
+                    <span className={`absolute -bottom-2 left-0 h-0.5 bg-[#E52127] transition-all duration-300 ${active ? "w-full" : "w-0 group-hover:w-full"}`} />
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* --- CTA DROITE + PILL BUTTON --- */}
+            <div className="hidden md:flex items-center gap-4">
+              
+              <Link
+                to="/devis"
+                className="rounded-full bg-[#E52127] text-white text-xs md:text-sm font-bold px-6 py-2.5 hover:bg-[#c91c22] transition-all shadow-[0_4px_14px_rgba(229,33,39,0.3)] hover:scale-105"
+              >
+                Demander une offre
+              </Link>
+
+              {/* Bouton Menu/User qui s'adapte au fond (Blanc ou Noir) */}
+              
+            </div>
+
+            {/* --- BURGER MOBILE --- */}
+            <button
+              className={`md:hidden p-2 transition-colors ${isScrolled ? "text-slate-800" : "text-white"}`}
+              onClick={() => setIsMenuOpen((v) => !v)}
+              aria-label="Ouvrir le menu"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
-
-          {/* Burger mobile */}
-          <button
-            className="md:hidden p-2 text-slate-700"
-            onClick={() => setIsMenuOpen((v) => !v)}
-            aria-label="Ouvrir le menu"
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
+      </header>
 
-        {/* Menu mobile */}
+      {/* --- MENU MOBILE FULLSCREEN (Reste en Dark Mode pour le style Premium) --- */}
+      <AnimatePresence>
         {isMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm">
-            <nav className="py-3 flex flex-col gap-1 text-sm">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl pt-32 px-6 md:hidden"
+          >
+            <nav className="flex flex-col gap-6 text-center">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="px-2 py-2 text-slate-800 hover:bg-slate-50 rounded-md"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-2xl font-bold text-white hover:text-[#E52127] transition-colors"
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="px-2 pt-2 pb-3">
+              
+              <div className="mt-8 flex flex-col items-center gap-4">
                 <Link
                   to="/devis"
-                  className="block w-full text-center rounded-full bg-[#E52127] text-white text-sm font-medium px-4 py-2.5 hover:bg-[#c91c22] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full max-w-xs rounded-full bg-[#E52127] text-white font-bold px-6 py-4 text-lg shadow-[0_0_20px_rgba(229,33,39,0.4)]"
                 >
                   Demander une offre
                 </Link>
               </div>
             </nav>
-          </div>
+          </motion.div>
         )}
-      </div>
-    </header>
+      </AnimatePresence>
+    </>
   );
 };
 

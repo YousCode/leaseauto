@@ -1,239 +1,165 @@
+"use client";
+
 import Image from "next/image";
-import { Menu, User, Search, ArrowRight } from "lucide-react";
+import { Menu, User, Search } from "lucide-react";
+import { Oswald } from "next/font/google"; // Import de la font "Condensed"
 
-const BG_IMAGE =
-  "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=2400&q=80";
+// Configuration de la police pour le titre (effet "Blockbuster")
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-oswald",
+});
 
-// ✅ Mets ici la couleur exacte Lease Auto (accent)
-const LEASE_ACCENT = "#CCFF00";
+const BG_IMAGE = "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=2400";
+
+// COULEUR SIGNATURE JOINSTEER (Jaune Néon)
+const ACCENT = "#ccff00";
+const ACCENT_TEXT = "#000000";
 
 const BRANDS = [
-  // Allemagne
-  "Audi",
-  "BMW",
-  "Mercedes-Benz",
-  "Porsche",
-  "Volkswagen",
-  "Opel",
-  "Smart",
-  "Mini",
-
-  // France
-  "Peugeot",
-  "Renault",
-  "Citroën",
-  "DS Automobiles",
-  "Alpine",
-
-  // Italie
-  "Ferrari",
-  "Lamborghini",
-  "Maserati",
-  "Alfa Romeo",
-  "Fiat",
-  "Abarth",
-
-  // Royaume-Uni
-  "Aston Martin",
-  "Bentley",
-  "Rolls-Royce",
-  "Jaguar",
-  "Land Rover",
-  "McLaren",
-
-  // Japon
-  "Toyota",
-  "Lexus",
-  "Honda",
-  "Mazda",
-  "Nissan",
-  "Infiniti",
-  "Suzuki",
-  "Mitsubishi",
-  "Subaru",
-
-  // Corée
-  "Hyundai",
-  "Kia",
-  "Genesis",
-
-  // Europe (Esp/CZ/SE)
-  "SEAT",
-  "CUPRA",
-  "Škoda",
-  "Volvo",
-
-  // USA très présentes en Europe
-  "Tesla",
-  "Ford",
-  "Jeep",
-  "Chevrolet",
-  "Cadillac",
-
-  // EV / nouvelles marques qu’on voit de plus en plus
-  "Polestar",
-  "BYD",
-  "XPeng",
-  "Lucid",
+  "Audi","BMW","Mercedes-Benz","Porsche","Volkswagen","Ferrari","Lamborghini",
+  "Maserati","Aston Martin","Bentley","Rolls-Royce","Jaguar","Land Rover","McLaren",
+  "Tesla","Lexus","Alpine","Mini","Volvo","Ford Mustang"
 ];
 
-export default function HeroSection() {
+export default function HeroJoinsteerLike() {
   return (
-    <section className="relative h-[100svh] overflow-hidden text-white">
-      {/* Keyframes marquee (pas besoin de tailwind.config) */}
+    <section className={`relative h-[100svh] w-full overflow-hidden text-white ${oswald.variable}`}>
+
+      {/* Styles globaux pour l'animation marquee */}
       <style jsx global>{`
         @keyframes marquee {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 60s linear infinite;
+        }
+        /* Glass effect premium pour la navbar */
+        .glass-nav {
+          background: rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
         }
       `}</style>
 
-      {/* Background */}
-      <div className="absolute inset-0">
+      {/* --- BACKGROUND LAYER --- */}
+      <div className="absolute inset-0 z-0">
         <Image
           src={BG_IMAGE}
-          alt="Lease Auto - voitures premium"
+          alt="Lease Auto Background"
           fill
           priority
           className="object-cover"
-          sizes="100vw"
         />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/70" />
+        {/* Overlay complexe pour lisibilité parfaite du texte blanc */}
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60" />
       </div>
 
-      {/* Navbar */}
-      <header className="absolute top-0 left-0 right-0 z-20">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-8 py-6">
-          {/* Logo */}
+      {/* --- NAVBAR --- */}
+      <header className="absolute top-0 left-0 right-0 z-50">
+        <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-6 py-6 md:px-10">
+          
+          {/* Logo Brand */}
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full border border-white/25 bg-white/10" />
-            <div className="text-[12px] font-semibold tracking-[0.22em] uppercase text-white/90">
+             {/* Remplace par ton vrai logo SVG ici */}
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black font-bold text-xl">
+              L
+            </div>
+            <span className="text-sm font-bold tracking-[0.2em] uppercase text-white hidden md:block">
               Lease Auto
             </div>
-          </div>
 
-          {/* Links + icons */}
-          <div className="flex items-center gap-6">
-            <nav className="hidden md:flex items-center gap-7 text-[14px] text-white/85">
-              <a className="hover:text-white transition-colors" href="#marketplace">
-                Marketplace
+          {/* Navigation Links (Desktop) */}
+          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-medium tracking-wide text-white/90">
+            {["Marketplace", "Location par abonnement", "Vendre ma voiture", "FAQ"].map((item) => (
+              <a key={item} href="#" className="hover:text-[#ccff00] transition-colors duration-300">
+                {item}
               </a>
-              <a className="hover:text-white transition-colors" href="#abonnement">
-                Location par abonnement
-              </a>
-              <a className="hover:text-white transition-colors" href="#vendre">
-                Vendre ma voiture
-              </a>
-              <a className="hover:text-white transition-colors" href="#faq">
-                FAQ
-              </a>
-            </nav>
+            ))}
+          </nav>
 
-            <div className="flex items-center gap-2 rounded-md border border-white/25 bg-black/30 p-1 backdrop-blur">
-              <button
-                aria-label="Menu"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-white/10 transition-colors"
-              >
-                <Menu className="h-5 w-5" />
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            <div className="glass-nav flex items-center gap-1 rounded-lg border border-white/10 p-1">
+              <button className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-white/10 transition">
+                <Menu className="h-5 w-5 text-white" />
               </button>
-              <button
-                aria-label="Compte"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-white/10 transition-colors"
-              >
-                <User className="h-5 w-5" />
+              <button className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-white/10 transition">
+                <User className="h-5 w-5 text-white" />
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full items-center justify-center px-6">
-        <div className="w-full max-w-[920px] text-center">
-          <h1 className="mx-auto max-w-[980px] text-[44px] leading-[1.05] md:text-[72px] font-extrabold uppercase tracking-tight">
-            VOTRE VIE ÉVOLUE. VOTRE VOITURE AUSSI !
-          </h1>
+      {/* --- MAIN CONTENT (CENTER) --- */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
+        
+        {/* Titre Impactant (Font Oswald) */}
+        <h1 className="font-oswald max-w-6xl text-5xl font-bold uppercase leading-[0.9] tracking-tighter text-white md:text-[86px] lg:text-[100px] drop-shadow-2xl">
+          VOTRE VIE ÉVOLUE.<br /> VOTRE VOITURE AUSSI !
+        </h1>
 
-          <div className="mt-4 space-y-2 text-[15px] md:text-[16px] text-white/85">
-            <p className="font-light">
-              Leasing, LOA &amp; LLD de voitures premium d&apos;occasion avec Lease Auto.
-            </p>
-            <p className="font-light">
-              Plus de <span className="font-semibold text-white">83&nbsp;294</span> véhicules
-              révisés, garantis et expertisés, prêts à être financés et livrés partout en France.
-            </p>
+        {/* Sous-titre & Stats */}
+        <div className="mt-6 max-w-3xl space-y-2">
+          <p className="text-base font-medium text-white md:text-lg">
+            Leasing, LOA & LLD de voitures premium d&apos;occasion avec Lease Auto
+          </p>
+          <p className="text-sm text-white/70 md:text-base font-light">
+            Plus de <span className="font-bold text-white">83 294</span> véhicules révisés, garantis et expertisés.
+          </p>
+        </div>
+
+        {/* Search Bar Premium */}
+        <div className="mt-10 w-full max-w-[680px]">
+          <div className="group relative flex items-center gap-4 rounded-xl bg-white px-6 py-4 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform focus-within:scale-[1.02]">
+            <Search className="h-6 w-6 text-gray-400 group-focus-within:text-black transition-colors" />
+            <input
+              className="h-full w-full bg-transparent text-lg text-black outline-none placeholder:text-gray-400 placeholder:font-light"
+              placeholder="Rechercher le véhicule de mes rêves (ex: RS3, Macan...)"
+              type="text"
+            />
           </div>
+        </div>
 
-          {/* Search */}
-          <div className="mt-6 flex justify-center">
-            <div className="flex w-full max-w-[760px] items-center gap-3 rounded-full bg-white/95 px-5 py-3 shadow-2xl backdrop-blur">
-              <Search className="h-5 w-5 text-slate-500" />
-              <input
-                className="w-full bg-transparent text-[15px] text-slate-800 placeholder:text-slate-400 outline-none"
-                placeholder="Rechercher le véhicule de mes rêves"
-                type="text"
-              />
-            </div>
-          </div>
+        {/* Call to Actions */}
+        <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
+          <button className="group relative px-8 py-3.5 rounded-full border border-white/30 bg-black/20 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white hover:text-black hover:border-white">
+            <span className="relative z-10">Vivre l&apos;expérience immersive</span>
+          </button>
 
-          {/* CTA */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
-            <button className="group inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/10 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-white/10 transition-colors backdrop-blur">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/30 bg-white/5 group-hover:bg-white/10 transition-colors">
-                <ArrowRight className="h-4 w-4" />
+          <button
+            className="px-9 py-3.5 rounded-full text-sm font-bold uppercase tracking-wide shadow-[0_0_20px_-5px_#ccff00] transition-transform hover:scale-105 hover:brightness-110"
+            style={{ backgroundColor: ACCENT, color: ACCENT_TEXT }}
+          >
+            Accéder à la marketplace
+          </button>
+        </div>
+      </div>
+
+      {/* --- MARQUEE BRANDS (FOOTER) --- */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 pb-8 pt-20">
+        {/* Gradient pour fondre le texte */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
+        
+        <div className="relative flex overflow-hidden opacity-60 mix-blend-overlay">
+          <div className="animate-marquee flex whitespace-nowrap">
+            {[...BRANDS, ...BRANDS, ...BRANDS].map((brand, i) => (
+              <span 
+                key={i} 
+                className="mx-8 text-xl font-bold italic uppercase tracking-widest text-transparent md:text-2xl"
+                style={{ WebkitTextStroke: "1px rgba(255,255,255,0.5)" }} // Effet "Outline" style luxe
+              >
+                {brand}
               </span>
-              Vivre l&apos;expérience immersive
-            </button>
-
-            <button
-              className="rounded-full px-6 py-3 text-[13px] font-semibold text-black hover:brightness-110 transition"
-              style={{
-                backgroundColor: LEASE_ACCENT,
-                boxShadow: `0 14px 40px rgba(0,0,0,0.35), 0 10px 30px ${LEASE_ACCENT}40`,
-              }}
-            >
-              Accéder à la marketplace
-            </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Brands marquee (défilement infini) */}
-      <div className="absolute bottom-6 left-0 right-0 z-10 overflow-hidden pointer-events-none">
-        {/* fade edges like premium */}
-        <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-black/70 to-transparent" />
-        <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-black/70 to-transparent" />
-
-        <div
-          className="flex w-max gap-14 px-10 text-[16px] italic tracking-[0.15em] text-white/45"
-          style={{
-            animation: "marquee 42s linear infinite",
-          }}
-        >
-          {[...BRANDS, ...BRANDS].map((brand, i) => (
-            <span key={i} className="whitespace-nowrap uppercase">
-              {brand}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Optional: bubble (comme Joinsteer) */}
-      <div className="absolute bottom-6 right-6 z-20">
-        <button
-          aria-label="Chat"
-          className="relative inline-flex h-12 w-12 items-center justify-center rounded-full shadow-xl"
-          style={{ backgroundColor: LEASE_ACCENT }}
-        >
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 ring-2 ring-black/30" />
-          <span className="h-5 w-5 rounded-sm bg-black/70" />
-        </button>
-      </div>
     </section>
   );
 }
