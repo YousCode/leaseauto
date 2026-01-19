@@ -2,7 +2,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useEffect } from "react";
 
-export function useVehicles(status?: "draft" | "published" | "archived") {
+export function useVehicles(
+  status?: "draft" | "published" | "archived",
+  opts?: { includeArchived?: boolean },
+) {
   const qc = useQueryClient();
   const qKey = ["vehicles", status ?? "all"];
 
@@ -13,7 +16,11 @@ export function useVehicles(status?: "draft" | "published" | "archived") {
         .from("vehicles")
         .select("*")
         .order("created_at", { ascending: false });
-      if (status) q = q.eq("status", status);
+      if (status) {
+        q = q.eq("status", status);
+      } else if (!opts?.includeArchived) {
+        q = q.neq("status", "archived");
+      }
       const { data } = await q;
       return data ?? [];
     },

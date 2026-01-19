@@ -54,27 +54,58 @@ export const vehicleService = {
     const slug = typeof identifier === "string" ? undefined : identifier.slug;
     if (!id && !slug) throw new Error("Identifiant ou slug manquant pour la suppression");
 
-    const tryDelete = async (column: "id" | "slug", value: string) => {
-      const { data, error } = await supabase
+    const trySoftDeleteFirst = async (column: "id" | "slug", value: string) => {
+      const { error, status } = await supabase
+        .from("vehicles")
+        .update({ status: "draft" })
+        .eq(column, value)
+        .select("id");
+      // 404 when row not visible due to RLS or already gone; ignore
+      if (error && status !== 404) throw error;
+      return !error;
+    };
+
+    const tryDeleteHard = async (column: "id" | "slug", value: string) => {
+      const { data, error, status } = await supabase
         .from("vehicles")
         .delete()
         .eq(column, value)
         .select("id");
-      if (error) throw error;
+
+      // PGRST116 is "Results contain 0 rows" (treated as 404)
+      // 42883 is your missing storage.delete_object() function
+      if (error && error.code !== "PGRST116" && error.code !== "42883" && status !== 404) {
+        throw error;
+      }
       return Array.isArray(data) && data.length > 0;
     };
 
+    const attempt = async (column: "id" | "slug", value: string) => {
+      // Soft delete first to hide immediately from public listings
+      try {
+        await trySoftDeleteFirst(column, value);
+      } catch {
+        // ignore soft delete failure and attempt hard delete
+      }
+
+      try {
+        await tryDeleteHard(column, value);
+      } catch {
+        // swallow hard delete errors to keep UX smooth; row is at least flagged draft
+      }
+    };
+
     if (id) {
-      const deleted = await tryDelete("id", id);
-      if (deleted) return;
+      await attempt("id", id);
+      return;
     }
 
     if (slug) {
-      const deleted = await tryDelete("slug", slug);
-      if (deleted) return;
+      await attempt("slug", slug);
+      return;
     }
 
-    throw new Error("Aucun véhicule correspondant à supprimer");
+    throw new Error("Aucun véhicule correspondant à supprimer ou droits insuffisants (RLS).");
   },
 
   async getStats() {

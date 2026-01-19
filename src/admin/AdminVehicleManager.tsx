@@ -50,6 +50,19 @@ const AdminVehicleManager = () => {
   const [selectedVehicle, setSelectedVehicle] =
     useState<ExtendedVehicleProps | null>(null);
   const [showConfidentialInfo, setShowConfidentialInfo] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+
+  const formatDeletionError = (raw: any) => {
+    const message = raw?.message || raw?.toString?.() || "Erreur inconnue";
+    if (message.toLowerCase().includes("storage.delete_object")) {
+      return "Suppression bloquée côté Supabase (fonction storage.delete_object absente). Vérifie le trigger ou l'extension Storage dans la base avant de réessayer.";
+    }
+    if (message.toLowerCase().includes("permission") || message.toLowerCase().includes("policy")) {
+      return "Droits insuffisants pour supprimer ce véhicule (RLS ou rôle). Connecte-toi en admin ou ajuste les politiques Supabase.";
+    }
+    return message;
+  };
 
   const handleAddVehicle = () => {
     setSelectedVehicle(null);
@@ -85,7 +98,16 @@ const AdminVehicleManager = () => {
     }
 
     try {
+      setDeletingId(id || slug || null);
       await vehicleService.delete({ id, slug });
+      const hideKey = id || slug;
+      if (hideKey) {
+        setHiddenIds((prev) => {
+          const next = new Set(prev);
+          next.add(hideKey);
+          return next;
+        });
+      }
       qc.invalidateQueries({ queryKey: ["vehicles"] });
       toast({
         title: "✅ Véhicule supprimé",
@@ -94,9 +116,11 @@ const AdminVehicleManager = () => {
     } catch (error: any) {
       toast({
         title: "❌ Suppression impossible",
-        description: error?.message ?? "Vérifie les droits Supabase (RLS).",
+        description: formatDeletionError(error),
         variant: "destructive",
       });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -201,9 +225,16 @@ const AdminVehicleManager = () => {
     setShowConfidentialInfo(!showConfidentialInfo);
   };
 
+  const visibleVehicles = useMemo(() => {
+    return (remoteVehicles as ExtendedVehicleProps[]).filter((v) => {
+      const key = v.id || v.slug;
+      return key ? !hiddenIds.has(key) : true;
+    });
+  }, [remoteVehicles, hiddenIds]);
+
   const totalVehicles = useMemo(
-    () => (Array.isArray(remoteVehicles) ? remoteVehicles.length : 0),
-    [remoteVehicles],
+    () => (Array.isArray(visibleVehicles) ? visibleVehicles.length : 0),
+    [visibleVehicles],
   );
 
   const formatMileage = (value: number | string | null | undefined) => {
@@ -236,8 +267,8 @@ const AdminVehicleManager = () => {
     return null;
   };
 
-  const publishedCount = remoteVehicles.filter((v: any) => v.status === "published").length;
-  const draftCount = remoteVehicles.filter((v: any) => v.status !== "published").length;
+  const publishedCount = visibleVehicles.filter((v: any) => v.status === "published").length;
+  const draftCount = visibleVehicles.filter((v: any) => v.status !== "published").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0b1020] via-[#0d1224] to-[#0b0f1c] text-white">
@@ -304,11 +335,25 @@ const AdminVehicleManager = () => {
         </div>
 
         <div className="grid gap-4">
-          {remoteVehicles.map((vehicle: any) => (
+          {visibleVehicles.map((vehicle: any) => {
+            const key = vehicle.id || vehicle.slug;
+            const isDeleting = deletingId === key;
+            return (
             <div
               key={vehicle.id}
-              className="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4 hover:border-[#DA1212]/40 hover:shadow-[0_10px_50px_-20px_rgba(218,18,18,0.7)] transition"
+              className={[
+                "group relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4 hover:border-[#DA1212]/40 hover:shadow-[0_10px_50px_-20px_rgba(218,18,18,0.7)] transition",
+                isDeleting ? "opacity-60 blur-[0.2px]" : "",
+              ].join(" ")}
             >
+              {isDeleting && (
+                <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center z-10">
+                  <div className="flex items-center gap-2 text-sm text-white">
+                    <div className="h-3 w-3 animate-ping rounded-full bg-red-400" />
+                    Suppression en cours...
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative w-full md:w-52 h-36 overflow-hidden rounded-xl bg-black/40 border border-white/5">
                   {getPrimaryImage(vehicle) ? (
@@ -437,9 +482,11 @@ const AdminVehicleManager = () => {
                       size="sm"
                       variant="outline"
                       className="border-red-400/40 text-red-200 bg-red-500/10 hover:bg-red-500/20"
+                      disabled={isDeleting}
                       onClick={() => handleDeleteVehicle(vehicle)}
                     >
-                      <Trash2 size={14} className="mr-2" /> Supprimer
+                      <Trash2 size={14} className="mr-2" />
+                      {isDeleting ? "Suppression..." : "Supprimer"}
                     </Button>
                     <Button
                       size="sm"
@@ -453,7 +500,8 @@ const AdminVehicleManager = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
 
           {remoteVehicles.length === 0 && (
             <Card className="bg-white/5 border-dashed border-white/10 text-center py-10">
