@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, X, Plus, FileText } from "lucide-react";
-import VehicleModelViewer from "@/components/vehicles/VehicleModelViewer";
+import { uploadVehicleImages } from "@/lib/uploadVehicleImages";
 
 interface VehicleFormProps {
   vehicle?: Record<string, any>;
@@ -22,24 +22,42 @@ interface VehicleFormProps {
 }
 
 const carBrands = [
+  "Alfa Romeo",
+  "Aston Martin",
   "Audi",
+  "Bentley",
   "BMW",
+  "Bugatti",
   "Citroën",
+  "Cupra",
   "Dacia",
+  "DS Automobiles",
+  "Ferrari",
   "Fiat",
   "Ford",
   "Honda",
   "Hyundai",
+  "Jaguar",
+  "Jeep",
   "Kia",
+  "Lamborghini",
   "Land Rover",
+  "Lexus",
+  "Maserati",
   "Mazda",
+  "McLaren",
   "Mercedes-Benz",
+  "Mini",
   "Nissan",
   "Opel",
   "Peugeot",
+  "Porsche",
   "Renault",
+  "Rolls-Royce",
   "Seat",
   "Skoda",
+  "Subaru",
+  "Suzuki",
   "Tesla",
   "Toyota",
   "Volkswagen",
@@ -71,17 +89,6 @@ const fuelTypes = [
 
 const transmissionTypes = ["Manuelle", "Automatique", "Semi-automatique"];
 
-const critAirOptions = ["0", "1", "2", "3", "4", "5"];
-
-const emissionClasses = [
-  "Euro 1",
-  "Euro 2",
-  "Euro 3",
-  "Euro 4",
-  "Euro 5",
-  "Euro 6",
-];
-
 const upholsteryTypes = ["Cuir", "Tissu", "Alcantara", "Mixte", "Simili cuir"];
 
 const commonEquipments = [
@@ -106,14 +113,33 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
   const [vehicleData, setVehicleData] = useState<Record<string, any>>(
     vehicle || {},
   );
+  const [imageUrls, setImageUrls] = useState(
+    Array.isArray(vehicle?.images) ? vehicle.images.join("\n") : "",
+  );
   const [vehicleImages, setVehicleImages] = useState<File[]>([]);
+  const [persistedImages, setPersistedImages] = useState<string[]>(
+    Array.isArray(vehicle?.images) ? vehicle.images : [],
+  );
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [documents, setDocuments] = useState<{ name: string; file: File }[]>(
     [],
   );
   const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
-  const [model3dPreview, setModel3dPreview] = useState<string | undefined>(
-    vehicle?.model3dUrl,
-  );
+  const [model3dPreview, setModel3dPreview] = useState<string | undefined>();
+
+  // Réinitialise le formulaire lorsque l'on ouvre un autre véhicule en édition.
+  useEffect(() => {
+    setVehicleData(vehicle || {});
+    const urls = Array.isArray(vehicle?.images) ? vehicle.images : [];
+    setImageUrls(urls.join("\n"));
+    setPersistedImages(urls);
+    setVehicleImages([]);
+    setSelectedEquipments(
+      Array.isArray(vehicle?.equipments) ? vehicle.equipments : [],
+    );
+  }, [vehicle]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -141,10 +167,37 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
       const newFiles = Array.from(e.target.files);
       if (vehicleImages.length + newFiles.length <= 20) {
         setVehicleImages([...vehicleImages, ...newFiles]);
+        // Ces fichiers ne sont pas envoyés à Supabase ici. Préférer des URLs hébergées.
       } else {
         alert("Vous ne pouvez pas télécharger plus de 20 images");
       }
     }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files).filter((file) =>
+        file.type.startsWith("image/"),
+      );
+      if (vehicleImages.length + files.length <= 20) {
+        setVehicleImages([...vehicleImages, ...files]);
+      } else {
+        alert("Vous ne pouvez pas télécharger plus de 20 images");
+      }
+      e.dataTransfer.clearData();
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
   };
 
   const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,39 +210,28 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
     }
   };
 
-  const handleModel3DUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    const objectUrl = URL.createObjectURL(file);
-    setModel3dPreview((previous) => {
-      if (previous && previous.startsWith("blob:")) {
-        URL.revokeObjectURL(previous);
-      }
-      return objectUrl;
-    });
-    setVehicleData((prev) => ({
-      ...prev,
-      model3dUrl: objectUrl,
-      model3dFileName: file.name,
-    }));
-  };
-
   useEffect(() => {
-    setModel3dPreview(vehicle?.model3dUrl);
-  }, [vehicle]);
-
-  useEffect(() => {
-    return () => {
-      if (model3dPreview && model3dPreview.startsWith("blob:")) {
-        URL.revokeObjectURL(model3dPreview);
-      }
-    };
-  }, [model3dPreview]);
+    if (model3dPreview && model3dPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(model3dPreview);
+    }
+  }, []);
 
   const removeImage = (index: number) => {
     const updatedImages = [...vehicleImages];
     updatedImages.splice(index, 1);
     setVehicleImages(updatedImages);
+  };
+
+  const handleImageUrlsChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const value = e.target.value;
+    setImageUrls(value);
+    const urls = value
+      .split("\n")
+      .map((u) => u.trim())
+      .filter(Boolean);
+    setVehicleData({ ...vehicleData, images: urls });
   };
 
   const removeDocument = (index: number) => {
@@ -198,10 +240,45 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
     setDocuments(updatedDocuments);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadError(null);
+
+    // URLs déjà saisies
+    const urlsFromTextarea = (Array.isArray(vehicleData.images)
+      ? vehicleData.images
+      : imageUrls
+          .split("\n")
+          .map((u) => u.trim())
+          .filter(Boolean)) as string[];
+
+    let uploadedUrls: string[] = [];
+    if (vehicleImages.length > 0) {
+      setIsUploading(true);
+      try {
+        const vehicleId =
+          vehicleData.slug ||
+          vehicleData.id ||
+          (vehicleData.title ? vehicleData.title.replace(/\s+/g, "-").toLowerCase() : "vehicule") +
+            "-" +
+            (crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Date.now());
+        uploadedUrls = await uploadVehicleImages(vehicleId, vehicleImages);
+      } catch (err: any) {
+        // On ne bloque plus la soumission : on logge l'erreur mais on continue avec les URLs déjà saisies.
+        const msg = err?.message || "Upload des photos impossible (bucket ou droits ?)";
+        console.error("Upload images échoué, on continue sans :", msg);
+        setUploadError(msg);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+
+    const images = [...urlsFromTextarea, ...uploadedUrls].filter(Boolean);
+    const finalImages = images.length > 0 ? images : persistedImages;
+
     const formData = {
       ...vehicleData,
+      images: finalImages,
       equipments: selectedEquipments,
       imageCount: vehicleImages.length,
       documentCount: documents.length,
@@ -214,25 +291,52 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
   const monthlyPrice = Number(vehicleData.price) || 0;
   const totalPrice = monthlyPrice * leaseDuration;
 
+  const inputClass =
+    "bg-[#0d0f14] border border-[#1f2937] text-white placeholder:text-gray-500 focus:border-[#DA1212] focus:ring-0 rounded-lg";
+  const selectTriggerClass =
+    "bg-[#0d0f14] border border-[#1f2937] text-white font-semibold rounded-lg";
+  const selectContentClass =
+    "bg-[#0d0f14] border border-[#1f2937] text-white rounded-lg";
+  const selectItemClass =
+    "text-white font-semibold focus:bg-[#DA1212] focus:text-white data-[highlighted]:bg-[#DA1212]/80 data-[highlighted]:text-white";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 rounded-2xl border border-[#1f2937] bg-[#0b0d12] p-4 sm:p-6 shadow-[0_16px_50px_rgba(0,0,0,0.38)]"
+    >
+      {uploadError ? (
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+          {uploadError} — Les images drop ne sont pas montées, mais l'annonce sera quand même soumise avec les URLs texte/fallback.
+        </div>
+      ) : null}
+
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-white">Créer une annonce</h2>
+          <p className="text-xs uppercase tracking-[0.16em] text-gray-400 mt-1">
+            Formulaire fluide · données clés uniquement
+          </p>
+        </div>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 mb-6">
+        <TabsList className="flex flex-wrap gap-2 mb-6 bg-[#0f1118] border border-[#1f2937] rounded-xl p-1 md:grid md:grid-cols-4">
           <TabsTrigger
             value="general"
-            className="data-[state=active]:bg-[#DA1212] data-[state=active]:text-white"
+            className="rounded-lg text-white font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Informations générales
           </TabsTrigger>
           <TabsTrigger
             value="technical"
-            className="data-[state=active]:bg-[#DA1212] data-[state=active]:text-white"
+            className="rounded-lg text-white font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Caractéristiques techniques
           </TabsTrigger>
           <TabsTrigger
             value="media"
-            className="data-[state=active]:bg-[#DA1212] data-[state=active]:text-white"
+            className="rounded-lg text-white font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Médias
           </TabsTrigger>
@@ -245,25 +349,11 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         </TabsList>
 
         {/* Informations générales */}
-        <TabsContent value="general" className="space-y-4">
+        <TabsContent
+          value="general"
+          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="registration" className="text-sm text-gray-400">
-                Numéro d'immatriculation{" "}
-                <span className="text-[#DA1212]">*</span>{" "}
-                <span className="text-xs">(confidentiel)</span>
-              </Label>
-              <Input
-                id="registration"
-                name="registration"
-                value={vehicleData.registration || ""}
-                onChange={handleInputChange}
-                className="bg-black border-gray-800"
-                placeholder="AB-123-CD"
-                required
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="brand" className="text-sm text-gray-400">
                 Marque <span className="text-[#DA1212]">*</span>
@@ -273,12 +363,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 value={vehicleData.brand || ""}
                 onValueChange={(value) => handleSelectChange("brand", value)}
               >
-                <SelectTrigger className="bg-black border-gray-800">
+                <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Sélectionner une marque" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className={selectContentClass}>
                   {carBrands.map((brand) => (
-                    <SelectItem key={brand} value={brand}>
+                    <SelectItem key={brand} value={brand} className={selectItemClass}>
                       {brand}
                     </SelectItem>
                   ))}
@@ -295,7 +385,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 name="model"
                 value={vehicleData.model || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 3008"
                 required
               />
@@ -310,7 +400,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 name="trim"
                 value={vehicleData.trim || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: GT Line"
               />
             </div>
@@ -324,7 +414,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 name="version"
                 value={vehicleData.version || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 1.6 THP 155ch"
               />
             </div>
@@ -339,7 +429,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.year || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 2023"
                 required
               />
@@ -350,35 +440,21 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 htmlFor="registrationDate"
                 className="text-sm text-gray-400"
               >
-                Date de mise en circulation{" "}
+                Date de mise en circulation (MM/AAAA){" "}
                 <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
                 id="registrationDate"
                 name="registrationDate"
-                type="date"
+                type="month"
                 value={vehicleData.registrationDate || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={`${inputClass} cursor-pointer`}
                 required
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="technicalInspectionDate"
-                className="text-sm text-gray-400"
-              >
-                Date de fin de validité du contrôle technique
-              </Label>
-              <Input
-                id="technicalInspectionDate"
-                name="technicalInspectionDate"
-                type="date"
-                value={vehicleData.technicalInspectionDate || ""}
-                onChange={handleInputChange}
-                className="bg-black border-gray-800"
-              />
+              <p className="text-xs text-gray-500">
+                Sélectionnez le mois et l'année via le calendrier (format MM/AAAA).
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -391,9 +467,24 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.price || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 399"
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="totalPrice" className="text-sm text-gray-400">
+                Prix total (€)
+              </Label>
+              <Input
+                id="totalPrice"
+                name="totalPrice"
+                type="number"
+                value={vehicleData.totalPrice || ""}
+                onChange={handleInputChange}
+                className={inputClass}
+                placeholder="ex: 28 990"
               />
             </div>
 
@@ -406,7 +497,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 name="color"
                 value={vehicleData.color || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: Noir Perla Nera"
               />
             </div>
@@ -420,7 +511,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 name="title"
                 value={vehicleData.title || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: Peugeot 3008 GT Line 1.6 THP 155ch - Garantie 12 mois"
                 required
               />
@@ -428,23 +519,25 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="description" className="text-sm text-gray-400">
-                Description complète <span className="text-[#DA1212]">*</span>
+                Description complète
               </Label>
               <Textarea
                 id="description"
                 name="description"
                 value={vehicleData.description || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800 min-h-[150px]"
+                className={`${inputClass} min-h-[150px]`}
                 placeholder="Description détaillée du véhicule..."
-                required
               />
             </div>
           </div>
         </TabsContent>
 
         {/* Caractéristiques techniques */}
-        <TabsContent value="technical" className="space-y-4">
+        <TabsContent
+          value="technical"
+          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category" className="text-sm text-gray-400">
@@ -455,12 +548,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 value={vehicleData.category || ""}
                 onValueChange={(value) => handleSelectChange("category", value)}
               >
-                <SelectTrigger className="bg-black border-gray-800">
+                <SelectTrigger className="bg-black border-gray-700 text-white font-semibold">
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className="bg-gray-900 border-gray-800 text-white font-semibold">
                   {vehicleTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem key={type} value={type} className="text-white font-semibold">
                       {type}
                     </SelectItem>
                   ))}
@@ -478,7 +571,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.mileage || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 45000"
                 required
               />
@@ -494,7 +587,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.fiscalPower || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 8"
               />
             </div>
@@ -509,7 +602,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.enginePower || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 155"
               />
             </div>
@@ -524,7 +617,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.doors || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 5"
               />
             </div>
@@ -539,7 +632,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 type="number"
                 value={vehicleData.seats || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800"
+                className={inputClass}
                 placeholder="ex: 5"
               />
             </div>
@@ -555,12 +648,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   handleSelectChange("transmission", value)
                 }
               >
-                <SelectTrigger className="bg-black border-gray-800">
+                <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className={selectContentClass}>
                   {transmissionTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem key={type} value={type} className="text-white font-semibold">
                       {type}
                     </SelectItem>
                   ))}
@@ -577,12 +670,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 value={vehicleData.fuelType || ""}
                 onValueChange={(value) => handleSelectChange("fuelType", value)}
               >
-                <SelectTrigger className="bg-black border-gray-800">
+                <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className={selectContentClass}>
                   {fuelTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem key={type} value={type} className="text-white font-semibold">
                       {type}
                     </SelectItem>
                   ))}
@@ -604,12 +697,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   handleSelectChange("licenseRequired", value)
                 }
               >
-                <SelectTrigger className="bg-black border-gray-800">
+                <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Sélectionner une option" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="avec">Avec permis</SelectItem>
-                  <SelectItem value="sans">Sans permis</SelectItem>
+                <SelectContent className={selectContentClass}>
+                  <SelectItem value="avec" className="text-white font-semibold">Avec permis</SelectItem>
+                  <SelectItem value="sans" className="text-white font-semibold">Sans permis</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -625,59 +718,13 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   handleSelectChange("upholstery", value)
                 }
               >
-                <SelectTrigger className="bg-black border-gray-800">
+                <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className={selectContentClass}>
                   {upholsteryTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem key={type} value={type} className="text-white font-semibold">
                       {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="critAir" className="text-sm text-gray-400">
-                Crit'Air
-              </Label>
-              <Select
-                name="critAir"
-                value={vehicleData.critAir || ""}
-                onValueChange={(value) => handleSelectChange("critAir", value)}
-              >
-                <SelectTrigger className="bg-black border-gray-800">
-                  <SelectValue placeholder="Sélectionner une vignette" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  {critAirOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="emissionClass" className="text-sm text-gray-400">
-                Classe d'émission
-              </Label>
-              <Select
-                name="emissionClass"
-                value={vehicleData.emissionClass || ""}
-                onValueChange={(value) =>
-                  handleSelectChange("emissionClass", value)
-                }
-              >
-                <SelectTrigger className="bg-black border-gray-800">
-                  <SelectValue placeholder="Sélectionner une classe" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  {emissionClasses.map((cls) => (
-                    <SelectItem key={cls} value={cls}>
-                      {cls}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -719,7 +766,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 name="additionalEquipment"
                 value={vehicleData.additionalEquipment || ""}
                 onChange={handleInputChange}
-                className="bg-black border-gray-800 min-h-[100px]"
+                className={`${inputClass} min-h-[100px]`}
                 placeholder="Autres équipements non listés ci-dessus..."
               />
             </div>
@@ -727,105 +774,112 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         </TabsContent>
 
         {/* Médias */}
-        <TabsContent value="media" className="space-y-4">
-          <div className="space-y-4">
+        <TabsContent
+          value="media"
+          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+        >
+          <div className="space-y-5">
             <div>
               <Label className="text-sm text-gray-400 block mb-2">
-                Photos du véhicule{" "}
-                <span className="text-xs">(max 20 fichiers)</span>
+                Drag & Drop des photos (png/jpg, max 6 Mo, 20 fichiers)
               </Label>
-              <div className="flex items-center space-x-4">
-                <label className="cursor-pointer">
-                  <div className="flex items-center justify-center px-4 py-2 border border-dashed border-gray-700 rounded-md hover:bg-gray-800/30 transition-colors">
-                    <Upload size={18} className="mr-2" />
-                    <span>Ajouter des photos</span>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleImageUpload}
-                  />
-                </label>
-                <span className="text-sm text-gray-400">
-                  {vehicleImages.length} / 20 photos
+              <label
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-6 text-sm transition ${
+                  isDragging
+                    ? "border-[#DA1212] bg-[#DA1212]/10 text-white"
+                    : "border-gray-700 bg-[#0f1118] text-gray-400 hover:border-[#DA1212]"
+                }`}
+              >
+                <Upload size={20} className="mb-2" />
+                <span className="text-center">
+                  Glissez-déposez vos photos ici ou cliquez pour sélectionner
                 </span>
-              </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </label>
+              {(persistedImages.length > 0 || vehicleImages.length > 0) && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                  {persistedImages.map((image, index) => (
+                    <div key={`persisted-${index}`} className="relative group">
+                      <div className="aspect-[4/3] rounded-md overflow-hidden bg-gray-800">
+                        <img
+                          src={image}
+                          alt={`Vehicle image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPersistedImages((prev) => prev.filter((_, i) => i !== index))
+                        }
+                        className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  {vehicleImages.map((image, index) => (
+                    <div key={`new-${index}`} className="relative group">
+                      <div className="aspect-[4/3] rounded-md overflow-hidden bg-gray-800">
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`Vehicle image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {uploadError && (
+                <p className="mt-2 text-sm text-red-400">{uploadError}</p>
+              )}
+              {isUploading && (
+                <p className="mt-2 text-sm text-gray-400">
+                  Upload en cours…
+                </p>
+              )}
             </div>
 
-            {vehicleImages.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                {vehicleImages.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <div className="aspect-[4/3] rounded-md overflow-hidden bg-gray-800">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Vehicle image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-6 border-t border-gray-800">
-              <Label className="text-sm text-gray-400 block mb-2">
-                Modèle 3D (.glb)
+            <div className="space-y-3">
+              <Label className="text-sm text-gray-400 block">
+                URLs des photos (optionnel) — une par ligne
               </Label>
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-4">
-                  <label className="cursor-pointer">
-                    <div className="flex items-center justify-center px-4 py-2 border border-dashed border-gray-700 rounded-md hover:bg-gray-800/30 transition-colors">
-                      <Upload size={18} className="mr-2" />
-                      <span>Télécharger un modèle 3D</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".glb"
-                      className="hidden"
-                      onChange={handleModel3DUpload}
-                    />
-                  </label>
-                  {model3dPreview ? (
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        Modèle importé
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {vehicleData.model3dFileName ?? "Fichier personnalisé"}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-gray-500">
-                      Importez votre fichier .glb (5 Mo max). Il sera visible
-                      sur la fiche et dans l'admin.
-                    </p>
-                  )}
-                </div>
-                {model3dPreview ? (
-                  <div className="rounded-lg border border-gray-800 bg-black/40 p-3">
-                    <VehicleModelViewer
-                      src={model3dPreview}
-                      className="h-48 rounded-xl border-0"
-                    />
-                  </div>
-                ) : null}
-              </div>
+              <Textarea
+                value={imageUrls}
+                onChange={handleImageUrlsChange}
+                className={`${inputClass} min-h-[140px]`}
+                placeholder="https://.../photo1.jpg\nhttps://.../photo2.jpg"
+              />
+              <p className="text-xs text-gray-500">
+                Les URLs et les images déposées seront fusionnées et stockées dans
+                `images[]` côté Supabase.
+              </p>
             </div>
           </div>
         </TabsContent>
 
         {/* Documents confidentiels */}
-        <TabsContent value="documents" className="space-y-4">
+        <TabsContent
+          value="documents"
+          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+        >
           <div className="p-4 bg-gray-800/30 border border-gray-800 rounded-md mb-4">
             <div className="flex items-center text-amber-400 mb-2">
               <FileText size={18} className="mr-2" />

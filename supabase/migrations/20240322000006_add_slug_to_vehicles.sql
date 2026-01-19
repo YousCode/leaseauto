@@ -2,7 +2,7 @@ ALTER TABLE vehicles
   ADD COLUMN IF NOT EXISTS slug TEXT;
 
 UPDATE vehicles 
-SET slug = uuid_generate_v4()::text 
+SET slug = gen_random_uuid()::text 
 WHERE slug IS NULL;
 
 ALTER TABLE vehicles 

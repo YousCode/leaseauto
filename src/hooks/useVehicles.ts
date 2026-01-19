@@ -25,7 +25,7 @@ export function useVehicles(status?: "draft" | "published" | "archived") {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "vehicles" },
-        () => qc.invalidateQueries({ queryKey: ["vehicles"] }),
+        () => qc.invalidateQueries({ queryKey: ["vehicles"], exact: false }),
       )
       .subscribe();
     return () => {

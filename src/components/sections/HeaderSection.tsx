@@ -31,11 +31,7 @@ const HeaderSection = () => {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out border-b ${
-          isScrolled
-            ? "bg-white/95 border-slate-200 backdrop-blur-md py-2 shadow-sm" // SCROLL: Fond Blanc + Ombre
-            : "bg-transparent border-transparent py-6" // TOP: Transparent
-        }`}
+        className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md py-3 shadow-sm transition-all duration-300 ease-in-out"
       >
         <div className="max-w-[1400px] mx-auto px-6">
           <div className="flex items-center justify-between">
@@ -45,13 +41,7 @@ const HeaderSection = () => {
               <motion.img
                 src="src/assets/logo-lease-auto.png"
                 alt="Lease Auto"
-                // TOP: "brightness-0 invert" rend le logo tout BLANC
-                // SCROLL: Filtre retiré pour voir les COULEURS D'ORIGINE
-                className={`w-auto transition-all duration-300 ${
-                  isScrolled 
-                    ? "h-10 md:h-12" // Logo taille normale au scroll
-                    : "h-14 md:h-16 brightness-0 invert" // Logo Blanc + Grand au top
-                }`}
+                className="h-12 md:h-14 w-auto transition-all duration-300"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               />
@@ -61,8 +51,7 @@ const HeaderSection = () => {
             <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
               {navItems.map((item) => {
                 const active = location.pathname === item.href;
-                // Couleurs du texte selon le scroll (Blanc ou Gris Foncé)
-                const textColor = isScrolled ? "text-slate-600 hover:text-[#E52127]" : "text-white hover:text-[#E52127]";
+                const textColor = "text-slate-700 hover:text-[#E52127]";
                 const activeColor = "text-[#E52127]";
 
                 return (
@@ -97,7 +86,7 @@ const HeaderSection = () => {
 
             {/* --- BURGER MOBILE --- */}
             <button
-              className={`md:hidden p-2 transition-colors ${isScrolled ? "text-slate-800" : "text-white"}`}
+              className="md:hidden p-2 transition-colors text-slate-800"
               onClick={() => setIsMenuOpen((v) => !v)}
               aria-label="Ouvrir le menu"
             >

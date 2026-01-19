@@ -1,16 +1,51 @@
 import { supabase } from "./supabase";
 
 /**
- * Upload all files to the "vehicle-images" bucket with safe upload pattern
+ * Upload all files to the configured bucket with safe upload pattern
  * Returns an array of public URLs.
  */
+const configuredBucket = import.meta.env.VITE_SUPABASE_STORAGE_BUCKET;
+const STORAGE_BUCKET =
+  configuredBucket && configuredBucket.trim().length > 0
+    ? configuredBucket.trim()
+    : "vehicle-images";
+const PUBLIC_OBJECT_PREFIX = "/storage/v1/object/public/";
+
+const normalizeAscii = (value: string) =>
+  value
+    .normalize("NFKD")
+    .replace(/[^\x00-\x7F]/g, "")
+    .trim();
+
+const sanitizePathSegment = (value: string, fallback: string) => {
+  const ascii = normalizeAscii(value);
+  const safe = ascii
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-.]+|[-.]+$/g, "");
+  return safe.length > 0 ? safe : fallback;
+};
+
+const sanitizeFileName = (name: string) => {
+  const ascii = normalizeAscii(name);
+  const parts = ascii.split(".");
+  if (parts.length === 1) {
+    return sanitizePathSegment(ascii, "image");
+  }
+  const ext = sanitizePathSegment(parts.pop() || "", "");
+  const base = sanitizePathSegment(parts.join("."), "image");
+  return ext ? `${base}.${ext}` : base;
+};
+
 export async function uploadVehicleImages(
   vehicleId: string,
   files: File[],
 ): Promise<string[]> {
   const urls: string[] = [];
+  const safeVehicleId = sanitizePathSegment(vehicleId, "vehicule");
 
-  for (const [i, file] of files.entries()) {
+  for (const file of files) {
     try {
       // File validation
       if (!file.type.startsWith("image/")) {
@@ -22,10 +57,11 @@ export async function uploadVehicleImages(
       }
 
       // Use unique path without leading slash
-      const path = `${vehicleId}/${crypto.randomUUID()}-${file.name}`;
+      const safeName = sanitizeFileName(file.name);
+      const path = `${safeVehicleId}/${crypto.randomUUID()}-${safeName}`;
       
       const { data, error } = await supabase.storage
-        .from("vehicle-images")
+        .from(STORAGE_BUCKET)
         .upload(path, file, {
           contentType: file.type || 'application/octet-stream',
           cacheControl: "3600",
@@ -38,7 +74,7 @@ export async function uploadVehicleImages(
       }
 
       const { data: publicUrlData } = supabase.storage
-        .from("vehicle-images")
+        .from(STORAGE_BUCKET)
         .getPublicUrl(path);
       urls.push(publicUrlData.publicUrl);
     } catch (error: any) {
@@ -50,7 +86,7 @@ export async function uploadVehicleImages(
 }
 
 /**
- * Upload a single file to the vehicle-images bucket with safe pattern
+ * Upload a single file to the configured bucket with safe pattern
  * Returns the public URL
  */
 export async function uploadFile(
@@ -68,10 +104,12 @@ export async function uploadFile(
     }
 
     // Use unique path without leading slash
-    const path = `${vehicleId}/${crypto.randomUUID()}-${file.name}`;
+    const safeVehicleId = sanitizePathSegment(vehicleId, "vehicule");
+    const safeName = sanitizeFileName(file.name);
+    const path = `${safeVehicleId}/${crypto.randomUUID()}-${safeName}`;
 
     const { data, error } = await supabase.storage
-      .from("vehicle-images")
+      .from(STORAGE_BUCKET)
       .upload(path, file, {
         contentType: file.type || 'application/octet-stream',
         cacheControl: "3600",
@@ -84,7 +122,7 @@ export async function uploadFile(
     }
 
     const { data: publicUrlData } = supabase.storage
-      .from("vehicle-images")
+      .from(STORAGE_BUCKET)
       .getPublicUrl(path);
     return publicUrlData.publicUrl;
   } catch (error: any) {
@@ -98,17 +136,28 @@ export async function uploadFile(
  */
 export async function removeFile(publicUrl: string): Promise<void> {
   try {
-    // Extract the path from the public URL
-    const urlParts = publicUrl.split(
-      "/storage/v1/object/public/vehicle-images/",
-    );
-    if (urlParts.length !== 2) {
+    const cleanUrl = publicUrl.split("?")[0];
+    const marker = `${PUBLIC_OBJECT_PREFIX}${STORAGE_BUCKET}/`;
+    let bucket = STORAGE_BUCKET;
+    let path: string | undefined;
+
+    if (cleanUrl.includes(marker)) {
+      path = cleanUrl.split(marker)[1];
+    } else if (cleanUrl.includes(PUBLIC_OBJECT_PREFIX)) {
+      const [, rest] = cleanUrl.split(PUBLIC_OBJECT_PREFIX);
+      const [bucketFromUrl, ...restParts] = rest.split("/");
+      if (bucketFromUrl && restParts.length > 0) {
+        bucket = bucketFromUrl;
+        path = restParts.join("/");
+      }
+    }
+
+    if (!path) {
       throw new Error("Invalid public URL format");
     }
 
-    const path = urlParts[1];
     const { error } = await supabase.storage
-      .from("vehicle-images")
+      .from(bucket)
       .remove([path]);
 
     if (error) throw error;

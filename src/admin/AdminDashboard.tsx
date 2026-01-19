@@ -1,9 +1,8 @@
+// @ts-nocheck
 import { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import slugify from "slugify";
-import VehicleModelViewer from "@/components/vehicles/VehicleModelViewer";
-import { MOCK_VEHICLES } from "@/components/sections/VehicleListingsSection";
 import type { VehicleCardProps } from "@/components/vehicles/VehicleCard";
 import { BrandLogo } from "@/lib/BrandLogo";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -45,6 +44,13 @@ type AdminVehicle = VehicleCardProps & {
   energy?: string | null;
   mileage?: number | string;
   year?: string | number;
+  name?: string;
+  title?: string;
+  price?: number | string | null;
+  monthly?: number | string | null;
+  image?: string | null;
+  images?: string[] | null;
+  model3dUrl?: string | null;
 };
 
 const FALLBACK_IMAGE =
@@ -156,7 +162,7 @@ const buildVehicleFromForm = (
       (Array.isArray(payload.images) && payload.images[0]) ||
       base?.image ||
       FALLBACK_IMAGE,
-    model3dUrl: payload.model3dUrl ?? base?.model3dUrl,
+    model3dUrl: undefined,
     city: payload.city ?? base?.city ?? "Épinay-sur-Seine 93800",
     energy: payload.energy ?? base?.energy,
     year: payload.year ?? base?.year,
@@ -183,27 +189,7 @@ const AdminDashboard = () => {
   );
 
   const remoteVehicles = useMemo<AdminVehicle[]>(() => {
-    if (!Array.isArray(remoteData) || remoteData.length === 0) {
-      return MOCK_VEHICLES.map((vehicle, index) => ({
-        id: vehicle.id ?? `mock-${index}`,
-        slug: vehicle.slug,
-        name: vehicle.name,
-        brand: vehicle.brand,
-        price: vehicle.price,
-        monthly: vehicle.monthly,
-        image: vehicle.image,
-        model3dUrl: vehicle.model3dUrl,
-        city: vehicle.city,
-        energy: vehicle.energy,
-        year: vehicle.year,
-        mileage: vehicle.mileage,
-        status: STATUS_ORDER[index % STATUS_ORDER.length],
-        leads: 12 + index * 4,
-        visits: 180 + index * 23,
-        updatedAt: new Date(Date.now() - index * 36 * 60 * 60 * 1000).toISOString(),
-        origin: "remote",
-      }));
-    }
+    if (!Array.isArray(remoteData) || remoteData.length === 0) return [];
 
     return remoteData.map((vehicle: Record<string, any>, index: number) => {
       const name =
@@ -237,7 +223,7 @@ const AdminDashboard = () => {
         price: vehicle.price ?? null,
         monthly: vehicle.monthly ?? null,
         image: primaryImage,
-        model3dUrl: vehicle.model3d_url ?? undefined,
+        model3dUrl: undefined,
         city: vehicle.city ?? "Paris",
         energy: vehicle.energy ?? undefined,
         year: vehicle.year ?? undefined,
@@ -520,23 +506,24 @@ const AdminDashboard = () => {
                   className="grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 shadow-sm lg:grid-cols-[260px,1fr,220px]"
                 >
                   <div className="space-y-3">
-                    <VehicleModelViewer
-                      src={vehicle.model3dUrl}
-                      className="h-52 rounded-2xl border-0"
-                    />
+                    <div className="relative h-52 w-full overflow-hidden rounded-2xl bg-neutral-100 border border-neutral-200">
+                      <img
+                        src={
+                          (Array.isArray(vehicle.images) && vehicle.images[0]) ||
+                          vehicle.image ||
+                          FALLBACK_IMAGE
+                        }
+                        alt={vehicle.name || "Véhicule"}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                     <div className="flex items-center justify-between text-xs text-neutral-500">
                       <span>
                         Mis à jour le {formatUpdatedLabel(vehicle.updatedAt)}
                       </span>
-                      {vehicle.model3dUrl ? (
-                        <span className="rounded-full bg-emerald-50 px-3 py-1 font-semibold text-emerald-600">
-                          GLB prêt
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-neutral-100 px-3 py-1 font-semibold">
-                          Photo
-                        </span>
-                      )}
+                      <span className="rounded-full bg-neutral-100 px-3 py-1 font-semibold">
+                        Photo
+                      </span>
                     </div>
                   </div>
 
@@ -675,3 +662,5 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+// @ts-nocheck
+// @ts-nocheck

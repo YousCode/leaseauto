@@ -7,27 +7,35 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import { Lock, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { signIn } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    // TEMPORARY BYPASS - accept any input for development
-    setTimeout(() => {
+    const mappedEmail = email.trim().toLowerCase() === "belha"
+      ? "belha@leaseauto.dev"
+      : email.trim();
+
+    const { error: signInError } = await signIn(mappedEmail, password);
+
+    if (signInError) {
+      setError(signInError);
       setIsLoading(false);
-      localStorage.setItem("isAdmin", "true");
-      window.location.href = "/admin/dashboard";
-    }, 500);
+      return;
+    }
+
+    window.location.href = "/admin/vehicles";
   };
 
   return (

@@ -19,10 +19,10 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"price-asc" | "price-desc" | "year-desc" | "km-asc" | "featured">("featured");
 
-  const vehicles = useMemo(() => override || fetchedVehicles || [], [override, fetchedVehicles]);
+  const vehicles = useMemo(() => (override as any[]) || (fetchedVehicles as any[]) || [], [override, fetchedVehicles]);
 
   const filtered = useMemo(() => {
-    let list = [...vehicles];
+    let list = [...vehicles] as any[];
 
     if (search.trim()) {
       const s = search.toLowerCase();
@@ -35,18 +35,18 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
 
     switch (sort) {
       case "price-asc":
-        list.sort(
-          (a, b) =>
-            (a.monthly_price ?? (a as any).monthly ?? a.price_loa ?? 0) -
-            (b.monthly_price ?? (b as any).monthly ?? b.price_loa ?? 0),
-        );
+        list.sort((a, b) => {
+          const av = (a as any).monthly_price ?? (a as any).monthly ?? (a as any).price_loa ?? 0;
+          const bv = (b as any).monthly_price ?? (b as any).monthly ?? (b as any).price_loa ?? 0;
+          return av - bv;
+        });
         break;
       case "price-desc":
-        list.sort(
-          (a, b) =>
-            (b.monthly_price ?? (b as any).monthly ?? b.price_loa ?? 0) -
-            (a.monthly_price ?? (a as any).monthly ?? a.price_loa ?? 0),
-        );
+        list.sort((a, b) => {
+          const av = (a as any).monthly_price ?? (a as any).monthly ?? (a as any).price_loa ?? 0;
+          const bv = (b as any).monthly_price ?? (b as any).monthly ?? (b as any).price_loa ?? 0;
+          return bv - av;
+        });
         break;
       case "year-desc":
         list.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
@@ -56,7 +56,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
         break;
       case "featured":
       default:
-        list.sort((a, b) => (Number(b.featured) || 0) - (Number(a.featured) || 0));
+        list.sort((a, b) => (Number((b as any).featured) || 0) - (Number((a as any).featured) || 0));
     }
 
     return list;
@@ -112,29 +112,45 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
             <p className="text-sm text-slate-500">Aucun véhicule disponible pour le moment.</p>
           ) : (
             <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">
-              {filtered.map((v) => {
+              {filtered.map((v: any) => {
                 const monthlyRaw =
-                  (v as any).monthly_price ?? v.monthly ?? v.price_loa ?? v.price ?? null;
+                  v.monthly_price ?? v.monthly ?? v.price_loa ?? v.price ?? null;
                 const monthlyPrice = typeof monthlyRaw === "number" ? monthlyRaw : null;
+
+                const primaryImage =
+                  (Array.isArray(v.images) && v.images.length > 0 && v.images[0]) ||
+                  v.image ||
+                  v.main_image_url ||
+                  PLACEHOLDER_IMAGE;
+
+                const energy =
+                  typeof v.energy === "string" && v.energy.trim().length > 0
+                    ? v.energy
+                    : typeof v.fuel === "string"
+                    ? v.fuel
+                    : "—";
+
+                const transmission =
+                  typeof v.transmission === "string" && v.transmission.trim().length > 0
+                    ? v.transmission
+                    : typeof v.gearbox === "string" && v.gearbox.trim().length > 0
+                    ? v.gearbox
+                    : "—";
 
                 return (
                   <VehicleCard
-                    key={v.id ?? v.slug ?? Math.random()}
+                    key={v.slug || v.id || `${v.brand}-${v.model}`}
                     slug={v.slug || String(v.id)}
-                    imageUrl={
-                      (v as any).main_image_url ||
-                      (Array.isArray(v.images) ? v.images[0] : undefined) ||
-                      PLACEHOLDER_IMAGE
-                    }
+                    imageUrl={primaryImage}
                     brand={v.brand || "Marque"}
                     model={v.model || v.title || "Modèle"}
                     year={v.year || undefined}
                     mileage={v.mileage || undefined}
-                    energy={(v.energy || "").toString() || "—"}
-                    transmission={(v.transmission || (v as any).gearbox || "—").toString()}
+                    energy={energy}
+                    transmission={transmission}
                     monthlyPrice={monthlyPrice}
                     highlight={
-                      (v.highlight as any) ||
+                      v.highlight ||
                       (v.new_arrival
                         ? "nouveau"
                         : v.availability === "immediate"

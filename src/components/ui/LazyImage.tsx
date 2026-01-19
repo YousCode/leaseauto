@@ -22,8 +22,14 @@ const LazyImage = ({
   const { ref, isIntersecting } = useIntersectionObserver(0.1);
   const imgRef = useRef<HTMLImageElement>(null);
 
+  // Reset when src changes to ensure a new load occurs
   useEffect(() => {
-    if (isIntersecting && imageSrc === placeholder) {
+    setImageSrc(placeholder);
+    setIsLoaded(false);
+  }, [src, placeholder]);
+
+  useEffect(() => {
+    if (isIntersecting && imageSrc !== src) {
       const img = new Image();
       img.onload = () => {
         setImageSrc(src);

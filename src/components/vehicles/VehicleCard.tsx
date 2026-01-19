@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-type VehicleCardProps = {
+export type VehicleCardProps = {
   slug: string;
   imageUrl?: string | null;
   brand?: string | null;
@@ -74,7 +74,6 @@ export function VehicleCard({
               {typeof monthlyPrice === "number" ? monthlyPrice.toLocaleString("fr-FR") : "—"} €
               <span className="text-xs text-slate-500 font-normal"> / mois</span>
             </p>
-            <p className="text-[11px] text-emerald-600 mt-0.5">Sans apport possible</p>
           </div>
 
           <Link

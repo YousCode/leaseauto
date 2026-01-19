@@ -1,4 +1,4 @@
-INSERT INTO storage.buckets (id, name, public) VALUES ('vehicle_images', 'vehicle_images', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('vehicle-images', 'vehicle-images', true) ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
 

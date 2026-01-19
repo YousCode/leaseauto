@@ -1,8 +1,10 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, Outlet } from "react-router-dom";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 import { Toaster } from "@/components/ui/toaster";
 import ComingSoon from "@/pages/ComingSoon";
+import { AuthProvider } from "@/providers/AuthProvider";
+import HeaderSection from "@/components/sections/HeaderSection";
 
 /** Wrapper pour rediriger /vehicles/:slug -> /vehicules/:slug */
 function RedirectVehicleSlug() {
@@ -16,14 +18,25 @@ const MAINTENANCE_MODE = false;
 const Home = lazy(() => import("@/components/home"));
 const VehicleListing = lazy(() => import("@/components/vehicles/VehicleListing"));
 const VehicleDetailPage = lazy(() => import("@/components/vehicles/VehicleDetailPage"));
-const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
-const AdminVehicleManager = lazy(() => import("@/components/admin/AdminVehicleManager"));
-const AdminVehicleFormPage = lazy(() => import("@/components/admin/VehicleFormPage"));
+const AdminDashboard = lazy(() => import("@/admin/AdminDashboard"));
+const AdminVehicleManager = lazy(() => import("@/admin/AdminVehicleManager"));
+const AdminVehicleFormPage = lazy(() => import("@/admin/VehicleFormPage"));
+const AdminLogin = lazy(() => import("@/admin/AdminLogin"));
 const TempoBooking = lazy(() => import("@/components/booking/TempoBooking"));
 const ContactPage = lazy(() => import("@/pages/Contact"));
 const ServicesPage = lazy(() => import("@/pages/Services"));
 const DossierPage = lazy(() => import("@/pages/Dossier"));
 const DossierTrackingPage = lazy(() => import("@/pages/DossierTracking"));
+
+const PublicLayout = () => (
+  <>
+    <HeaderSection />
+    {/* Décale le contenu sous le header fixe */}
+    <div className="pt-24">
+      <Outlet />
+    </div>
+  </>
+);
 
 function App() {
   if (MAINTENANCE_MODE) {
@@ -31,7 +44,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <AuthProvider>
+      <div className="min-h-screen bg-white">
       <Suspense
         fallback={
           <div className="w-screen h-screen flex items-center justify-center bg-white">
@@ -40,22 +54,25 @@ function App() {
         }
       >
         <Routes>
-          {/* Public */}
-          <Route path="/" element={<Home />} />
-          <Route path="/reservation" element={<TempoBooking />} />
-          <Route path="/booking" element={<TempoBooking />} />
-          <Route path="/vehicules" element={<VehicleListing />} />
-          <Route path="/vehicules/:slug" element={<VehicleDetailPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/dossier" element={<DossierPage />} />
-          <Route path="/dossier/mon-dossier" element={<DossierTrackingPage />} />
+          {/* Public avec header global */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/reservation" element={<TempoBooking />} />
+            <Route path="/booking" element={<TempoBooking />} />
+            <Route path="/vehicules" element={<VehicleListing />} />
+            <Route path="/vehicules/:slug" element={<VehicleDetailPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/dossier" element={<DossierPage />} />
+            <Route path="/dossier/mon-dossier" element={<DossierTrackingPage />} />
+          </Route>
 
           {/* Redirections EN -> FR */}
           <Route path="/vehicles" element={<Navigate to="/vehicules" replace />} />
           <Route path="/vehicles/:slug" element={<RedirectVehicleSlug />} />
 
           {/* Admin */}
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/vehicles" element={<AdminVehicleManager />} />
           <Route path="/admin/vehicles/new" element={<AdminVehicleFormPage />} />
@@ -68,7 +85,8 @@ function App() {
         <FloatingWhatsApp />
         <Toaster />
       </Suspense>
-    </div>
+      </div>
+    </AuthProvider>
   );
 }
 
