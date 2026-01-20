@@ -1,5 +1,4 @@
 import {
-  HeaderSection,
   HeroSection,
   ServicesSection,
   VehicleListingsSection,
@@ -13,7 +12,6 @@ import {
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      <HeaderSection />
       <main>
         <HeroSection />
         <VehicleListingsSection />

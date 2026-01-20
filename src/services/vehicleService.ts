@@ -55,43 +55,21 @@ export const vehicleService = {
     if (!id && !slug) throw new Error("Identifiant ou slug manquant pour la suppression");
 
     const trySoftDeleteFirst = async (column: "id" | "slug", value: string) => {
-      const { error, status } = await supabase
+      const { data, error, status } = await supabase
         .from("vehicles")
-        .update({ status: "draft" })
+        .update({ status: "archived" })
         .eq(column, value)
         .select("id");
       // 404 when row not visible due to RLS or already gone; ignore
       if (error && status !== 404) throw error;
-      return !error;
-    };
-
-    const tryDeleteHard = async (column: "id" | "slug", value: string) => {
-      const { data, error, status } = await supabase
-        .from("vehicles")
-        .delete()
-        .eq(column, value)
-        .select("id");
-
-      // PGRST116 is "Results contain 0 rows" (treated as 404)
-      // 42883 is your missing storage.delete_object() function
-      if (error && error.code !== "PGRST116" && error.code !== "42883" && status !== 404) {
-        throw error;
-      }
       return Array.isArray(data) && data.length > 0;
     };
 
     const attempt = async (column: "id" | "slug", value: string) => {
-      // Soft delete first to hide immediately from public listings
-      try {
-        await trySoftDeleteFirst(column, value);
-      } catch {
-        // ignore soft delete failure and attempt hard delete
-      }
-
-      try {
-        await tryDeleteHard(column, value);
-      } catch {
-        // swallow hard delete errors to keep UX smooth; row is at least flagged draft
+      // Soft delete only: mark archived to hide everywhere without hitting Supabase delete 404s
+      const softDeleted = await trySoftDeleteFirst(column, value).catch(() => false);
+      if (!softDeleted) {
+        throw new Error("Suppression non autorisée ou véhicule introuvable.");
       }
     };
 

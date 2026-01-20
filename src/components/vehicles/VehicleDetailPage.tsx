@@ -13,7 +13,6 @@ import {
   Zap,
 } from "lucide-react";
 
-import HeaderSection from "@/components/sections/HeaderSection";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -173,8 +172,6 @@ const VehicleDetailPage = () => {
           content={`${displayVehicle?.brand ?? ""} ${displayVehicle?.model ?? ""} ${displayVehicle?.year ?? ""} · ${displayVehicle?.mileage ?? ""} km`}
         />
       </Helmet>
-
-      <HeaderSection />
 
       {isLoading ? (
         <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-10">

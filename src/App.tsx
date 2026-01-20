@@ -27,6 +27,7 @@ const ContactPage = lazy(() => import("@/pages/Contact"));
 const ServicesPage = lazy(() => import("@/pages/Services"));
 const DossierPage = lazy(() => import("@/pages/Dossier"));
 const DossierTrackingPage = lazy(() => import("@/pages/DossierTracking"));
+const FinancementPage = lazy(() => import("@/pages/Financement"));
 
 const PublicLayout = () => (
   <>
@@ -62,6 +63,7 @@ function App() {
             <Route path="/vehicules" element={<VehicleListing />} />
             <Route path="/vehicules/:slug" element={<VehicleDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/financement" element={<FinancementPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/dossier" element={<DossierPage />} />
             <Route path="/dossier/mon-dossier" element={<DossierTrackingPage />} />

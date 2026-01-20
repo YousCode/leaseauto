@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { CheckCircle2, Clock, FileCheck2, Mail, MessageSquare, Upload } from "lucide-react";
-import { HeaderSection, FooterSection } from "@/components/sections";
+import { FooterSection } from "@/components/sections";
 import clsx from "clsx";
 
 const STATUS_TEXT: Record<
@@ -90,8 +90,7 @@ export default function DossierTrackingPage() {
       : "Ajoutez les pièces manquantes pour accélérer l’analyse.";
   return (
     <div className="min-h-screen bg-[#F9F9F9] text-[#444444]">
-      <HeaderSection />
-      <main className="px-4 pt-28 pb-16 md:px-8">
+      <main className="px-4 pt-8 pb-16 md:px-8">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
           <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#ECECEC] md:p-10">
             <p className="text-xs uppercase tracking-[0.4em] text-[#9FA3AE]">Espace client • Mon dossier</p>
