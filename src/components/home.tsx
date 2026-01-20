@@ -1,12 +1,12 @@
 import {
   HeroSection,
-  ServicesSection,
   VehicleListingsSection,
   ProcessSection,
   ContactSection,
   FooterSection,
   SignatureHighlightsSection,
   CollectionsShowcaseSection,
+  FinancingSection,
 } from "@/components/sections";
 
 export default function Home() {
@@ -16,7 +16,7 @@ export default function Home() {
         <HeroSection />
         <VehicleListingsSection />
         <SignatureHighlightsSection />
-        <ServicesSection />
+        <FinancingSection />
         <CollectionsShowcaseSection />
         <ProcessSection />
         <ContactSection />

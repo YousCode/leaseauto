@@ -8,6 +8,7 @@ export { ContactSection } from "./ContactSection";
 export { FooterSection } from "./FooterSection";
 export { SignatureHighlightsSection } from "./SignatureHighlightsSection";
 export { CollectionsShowcaseSection } from "./CollectionsShowcaseSection";
+export { default as FinancingSection } from "./FinancingSection";
 
 // Default exports
 export { default as HeaderSectionDefault } from "./HeaderSection";
