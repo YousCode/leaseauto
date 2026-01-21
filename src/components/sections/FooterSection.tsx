@@ -1,28 +1,23 @@
 // src/components/sections/FooterSection.tsx
 
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-  Instagram,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const navItems = [
   { label: "Catalogue", href: "/vehicules" },
   { label: "Financement", href: "/financement" },
-  { label: "Assurances", href: "/assurances" },
   { label: "Contact", href: "/contact" },
-  { label: "Dossier", href: "/dossier" },
+];
+
+const serviceLinks = [
+  { label: "LOA / LLD", href: "/financement" },
+  { label: "Reprise / Estimation", href: "/estimer-mon-vehicule" },
+  { label: "Accompagnement pro", href: "/services" },
 ];
 
 const legalLinks = [
   { label: "Mentions légales", href: "/mentions-legales" },
-  {
-    label: "Politique de confidentialité",
-    href: "/politique-de-confidentialite",
-  },
+  { label: "Politique de confidentialité", href: "/politique-de-confidentialite" },
   { label: "Conditions générales", href: "/conditions-generales" },
   { label: "Cookies", href: "/cookies" },
   { label: "Plan du site", href: "/plan-du-site" },
@@ -33,7 +28,6 @@ const FooterSection = () => {
 
   return (
     <footer className="relative mt-24 text-slate-100">
-      {/* Fond texturé plein écran */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#1f2937_0,transparent_55%),radial-gradient(circle_at_bottom,#020617_0,#020617_55%)]"
@@ -47,9 +41,7 @@ const FooterSection = () => {
         }}
       />
 
-      {/* Contenu principal */}
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 pt-16 pb-10">
-        {/* Bloc glass plein dans la largeur utile */}
         <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_24px_80px_rgba(15,23,42,0.7)] px-6 md:px-10 py-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {/* Colonne 1 : marque + contact + horaires */}
@@ -74,10 +66,7 @@ const FooterSection = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-[#E52127]" />
-                  <a
-                    href="tel:0184218393"
-                    className="text-slate-200 hover:text-white"
-                  >
+                  <a href="tel:0184218393" className="text-slate-200 hover:text-white">
                     01&nbsp;84&nbsp;21&nbsp;83&nbsp;93
                   </a>
                 </div>
@@ -119,37 +108,23 @@ const FooterSection = () => {
               </ul>
             </div>
 
-            {/* Colonne 3 : formulaire contact */}
+            {/* Colonne 3 : services */}
             <div>
               <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
-                Nous contacter
+                Services
               </h4>
-              <form
-                className="space-y-3 text-sm"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <input
-                  type="text"
-                  placeholder="Nom"
-                  className="w-full px-3 py-2 rounded-md bg-[#020618]/80 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#E52127]"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full px-3 py-2 rounded-md bg-[#020618]/80 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#E52127]"
-                />
-                <textarea
-                  rows={3}
-                  placeholder="Message"
-                  className="w-full px-3 py-2 rounded-md bg-[#020618]/80 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#E52127] resize-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full rounded-full bg-[#E52127] text-white font-medium py-2.5 text-sm hover:bg-[#c91c22] transition-colors"
-                >
-                  Envoyer
-                </button>
-              </form>
+              <ul className="space-y-2 text-sm">
+                {serviceLinks.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      to={item.href}
+                      className="text-slate-300 hover:text-[#E52127] transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Colonne 4 : réseaux + légal */}
@@ -158,7 +133,6 @@ const FooterSection = () => {
                 Suivez-nous
               </h4>
               <div className="flex items-center gap-3 mb-6">
-                {/* Instagram */}
                 <a
                   href="https://www.instagram.com/lease_auto/"
                   target="_blank"
@@ -168,16 +142,13 @@ const FooterSection = () => {
                   <Instagram className="h-4 w-4" />
                 </a>
 
-                {/* TikTok (texte simple comme icône, à remplacer par une vraie icône si tu en ajoutes une) */}
                 <a
                   href="https://www.tiktok.com/@leaseauto?_r=1&_t=ZN-91kVouJaR2U"
                   target="_blank"
                   rel="noreferrer"
                   className="h-9 w-9 rounded-full bg-[#020618]/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-[#E52127] hover:border-[#E52127] hover:text-white transition-colors"
                 >
-                  <span className="text-[11px] font-semibold tracking-wide">
-                    Tik
-                  </span>
+                  <span className="text-[11px] font-semibold tracking-wide">Tik</span>
                 </a>
               </div>
 
@@ -201,7 +172,6 @@ const FooterSection = () => {
         </div>
       </div>
 
-      {/* Bas de page */}
       <div className="relative border-t border-[#0b1220]/60">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 py-4">
           <p className="text-center text-xs text-slate-500">
