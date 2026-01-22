@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { Input } from "@/components/ui/input";
 import VehicleCard, {
   VehicleCardProps,
 } from "@/components/vehicles/VehicleCard";
@@ -130,6 +131,9 @@ const normaliseCategory = (value?: string | null) => {
   const lower = value.toLowerCase();
   return isVehicleCategory(lower) ? lower : null;
 };
+
+const stripAccents = (value: string) =>
+  value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 const includesAny = (source: string, terms: string[]) =>
   terms.some((term) => source.includes(term));
@@ -308,6 +312,9 @@ const VehicleListingsSection = () => {
   const navigate = useNavigate();
   const { data: publishedVehicles = [] } = useVehicles();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState<string>(
+    () => searchParams.get("q") ?? "",
+  );
   const [activeTab] = useState<TabsValue>("all");
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehicleListItem | null>(null);
@@ -367,7 +374,40 @@ const VehicleListingsSection = () => {
     return counts;
   }, [vehicles]);
 
-  const filteredVehicles = vehicles;
+  const filteredVehicles = useMemo(() => {
+    if (!searchTerm.trim()) return vehicles;
+    const normalizedSearch = stripAccents(searchTerm.toLowerCase());
+    const tokens = normalizedSearch
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (!tokens.length) return vehicles;
+
+    return vehicles.filter((vehicle) => {
+      const haystackRaw = [
+        vehicle.brand,
+        vehicle.model,
+        vehicle.name,
+        vehicle.title,
+        vehicle.energy,
+        vehicle.category,
+        vehicle.slug,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const haystack = stripAccents(haystackRaw.toLowerCase());
+      return tokens.every((token) => haystack.includes(token));
+    });
+  }, [vehicles, searchTerm]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      searchParams.set("q", searchTerm);
+    } else {
+      searchParams.delete("q");
+    }
+    setSearchParams(searchParams, { replace: true });
+  }, [searchTerm, searchParams, setSearchParams]);
 
   const quickViewData = useMemo(() => {
     if (!selectedVehicle) return null;
@@ -449,20 +489,20 @@ const VehicleListingsSection = () => {
           </p>
         </motion.header>
 
-        {/* Sélecteur */}
-        {/* Onglets retirés pour un rendu épuré */}
-
-        {/* Résultats */}
-        <motion.div
-          key={`count-${filteredVehicles.length}`}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="mb-6 text-sm text-neutral-600"
-        >
-          {filteredVehicles.length}{" "}
-          {filteredVehicles.length > 1 ? "véhicules" : "véhicule"} disponibles
-        </motion.div>
+        {/* Barre de recherche */}
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-neutral-600">
+            {filteredVehicles.length} {filteredVehicles.length > 1 ? "véhicules" : "véhicule"} disponibles
+          </div>
+          <div className="w-full sm:w-80">
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Rechercher une marque ou un modèle"
+              className="h-11 rounded-full border-neutral-200 bg-white shadow-sm"
+            />
+          </div>
+        </div>
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
