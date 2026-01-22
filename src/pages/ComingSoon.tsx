@@ -1,5 +1,7 @@
 import { Mail, Phone, Clock3, ShieldCheck, Sparkles } from "lucide-react";
-import logo from "@/assets/logo-lease-auto.png";
+
+const logoSrc = `${import.meta.env.BASE_URL}assets/brand-logos/logo-lease-auto.png`;
+const logoFallback = `${import.meta.env.BASE_URL}logo-lease-auto.png`;
 
 function ComingSoon() {
   const highlights = [
@@ -21,9 +23,13 @@ function ComingSoon() {
         </div>
 
         <img
-          src={logo}
+          src={logoSrc}
           alt="Lease Auto"
           className="mb-5 h-14 w-auto drop-shadow-xl"
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.src = logoFallback;
+          }}
         />
 
         <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight md:text-5xl">

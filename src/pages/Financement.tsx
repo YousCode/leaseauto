@@ -1,8 +1,16 @@
 // src/pages/FinancementPage.tsx
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo, useState, useDeferredValue } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   ArrowRight,
   BadgeCheck,
@@ -14,7 +22,10 @@ import {
   ShieldCheck,
   Zap,
   Check,
+  Calculator,
+  Search,
 } from "lucide-react";
+import { useVehicles } from "@/hooks/useVehicles";
 
 type Solution = {
   title: string;
@@ -96,6 +107,12 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
+const toNumber = (v: string, fallback: number) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+};
+
 const Container = ({ children }: { children: React.ReactNode }) => (
   <section className="mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8">{children}</section>
 );
@@ -118,11 +135,11 @@ const SectionHeader = ({
     )}
   >
     <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{eyebrow}</p>
-    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-[1.12]">
+    <h2 className="font-premium text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-[1.08]">
       {title}
     </h2>
     {description ? (
-    <p className="text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed">{description}</p>
+      <p className="text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed font-inter">{description}</p>
     ) : null}
   </div>
 );
@@ -186,8 +203,58 @@ const Card = ({ children, className }: { children: React.ReactNode; className?: 
 );
 
 const FinancementPage = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [price, setPrice] = useState(32000);
+  const [duration, setDuration] = useState(48);
+  const [depositPercent, setDepositPercent] = useState(20);
+  const residualPercent = 30;
+  const navigate = useNavigate();
+  const { data: vehicles = [] } = useVehicles("published");
+  const [query, setQuery] = useState("");
+
+  const simulation = useMemo(() => {
+    const capital = Math.max(0, price);
+    const deposit = clamp(depositPercent, 0, 100);
+    const depositAmount = (deposit / 100) * capital;
+    const financedAmount = Math.max(0, capital - depositAmount);
+    const residual = (clamp(residualPercent, 0, 60) / 100) * financedAmount;
+    const financed = Math.max(0, financedAmount - residual);
+    if (!financed || duration <= 0) {
+      return { monthly: 0, depositAmount: Math.round(depositAmount), residual: Math.round(residual) };
+    }
+    return {
+      monthly: Math.round(financed / duration),
+      depositAmount: Math.round(depositAmount),
+      residual: Math.round(residual),
+    };
+  }, [depositPercent, duration, price, residualPercent]);
+
+  const deferredQuery = useDeferredValue(query);
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const suggestions = useMemo(() => {
+    if (!normalizedQuery) return [];
+    return vehicles
+      .filter((v: any) => {
+        const brand = (v.brand || "").toLowerCase();
+        const model = (v.model || v.title || "").toLowerCase();
+        return brand.includes(normalizedQuery) || model.includes(normalizedQuery);
+      })
+      .slice(0, 5);
+  }, [vehicles, normalizedQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!normalizedQuery) return;
+    navigate(`/vehicules?q=${encodeURIComponent(query.trim())}`);
+  };
+
+  const handleSelectSuggestion = (slug?: string | null) => {
+    if (!slug) return;
+    navigate(`/vehicules/${slug}`);
+  };
+
   return (
-    <div id="top" className="relative text-slate-900">
+    <div id="top" className="relative text-slate-900 font-premium">
       {/* Background */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#f4f7fb] via-white to-[#f8fbff]" />
       <div
@@ -214,13 +281,63 @@ const FinancementPage = () => {
               </div>
 
               <div className="space-y-4">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.05]">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.02] text-slate-900">
                   Trouvez votre <span className="text-[#E52127]">financement</span> auto
                 </h1>
-                <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-                  Particulier, <span className="font-semibold text-slate-800">VTC</span>, société : une offre claire,
-                  un dossier guidé et une réponse rapide pour LOA ou crédit auto.
+                <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-inter">
+                  Particulier, <span className="font-semibold text-slate-800">VTC</span> ou société : LOA ou crédit
+                  auto, on prépare et on obtient l’accord vite.
                 </p>
+              </div>
+
+              <div className="relative w-full max-w-2xl">
+                <div className="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-[0_16px_44px_rgba(15,23,42,0.10)] p-2 relative z-20">
+                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                      <Search className="h-5 w-5" />
+                    </div>
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      type="text"
+                      autoComplete="off"
+                      placeholder="Rechercher un véhicule (ex : Audi RS3, GLC, Model 3)"
+                      className="h-12 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-[#E52127] focus:ring-2 focus:ring-[#E52127]/20 outline-none"
+                    />
+                    <Button
+                      type="submit"
+                      className="h-12 rounded-xl bg-[#E52127] px-4 text-white hover:bg-[#c3161c]"
+                    >
+                      Rechercher
+                    </Button>
+                  </form>
+                  {normalizedQuery ? (
+                    <div className="absolute top-full left-0 right-0 mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 bg-white/95 shadow-lg overflow-hidden max-h-72 overflow-y-auto z-30">
+                      {suggestions.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-slate-600">Aucun véhicule trouvé pour “{query}”.</p>
+                      ) : (
+                        suggestions.map((v: any) => (
+                          <button
+                            key={v.slug || v.id}
+                            type="button"
+                            onClick={() => handleSelectSuggestion(v.slug || v.id)}
+                            className="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-center justify-between gap-3"
+                          >
+                            <span className="text-sm font-semibold text-slate-900">
+                              {(v.brand || "Marque")} {(v.model || v.title || "")}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {v.city ? `${v.city} • ` : ""}
+                              {typeof v.price === "number"
+                                ? `${v.price.toLocaleString("fr-FR")} €`
+                                : "Voir le détail"}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  ) : null}
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -267,10 +384,8 @@ const FinancementPage = () => {
                       <BadgeCheck className="h-5 w-5 text-[#E52127]" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-900">Pro & VTC : montage optimisé</p>
-                      <p className="text-sm text-slate-600">
-                        Durée, kilométrage, garanties : on adapte à votre usage pro.
-                      </p>
+                      <p className="text-sm font-semibold text-slate-900">Montage optimisé VTC / Pro</p>
+                      <p className="text-sm text-slate-600">Durée, kilométrage, garanties adaptés à l’usage.</p>
                       <div className="flex flex-wrap gap-2 pt-2">
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
                           VTC
@@ -299,7 +414,7 @@ const FinancementPage = () => {
                 </>
               }
               description={
-                <>LOA pour la flexibilité. Crédit auto pour devenir propriétaire. On choisit selon votre budget et usage.</>
+                <>LOA = flexibilité. Crédit auto = propriété. On choisit selon budget et usage.</>
               }
             />
 
@@ -365,13 +480,13 @@ const FinancementPage = () => {
                   }}
                 />
                 <div className="relative mx-auto max-w-2xl space-y-3">
-                  <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Simulez votre mensualité</p>
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Simulation rapide</p>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                    LOA ou crédit auto : estimation rapide. Pour les pros/VTC, on ajuste selon l’usage.
+                    2 minutes pour voir la mensualité en LOA ou crédit auto. On ajuste si vous êtes VTC / pro.
                   </p>
                   <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                     <Button
-                      onClick={() => scrollToId("demande-financement")}
+                      onClick={() => setDialogOpen(true)}
                       className="h-11 rounded-full bg-white px-6 text-[#E52127] hover:bg-white/90"
                     >
                       Faire une simulation <ArrowRight className="ml-2 h-4 w-4" />
@@ -388,8 +503,8 @@ const FinancementPage = () => {
 
                   <div className="mt-5 flex flex-wrap justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
                     <span className="rounded-full bg-white/15 px-3 py-1">VTC / Pro</span>
-                    <span className="rounded-full bg-white/15 px-3 py-1">Sans apport possible</span>
-                    <span className="rounded-full bg-white/15 px-3 py-1">Réponse 24–48h</span>
+                    <span className="rounded-full bg-white/15 px-3 py-1">Sans apport</span>
+                    <span className="rounded-full bg-white/15 px-3 py-1">24–48h</span>
                   </div>
                 </div>
               </div>
@@ -399,10 +514,10 @@ const FinancementPage = () => {
           {/* PROCESS */}
           <div className="mt-12 sm:mt-14 grid gap-4 lg:grid-cols-4 lg:items-stretch">
             {[
-              { title: "Simuler & cadrer", desc: "Budget et durée posés en quelques minutes." },
-              { title: "Monter le dossier", desc: "Check-list simple, dépôt en ligne, traitement express." },
+              { title: "Simuler", desc: "Budget et durée posés en quelques minutes." },
+              { title: "Monter le dossier", desc: "Check-list courte, dépôt en ligne, traitement express." },
               { title: "Accord & signature", desc: "Accord de principe, signature électronique." },
-              { title: "Mise à disposition", desc: "Retrait ou livraison avec brief de fin de contrat." },
+              { title: "Mise à disposition", desc: "Retrait ou livraison, rappel des conditions de fin." },
             ].map((step, idx) => (
               <div
                 key={step.title}
@@ -431,7 +546,7 @@ const FinancementPage = () => {
                     Obtenir votre financement LOA / crédit auto
                   </h3>
                   <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                    Parcours simple : simulation, dossier, accord, signature, mise à disposition.
+                    Parcours simple : simulation, dossier, accord, signature, livraison.
                   </p>
                 </div>
 
@@ -485,10 +600,10 @@ const FinancementPage = () => {
 
                 <ul className="space-y-3 text-sm sm:text-base text-slate-700">
                   {[
-                    "Conseil pro/VTC : formule, kilométrage, garanties adaptés à l’usage.",
-                    "Process rapide : dossier digitalisé, retour 24–48h après réception complète.",
-                    "Sans apport possible : selon profil, pour préserver votre trésorerie.",
-                    "Partenaires finance : on cherche la solution la plus cohérente LOA ou crédit.",
+                    "Conseil pro/VTC : formule, kilométrage et garanties adaptés à l’usage.",
+                    "Process rapide : dossier digitalisé, retour sous 24–48h après réception.",
+                    "Sans apport possible selon profil pour préserver la trésorerie.",
+                    "Partenaires finance : on propose la solution LOA ou crédit la plus cohérente.",
                   ].map((t) => (
                     <li key={t} className="flex items-start gap-3">
                       <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#E52127]/10">
@@ -556,7 +671,7 @@ const FinancementPage = () => {
                   <Button
                     variant="outline"
                     className="h-11 rounded-full border-slate-300 text-slate-900 hover:bg-slate-100"
-                    onClick={() => scrollToId("simulation")}
+                    onClick={() => setDialogOpen(true)}
                   >
                     Revoir la simulation
                   </Button>
@@ -566,6 +681,145 @@ const FinancementPage = () => {
           </div>
         </Container>
       </div>
+
+      {/* Simulation dialog — même expérience que la FinancingSection */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl border border-slate-200 bg-white shadow-2xl shadow-black/15 max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-8 pt-10 pb-6 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#E52127] to-[#c3161c] rounded-2xl flex items-center justify-center shadow-lg">
+                <Calculator className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-3xl font-black text-slate-900">Simulation LOA</DialogTitle>
+                <DialogDescription className="text-base text-slate-600 font-medium">
+                  Obtenez votre estimation personnalisée en 30 secondes
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="px-8 pb-10 space-y-8">
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Prix véhicule</label>
+                <Input
+                  type="number"
+                  value={price}
+                  min={0}
+                  onChange={(e) => setPrice(Math.max(0, toNumber(e.target.value, 0)))}
+                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127] focus:ring-2 focus:ring-[#E52127]/20"
+                  placeholder="32000"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Durée (mois)</label>
+                <Input
+                  type="number"
+                  value={duration}
+                  onChange={(e) => setDuration(clamp(toNumber(e.target.value, 48), 12, 84))}
+                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
+                  placeholder="48"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Apport (%)</label>
+                <Input
+                  type="number"
+                  value={depositPercent}
+                  min={0}
+                  max={100}
+                  onChange={(e) => setDepositPercent(clamp(toNumber(e.target.value, 20), 0, 100))}
+                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
+                  placeholder="20"
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={50}
+                  value={depositPercent}
+                  onChange={(e) => setDepositPercent(clamp(Number(e.target.value), 0, 100))}
+                  className="w-full accent-[#E52127]"
+                />
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {[0, 10, 20, 30].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setDepositPercent(p)}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                        depositPercent === p
+                          ? "border-[#E52127] bg-[#E52127]/10 text-[#E52127]"
+                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      {p}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-[#E52127]/6 to-[#E52127]/12 rounded-3xl p-8 border border-[#E52127]/20 shadow-xl">
+              <div className="flex items-center justify-between gap-6 mb-4">
+                <div className="space-y-1">
+                  <p className="text-sm uppercase tracking-wider font-bold text-slate-600">
+                    LOA · apport {depositPercent}% · VR {residualPercent}%
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-[#E52127]">{simulation.monthly.toLocaleString("fr-FR")}</span>
+                    <span className="text-xl font-semibold text-[#E52127]">€ / mois</span>
+                  </div>
+                </div>
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                  <CarFront className="w-10 h-10 text-[#E52127]" />
+                </div>
+              </div>
+
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Apport :{" "}
+                <span className="font-bold text-[#E52127]">{simulation.depositAmount.toLocaleString("fr-FR")}€</span>{" "}
+                · VR estimée :{" "}
+                <span className="font-bold text-[#E52127]">{simulation.residual.toLocaleString("fr-FR")}€</span>. Simulation
+                indicative hors frais.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+              <div className="text-center py-4">
+                <div className="text-2xl font-black text-slate-900">{price.toLocaleString("fr-FR")} €</div>
+                <div className="text-xs uppercase tracking-wider text-slate-500">Prix véhicule</div>
+              </div>
+              <div className="text-center py-4">
+                <div className="text-2xl font-black text-slate-900">{duration} mois</div>
+                <div className="text-xs uppercase tracking-wider text-slate-500">Durée</div>
+              </div>
+              <div className="text-center py-4">
+                <div className="text-2xl font-black text-slate-900">{depositPercent} %</div>
+                <div className="text-xs uppercase tracking-wider text-slate-500">Apport</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
+              <Button
+                variant="outline"
+                className="h-12 px-6 text-sm sm:text-base border-slate-200"
+                onClick={() => setDialogOpen(false)}
+              >
+                Fermer
+              </Button>
+              <Button
+                className="h-12 px-8 text-sm sm:text-base bg-gradient-to-r from-[#E52127] to-[#c3161c] hover:from-[#c3161c] hover:to-[#a11217]"
+                onClick={() => scrollToId("demande-financement")}
+              >
+                Déposer mon dossier <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

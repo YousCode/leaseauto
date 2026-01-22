@@ -1,9 +1,56 @@
-# Ensure client-side routing works when served on OVH's Apache stack
-<IfModule mod_rewrite.c>
-  Options -MultiViews
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
-  RewriteRule ^ - [L]
-  RewriteRule ^ index.html [L]
+# -------------------------------------------------
+# ✅ Activation du moteur de réécriture
+# -------------------------------------------------
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+
+# -------------------------------------------------
+# ✅ Forcer HTTPS + WWW en une seule redirection
+# (ex: http://lease-auto.fr -> https://www.lease-auto.fr)
+# -------------------------------------------------
+RewriteCond %{HTTP_HOST} !^www\.lease-auto\.fr$ [NC,OR]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://www.lease-auto.fr%{REQUEST_URI} [L,R=301]
+
+# -------------------------------------------------
+# ✅ Fallback SPA : si le fichier ou dossier n'existe pas, renvoyer index.html
+# (permet aux routes React type /admin/vehicles /vehicules/... de fonctionner)
+# -------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# -------------------------------------------------
+# ✅ Empêcher l’indexation des variantes parasites
+# (évite duplicate content SEO)
+# -------------------------------------------------
+Header always set Content-Security-Policy "upgrade-insecure-requests;"
+
+# -------------------------------------------------
+# ✅ Compression GZIP (accélère le site)
+# -------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css text/javascript application/javascript application/json
 </IfModule>
+
+# -------------------------------------------------
+# ✅ Cache navigateur (meilleure perf / PageSpeed)
+# -------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+# -------------------------------------------------
+# 🚨 Option HSTS (sécurisation extrême HTTPS)
+# ❗ À activer UNIQUEMENT quand tout fonctionne en HTTPS
+# -------------------------------------------------
+#Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"

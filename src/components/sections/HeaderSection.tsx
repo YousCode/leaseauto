@@ -1,8 +1,11 @@
 // src/components/layout/HeaderSection.tsx
 import { Menu, X, User } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+
+const logoSrc = `${import.meta.env.BASE_URL}assets/brand-logos/logo-lease-auto.png`;
+const logoFallback = `${import.meta.env.BASE_URL}logo-lease-auto.png`;
 
 const navItems = [
   { name: "Accueil", href: "/" },
@@ -38,11 +41,16 @@ const HeaderSection = () => {
             {/* --- LOGO LEASE AUTO --- */}
             <Link to="/" className="flex items-center gap-3 shrink-0 z-50">
               <motion.img
-                src="src/assets/logo-lease-auto.png"
+                src={logoSrc}
                 alt="Lease Auto"
                 className="h-12 md:h-14 w-auto transition-all duration-300"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  // Fallback si l'hébergement réécrit les chemins absolus
+                  target.src = logoFallback;
+                }}
               />
             </Link>
 

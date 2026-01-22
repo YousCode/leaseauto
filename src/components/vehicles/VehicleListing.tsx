@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { VehicleCard } from "./VehicleCard";
 import type { Vehicle } from "@/types/vehicle";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSearchParams } from "react-router-dom";
 
 type VehicleListingProps = {
   vehicles?: Vehicle[];
@@ -16,10 +17,28 @@ const PLACEHOLDER_IMAGE =
 
 export function VehicleListing({ vehicles: override }: VehicleListingProps) {
   const { data: fetchedVehicles = [], isLoading } = useVehicles("published");
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState<string>(searchParams.get("q") ?? "");
   const [sort, setSort] = useState<"price-asc" | "price-desc" | "year-desc" | "km-asc" | "featured">("featured");
 
   const vehicles = useMemo(() => (override as any[]) || (fetchedVehicles as any[]) || [], [override, fetchedVehicles]);
+
+  useEffect(() => {
+    const q = searchParams.get("q") ?? "";
+    if (q !== search) setSearch(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (search.trim()) {
+      params.set("q", search);
+    } else {
+      params.delete("q");
+    }
+    setSearchParams(params, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const filtered = useMemo(() => {
     let list = [...vehicles] as any[];

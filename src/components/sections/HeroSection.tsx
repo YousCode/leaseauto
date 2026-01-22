@@ -1,12 +1,13 @@
 // src/components/home/HeroSection.tsx
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Search, 
   ChevronRight, 
   ChevronLeft 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useVehicles } from "@/hooks/useVehicles";
 
 // Images haute qualité style "Dark/Premium"
 const HERO_IMAGES = [
@@ -21,6 +22,9 @@ const BRANDS = [...BRANDS_LIST, ...BRANDS_LIST, ...BRANDS_LIST];
 
 export function HeroSection() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const { data: vehicles = [] } = useVehicles("published");
 
   // Changement automatique d'image toutes les 5 secondes
   useEffect(() => {
@@ -32,6 +36,29 @@ export function HeroSection() {
 
   const goPrev = () => setActiveIndex((prev) => (prev === 0 ? HERO_IMAGES.length - 1 : prev - 1));
   const goNext = () => setActiveIndex((prev) => (prev === HERO_IMAGES.length - 1 ? 0 : prev + 1));
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const suggestions = useMemo(() => {
+    if (!normalizedQuery) return [];
+    return vehicles
+      .filter((v: any) => {
+        const brand = (v.brand || "").toLowerCase();
+        const model = (v.model || v.title || "").toLowerCase();
+        return brand.includes(normalizedQuery) || model.includes(normalizedQuery);
+      })
+      .slice(0, 5);
+  }, [vehicles, normalizedQuery]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!normalizedQuery) return;
+    navigate(`/vehicules?q=${encodeURIComponent(query.trim())}`);
+  };
+
+  const handleSelect = (slug?: string | null) => {
+    if (!slug) return;
+    navigate(`/vehicules/${slug}`);
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black text-white font-sans">
@@ -90,20 +117,50 @@ export function HeroSection() {
         </motion.p>
 
         {/* BARRE DE RECHERCHE */}
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
           className="relative w-full max-w-2xl mb-8 group"
         >
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#E60000] transition-colors">
-            <Search size={22} />
-          </div>
-          <input 
-            type="text" 
-            placeholder="Rechercher le véhicule de mes rêves (ex: Audi RS3)" 
-            className="w-full py-4 pl-14 pr-4 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-[#E60000]/30 transition-all shadow-2xl"
-          />
+          <form onSubmit={handleSubmit}>
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#E60000] transition-colors">
+              <Search size={22} />
+            </div>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher le véhicule de mes rêves (ex: Audi RS3)"
+              className="w-full py-4 pl-14 pr-4 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-[#E60000]/30 transition-all shadow-2xl"
+            />
+            <input type="submit" className="hidden" />
+          </form>
+
+          {normalizedQuery ? (
+            <div className="absolute top-full mt-3 w-full rounded-xl bg-white/95 text-black shadow-2xl border border-gray-200 overflow-hidden backdrop-blur-sm">
+              {suggestions.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-gray-600">Aucun véhicule trouvé pour “{query}”.</p>
+              ) : (
+                suggestions.map((v: any) => (
+                  <button
+                    key={v.slug || v.id}
+                    type="button"
+                    onClick={() => handleSelect(v.slug || v.id)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center justify-between"
+                  >
+                    <span className="text-sm font-semibold text-gray-900">
+                      {(v.brand || "Marque")} {(v.model || v.title || "")}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {v.city ? `${v.city} • ` : ""}
+                      {typeof v.price === "number" ? `${v.price.toLocaleString("fr-FR")} €` : "Voir le détail"}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          ) : null}
         </motion.div>
 
         {/* BOUTONS D'ACTION */}
