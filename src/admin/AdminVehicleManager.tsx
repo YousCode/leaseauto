@@ -523,17 +523,19 @@ const AdminVehicleManager = () => {
       </div>
 
       <Dialog open={isAddVehicleOpen} onOpenChange={setIsAddVehicleOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="w-[95vw] sm:w-[90vw] sm:max-w-5xl bg-white text-slate-900 border border-slate-200 shadow-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-0">
+          <DialogHeader className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur px-6 py-4">
+            <DialogTitle className="text-xl font-semibold text-slate-900">
               {selectedVehicle ? "Modifier le véhicule" : "Ajouter un véhicule"}
             </DialogTitle>
           </DialogHeader>
-          <VehicleForm
-            vehicle={selectedVehicle || undefined}
-            onSubmit={handleFormSubmit}
-            onCancel={() => setIsAddVehicleOpen(false)}
-          />
+          <div className="px-6 py-5">
+            <VehicleForm
+              vehicle={selectedVehicle || undefined}
+              onSubmit={handleFormSubmit}
+              onCancel={() => setIsAddVehicleOpen(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

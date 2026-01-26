@@ -61,7 +61,7 @@ export function HeroSection() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black text-white font-sans">
+    <div className="relative w-full min-h-[85vh] md:h-screen overflow-hidden bg-black text-white font-sans">
       
       {/* --- BACKGROUND CARROUSEL --- */}
       <div className="absolute inset-0 z-0">
@@ -75,6 +75,9 @@ export function HeroSection() {
             transition={{ duration: 1.5 }}
             alt="Luxury Car Background"
             className="absolute inset-0 w-full h-full object-cover opacity-60"
+            loading={activeIndex === 0 ? "eager" : "lazy"}
+            decoding="async"
+            fetchpriority={activeIndex === 0 ? "high" : "auto"}
           />
         </AnimatePresence>
         

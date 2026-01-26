@@ -42,7 +42,7 @@ const SIMPLE_STEPS: SimpleStep[] = [
 
 export function SignatureHighlightsSection() {
   return (
-    <section className="border-t border-slate-100 bg-white">
+    <section className="border-t border-slate-100 bg-white cv-auto">
       <div className="mx-auto max-w-6xl px-4 md:px-6 py-16 md:py-20">
         {/* En-tête */}
         <div className="text-center">

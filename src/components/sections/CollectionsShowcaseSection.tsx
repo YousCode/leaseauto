@@ -56,7 +56,7 @@ const PRO_OFFERS: ProOffer[] = [
 
 export function CollectionsShowcaseSection() {
   return (
-    <section className="relative border-t border-gray-100 bg-gradient-to-b from-white via-[#f7f9fc] to-white">
+    <section className="relative border-t border-gray-100 bg-gradient-to-b from-white via-[#f7f9fc] to-white cv-auto">
       <div
         className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-slate-100/60 to-transparent"
         aria-hidden
@@ -95,6 +95,8 @@ export function CollectionsShowcaseSection() {
                     alt={offer.title}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                     loading="lazy"
+                    decoding="async"
+                    sizes="(max-width:768px) 100vw, (max-width:1024px) 60vw, 25vw"
                   />
                   {offer.badge && (
                     <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-700 ring-1 ring-slate-200">

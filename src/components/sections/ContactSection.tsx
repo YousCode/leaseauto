@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 const ContactSection = () => {
   return (
-    <div className="w-full bg-[#F9F9F9] py-24 px-4">
+    <div className="w-full bg-[#F9F9F9] py-24 px-4 cv-auto">
       <div className="container mx-auto max-w-6xl">
         {/* En-tête */}
         <motion.div

@@ -119,9 +119,12 @@ const VehicleDetailPage = () => {
     }
   }, [displayVehicle?.images, activeIndex]);
 
-  const images = Array.isArray(displayVehicle?.images) && (displayVehicle?.images?.length ?? 0) > 0
-    ? (displayVehicle?.images as string[])
-    : FALLBACK_IMAGES;
+  const sanitizedImages =
+    Array.isArray(displayVehicle?.images) && (displayVehicle?.images?.length ?? 0) > 0
+      ? (displayVehicle?.images as string[]).filter((img) => typeof img === "string" && img.trim().length > 0)
+      : [];
+
+  const images = sanitizedImages.length > 0 ? sanitizedImages : FALLBACK_IMAGES;
 
   const priceLabel = displayVehicle?.price
     ? `${formatNumber(displayVehicle.price)} €`
@@ -192,9 +195,9 @@ const VehicleDetailPage = () => {
           </div>
         </main>
       ) : (
-        <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-4 pb-10">
-          <section className="mx-auto max-w-6xl px-4 md:px-6 py-4 md:py-6 space-y-6">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-2 pb-36 md:pb-12">
+          <section className="mx-auto w-full max-w-6xl px-3 md:px-6 py-3 md:py-6 space-y-4 md:space-y-6">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <Button
                 variant="ghost"
                 onClick={goBack}
@@ -212,14 +215,16 @@ const VehicleDetailPage = () => {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.1fr_0.9fr]">
               {/* Gallery */}
               <div className="space-y-3">
-                <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  <LazyImage
+                <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm aspect-[4/3] sm:aspect-auto sm:h-[360px] md:h-[480px] lg:h-[520px] max-h-[60vh]">
+                  <img
                     src={images[activeIndex] || FALLBACK_IMAGES[0]}
                     alt={displayVehicle.title || "Véhicule"}
-                    className="h-[240px] sm:h-[360px] md:h-[480px] lg:h-[540px] w-full object-cover object-center"
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    loading={activeIndex === 0 ? "eager" : "lazy"}
+                    decoding="async"
                   />
                   {images.length > 1 && (
                     <>
@@ -243,13 +248,14 @@ const VehicleDetailPage = () => {
                   )}
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {images.slice(0, 4).map((img, idx) => (
+                <div className="flex gap-2 overflow-x-auto pb-3 md:hidden snap-x snap-mandatory">
+                  <div className="w-1" aria-hidden />
+                  {images.slice(0, 6).map((img, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setActiveIndex(idx)}
-                      className={`h-24 w-36 flex-shrink-0 overflow-hidden rounded-xl border transition ${
+                      className={`h-18 w-28 flex-shrink-0 overflow-hidden rounded-xl border transition snap-center ${
                         idx === activeIndex
                           ? "border-[#DA1212] ring-2 ring-[#DA1212]"
                           : "border-slate-200 hover:border-slate-400"
@@ -258,18 +264,44 @@ const VehicleDetailPage = () => {
                       <LazyImage src={img} alt={`Thumb ${idx + 1}`} className="h-full w-full object-cover" />
                     </button>
                   ))}
-                  {images.length > 4 && (
+                  {images.length > 6 && (
                     <button
                       type="button"
                       onClick={() => setLightboxOpen(true)}
-                      className="h-24 w-20 flex-shrink-0 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-slate-400"
+                      className="h-18 w-16 flex-shrink-0 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:border-slate-400"
                     >
-                      +{images.length - 4}
+                      +{images.length - 6}
+                    </button>
+                  )}
+                  <div className="w-1" aria-hidden />
+                </div>
+                <div className="hidden md:grid grid-cols-4 gap-2">
+                  {images.slice(0, 8).map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveIndex(idx)}
+                      className={`h-24 overflow-hidden rounded-xl border transition ${
+                        idx === activeIndex
+                          ? "border-[#DA1212] ring-2 ring-[#DA1212]"
+                          : "border-slate-200 hover:border-slate-400"
+                      }`}
+                    >
+                      <LazyImage src={img} alt={`Thumb ${idx + 1}`} className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                  {images.length > 8 && (
+                    <button
+                      type="button"
+                      onClick={() => setLightboxOpen(true)}
+                      className="h-24 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-slate-400"
+                    >
+                      Voir tout
                     </button>
                   )}
                 </div>
 
-              <div className="grid grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
                 <div className="flex items-start gap-2">
                   <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
                   <div>
@@ -295,7 +327,7 @@ const VehicleDetailPage = () => {
             </div>
 
             {/* Financing card */}
-            <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-4">
+            <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6 space-y-4">
                 <div className="space-y-1">
                   <p className="text-sm text-slate-500">Prix TTC</p>
                   <h1
@@ -316,7 +348,7 @@ const VehicleDetailPage = () => {
                   </p>
                 </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <div className="rounded-lg border border-slate-200 px-3 py-2 text-center">
                   <p className="text-[11px] uppercase tracking-wide text-slate-500">Kilométrage</p>
                   <p className="text-base font-semibold">
@@ -335,9 +367,9 @@ const VehicleDetailPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 rounded-lg border border-slate-200 p-1">
+              <div className="flex flex-col sm:flex-row gap-2 rounded-lg border border-slate-200 p-1">
                 <Button
-                  className={`flex-1 h-10 rounded-md ${
+                  className={`flex-1 h-11 rounded-md ${
                     !isLOA
                       ? "bg-[#DA1212] text-white hover:bg-[#b80f0f]"
                       : "bg-white text-slate-800 hover:bg-slate-100"
@@ -347,7 +379,7 @@ const VehicleDetailPage = () => {
                   LLD
                 </Button>
                 <Button
-                  className={`flex-1 h-10 rounded-md ${
+                  className={`flex-1 h-11 rounded-md ${
                     isLOA
                       ? "bg-[#DA1212] text-white hover:bg-[#b80f0f]"
                       : "bg-white text-slate-800 hover:bg-slate-100"
@@ -359,7 +391,7 @@ const VehicleDetailPage = () => {
                 </Button>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm text-slate-600">
                   <span>Durée de financement</span>
                   <span className="font-semibold">{financeDuration} mois</span>
@@ -390,7 +422,7 @@ const VehicleDetailPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm text-slate-600">
                   <span>Première mensualité</span>
                   <input
@@ -416,7 +448,7 @@ const VehicleDetailPage = () => {
           </div>
 
           {/* Description & options */}
-            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] mt-6">
+            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] mt-6" data-contact-anchor>
               <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm space-y-4">
               <div className="flex items-center gap-2 text-slate-500 text-sm">
                 <Shield className="h-4 w-4" />
@@ -450,6 +482,30 @@ const VehicleDetailPage = () => {
             </div>
           </div>
         </section>
+
+        {/* Sticky mobile CTA */}
+        <div className="fixed inset-x-0 bottom-0 z-30 bg-white/95 backdrop-blur border-t border-slate-200 px-4 py-3 md:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-wide text-slate-500">À partir de</p>
+              <p className="text-lg font-bold text-[#DA1212] leading-tight">{priceLabel}</p>
+              <p className="text-xs text-slate-600 truncate">
+                Mensualité estimée {simulated.value !== null ? simulated.label : monthlyLabel}
+              </p>
+            </div>
+            <Button
+              className="h-12 px-5 rounded-full bg-[#DA1212] text-white hover:bg-[#b80f0f] flex-shrink-0"
+              onClick={() => {
+                const el = document.querySelector("[data-contact-anchor]");
+                if (el instanceof HTMLElement) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+            >
+              Demander une offre
+            </Button>
+          </div>
+        </div>
       </main>
       )}
 

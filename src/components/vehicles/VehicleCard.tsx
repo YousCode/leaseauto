@@ -34,6 +34,9 @@ export function VehicleCard({
           alt={`${brand || "Marque"} ${model || "Modèle"}`}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
+          decoding="async"
+          sizes="(max-width:768px) 100vw, (max-width:1280px) 50vw, 33vw"
+          fetchpriority="auto"
         />
         {highlight && (
           <span

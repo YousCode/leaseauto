@@ -110,7 +110,7 @@ const FinancingSection = () => {
   const { ref: simuRef } = useInView({ threshold: 0.3 });
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50/50 via-white to-slate-50/30 py-16 md:py-20 lg:py-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50/50 via-white to-slate-50/30 py-16 md:py-20 lg:py-32 cv-auto">
       {/* Background subtle pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#E52127]/5 rounded-full" />
