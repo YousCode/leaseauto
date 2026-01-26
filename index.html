@@ -1,18 +1,70 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
+    <!-- =====================
+         Meta & Configuration
+    ====================== -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <meta name="theme-color" content="#e50914" />
+
+    <title>Lease Auto | Financement LOA & véhicules certifiés</title>
+    <meta
+      name="description"
+      content="Lease Auto : véhicules contrôlés et financement sur-mesure (LOA, LLD, Crédit). Réponse rapide, livraison partout en France, garantie 12 mois."
+    />
+
+    <link rel="canonical" href="https://www.lease-auto.fr/" />
+
+    <!-- =====================
+         Icons
+    ====================== -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="/assets/brand-logos/logo-lease-auto.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/assets/brand-logos/logo-lease-auto.png"
+    />
+
+    <!-- =====================
+         Open Graph (SEO)
+    ====================== -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.lease-auto.fr/" />
+    <meta property="og:title" content="Lease Auto | Financement LOA & véhicules certifiés" />
+    <meta
+      property="og:description"
+      content="Véhicules certifiés, financement LOA/LLD/Crédit, livraison France et garantie 12 mois. Dossier guidé, réponse rapide."
+    />
+    <meta
+      property="og:image"
+      content="https://www.lease-auto.fr/assets/brand-logos/logo-lease-auto.png"
+    />
+
+    <!-- =====================
+         Twitter Card
+    ====================== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lease Auto | Financement LOA & véhicules certifiés" />
+    <meta
+      name="twitter:description"
+      content="Véhicules certifiés, financement sur-mesure, garantie 12 mois. Livraison France et dossier simplifié."
+    />
+    <meta
+      name="twitter:image"
+      content="https://www.lease-auto.fr/assets/brand-logos/logo-lease-auto.png"
+    />
+
+    <!-- =====================
+         Devtools / Console logs cleanup
+         (Tempo / CSS warnings)
+    ====================== -->
     <script>
-      // Suppress Tempo devtools CSS warnings immediately
-      (function() {
-        const originalError = console.error;
-        const originalWarn = console.warn;
-        const originalLog = console.log;
-        
-        const suppressPatterns = [
+      (function suppressDevtoolsLogs() {
+        const suppressedPatterns = [
           'extractCssCustomProperties',
           'cssRules',
           'SecurityError',
@@ -22,44 +74,42 @@
           'MessagePort.i',
           'Failed to read the \'cssRules\' property'
         ];
-        
-        const shouldSuppress = (message) => {
-          return suppressPatterns.some(pattern => 
+
+        const shouldSuppress = (message) =>
+          suppressedPatterns.some(pattern =>
             String(message).includes(pattern)
           );
-        };
-        
-        console.error = function(...args) {
-          if (!args.some(arg => shouldSuppress(arg))) {
-            originalError.apply(console, args);
-          }
-        };
-        
-        console.warn = function(...args) {
-          if (!args.some(arg => shouldSuppress(arg))) {
-            originalWarn.apply(console, args);
-          }
-        };
-        
-        console.log = function(...args) {
-          if (!args.some(arg => shouldSuppress(arg))) {
-            originalLog.apply(console, args);
-          }
-        };
-        
-        // Suppress window errors
-        window.addEventListener('error', function(e) {
-          if (shouldSuppress(e.message)) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+
+        ['error', 'warn', 'log'].forEach(method => {
+          const original = console[method];
+          console[method] = function (...args) {
+            if (!args.some(arg => shouldSuppress(arg))) {
+              original.apply(console, args);
+            }
+          };
+        });
+
+        window.addEventListener('error', (event) => {
+          if (shouldSuppress(event.message)) {
+            event.preventDefault();
+            event.stopPropagation();
           }
         });
       })();
     </script>
+    <script type="module" crossorigin src="/assets/index-BIixMgg4.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/router-RP-7IFc1.js">
+    <link rel="modulepreload" crossorigin href="/assets/query-CSfHtl1f.js">
+    <link rel="modulepreload" crossorigin href="/assets/supabase-BsisTNP5.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-BjiNqElV.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DJ44vL_2.css">
   </head>
+
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- =====================
+         Application entry
+    ====================== -->
   </body>
 </html>
