@@ -5,8 +5,9 @@ import {
   ContactSection,
   FooterSection,
   SignatureHighlightsSection,
-  CollectionsShowcaseSection,
-  FinancingSection,
+ 
+ FinancingSection,
+
 } from "@/components/sections";
 
 export default function Home() {
@@ -14,11 +15,11 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <main>
         <HeroSection />
+    
         <VehicleListingsSection />
-        <SignatureHighlightsSection />
         <FinancingSection />
-        <CollectionsShowcaseSection />
         <ProcessSection />
+        <SignatureHighlightsSection />
         <ContactSection />
       </main>
       <FooterSection />
