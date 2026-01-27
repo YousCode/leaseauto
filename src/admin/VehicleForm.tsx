@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, X, Plus, FileText } from "lucide-react";
+import { Upload, X, Plus, FileText, Calendar } from "lucide-react";
 import { uploadVehicleImages } from "@/lib/uploadVehicleImages";
 
 interface VehicleFormProps {
@@ -292,18 +292,18 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
   const totalPrice = monthlyPrice * leaseDuration;
 
   const inputClass =
-    "bg-[#0d0f14] border border-[#1f2937] text-white placeholder:text-gray-500 focus:border-[#DA1212] focus:ring-0 rounded-lg";
+    "bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#DA1212] focus:ring-[#DA1212]/30 rounded-lg";
   const selectTriggerClass =
-    "bg-[#0d0f14] border border-[#1f2937] text-white font-semibold rounded-lg";
+    "bg-white border border-slate-200 text-slate-900 font-semibold rounded-lg focus:border-[#DA1212] focus:ring-[#DA1212]/20";
   const selectContentClass =
-    "bg-[#0d0f14] border border-[#1f2937] text-white rounded-lg";
+    "bg-white border border-slate-200 text-slate-900 rounded-lg shadow-xl";
   const selectItemClass =
-    "text-white font-semibold focus:bg-[#DA1212] focus:text-white data-[highlighted]:bg-[#DA1212]/80 data-[highlighted]:text-white";
+    "text-slate-900 font-semibold focus:bg-[#DA1212] focus:text-white data-[highlighted]:bg-[#DA1212]/90 data-[highlighted]:text-white";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 rounded-2xl border border-[#1f2937] bg-[#0b0d12] p-4 sm:p-6 shadow-[0_16px_50px_rgba(0,0,0,0.38)]"
+      className="space-y-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-[0_20px_60px_rgba(15,23,42,0.16)]"
     >
       {uploadError ? (
         <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -313,36 +313,36 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-white">Créer une annonce</h2>
-          <p className="text-xs uppercase tracking-[0.16em] text-gray-400 mt-1">
+          <h2 className="text-xl font-semibold text-slate-900">Créer une annonce</h2>
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500 mt-1">
             Formulaire fluide · données clés uniquement
           </p>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="flex flex-wrap gap-2 mb-6 bg-[#0f1118] border border-[#1f2937] rounded-xl p-1 md:grid md:grid-cols-4">
+        <TabsList className="flex flex-wrap gap-2 mb-6 bg-slate-100 border border-slate-200 rounded-xl p-1 md:grid md:grid-cols-4">
           <TabsTrigger
             value="general"
-            className="rounded-lg text-white font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Informations générales
           </TabsTrigger>
           <TabsTrigger
             value="technical"
-            className="rounded-lg text-white font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Caractéristiques techniques
           </TabsTrigger>
           <TabsTrigger
             value="media"
-            className="rounded-lg text-white font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Médias
           </TabsTrigger>
           <TabsTrigger
             value="documents"
-            className="data-[state=active]:bg-[#DA1212] data-[state=active]:text-white"
+            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
           >
             Documents confidentiels
           </TabsTrigger>
@@ -351,11 +351,11 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         {/* Informations générales */}
         <TabsContent
           value="general"
-          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+          className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-lg"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="brand" className="text-sm text-gray-400">
+              <Label htmlFor="brand" className="text-sm text-slate-600">
                 Marque <span className="text-[#DA1212]">*</span>
               </Label>
               <Select
@@ -377,7 +377,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="model" className="text-sm text-gray-400">
+              <Label htmlFor="model" className="text-sm text-slate-600">
                 Modèle <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
@@ -392,7 +392,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="trim" className="text-sm text-gray-400">
+              <Label htmlFor="trim" className="text-sm text-slate-600">
                 Finition
               </Label>
               <Input
@@ -406,7 +406,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="version" className="text-sm text-gray-400">
+              <Label htmlFor="version" className="text-sm text-slate-600">
                 Version
               </Label>
               <Input
@@ -420,7 +420,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="year" className="text-sm text-gray-400">
+              <Label htmlFor="year" className="text-sm text-slate-600">
                 Année modèle <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
@@ -438,27 +438,37 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             <div className="space-y-2">
               <Label
                 htmlFor="registrationDate"
-                className="text-sm text-gray-400"
+                className="text-sm text-slate-600"
               >
                 Date de mise en circulation (MM/AAAA){" "}
                 <span className="text-[#DA1212]">*</span>
               </Label>
-              <Input
-                id="registrationDate"
-                name="registrationDate"
-                type="month"
-                value={vehicleData.registrationDate || ""}
-                onChange={handleInputChange}
-                className={`${inputClass} cursor-pointer`}
-                required
-              />
-              <p className="text-xs text-gray-500">
-                Sélectionnez le mois et l'année via le calendrier (format MM/AAAA).
-              </p>
+              <div className="relative">
+                <Input
+                  id="registrationDate"
+                  name="registrationDate"
+                  type="month"
+                  value={vehicleData.registrationDate || ""}
+                  onChange={handleInputChange}
+                  className={`${inputClass} cursor-pointer pr-12 appearance-none focus:shadow-[0_0_0_4px_rgba(218,18,18,0.12)]`}
+                  required
+                />
+                <Calendar
+                  size={18}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  aria-hidden
+                />
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">
+                  Format MM/AAAA
+                </span>
+                <span>Sélectionnez mois et année via le calendrier.</span>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price" className="text-sm text-gray-400">
+              <Label htmlFor="price" className="text-sm text-slate-600">
                 Prix (€/mois) <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
@@ -474,7 +484,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="totalPrice" className="text-sm text-gray-400">
+              <Label htmlFor="totalPrice" className="text-sm text-slate-600">
                 Prix total (€)
               </Label>
               <Input
@@ -489,7 +499,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="color" className="text-sm text-gray-400">
+              <Label htmlFor="color" className="text-sm text-slate-600">
                 Couleur
               </Label>
               <Input
@@ -503,7 +513,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="title" className="text-sm text-gray-400">
+              <Label htmlFor="title" className="text-sm text-slate-600">
                 Titre de l'annonce <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
@@ -518,7 +528,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="description" className="text-sm text-gray-400">
+              <Label htmlFor="description" className="text-sm text-slate-600">
                 Description complète
               </Label>
               <Textarea
@@ -536,11 +546,11 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         {/* Caractéristiques techniques */}
         <TabsContent
           value="technical"
-          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+          className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-lg"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-sm text-gray-400">
+              <Label htmlFor="category" className="text-sm text-slate-600">
                 Type de véhicule <span className="text-[#DA1212]">*</span>
               </Label>
               <Select
@@ -548,12 +558,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 value={vehicleData.category || ""}
                 onValueChange={(value) => handleSelectChange("category", value)}
               >
-                <SelectTrigger className="bg-black border-gray-700 text-white font-semibold">
+                <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800 text-white font-semibold">
+                <SelectContent className={selectContentClass}>
                   {vehicleTypes.map((type) => (
-                    <SelectItem key={type} value={type} className="text-white font-semibold">
+                    <SelectItem key={type} value={type} className={selectItemClass}>
                       {type}
                     </SelectItem>
                   ))}
@@ -562,7 +572,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="mileage" className="text-sm text-gray-400">
+              <Label htmlFor="mileage" className="text-sm text-slate-600">
                 Kilométrage <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
@@ -578,7 +588,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fiscalPower" className="text-sm text-gray-400">
+              <Label htmlFor="fiscalPower" className="text-sm text-slate-600">
                 Puissance fiscale (CV)
               </Label>
               <Input
@@ -593,7 +603,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="enginePower" className="text-sm text-gray-400">
+              <Label htmlFor="enginePower" className="text-sm text-slate-600">
                 Puissance moteur DIN (ch)
               </Label>
               <Input
@@ -608,7 +618,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="doors" className="text-sm text-gray-400">
+              <Label htmlFor="doors" className="text-sm text-slate-600">
                 Nombre de portes
               </Label>
               <Input
@@ -623,7 +633,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="seats" className="text-sm text-gray-400">
+              <Label htmlFor="seats" className="text-sm text-slate-600">
                 Nombre de places
               </Label>
               <Input
@@ -638,7 +648,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="transmission" className="text-sm text-gray-400">
+              <Label htmlFor="transmission" className="text-sm text-slate-600">
                 Boîte de vitesses <span className="text-[#DA1212]">*</span>
               </Label>
               <Select
@@ -662,7 +672,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fuelType" className="text-sm text-gray-400">
+              <Label htmlFor="fuelType" className="text-sm text-slate-600">
                 Type de carburant <span className="text-[#DA1212]">*</span>
               </Label>
               <Select
@@ -686,7 +696,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             <div className="space-y-2">
               <Label
                 htmlFor="licenseRequired"
-                className="text-sm text-gray-400"
+                className="text-sm text-slate-600"
               >
                 Permis requis
               </Label>
@@ -701,14 +711,14 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   <SelectValue placeholder="Sélectionner une option" />
                 </SelectTrigger>
                 <SelectContent className={selectContentClass}>
-                  <SelectItem value="avec" className="text-white font-semibold">Avec permis</SelectItem>
-                  <SelectItem value="sans" className="text-white font-semibold">Sans permis</SelectItem>
+                  <SelectItem value="avec" className={selectItemClass}>Avec permis</SelectItem>
+                  <SelectItem value="sans" className={selectItemClass}>Sans permis</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="upholstery" className="text-sm text-gray-400">
+              <Label htmlFor="upholstery" className="text-sm text-slate-600">
                 Sellerie
               </Label>
               <Select
@@ -723,7 +733,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 </SelectTrigger>
                 <SelectContent className={selectContentClass}>
                   {upholsteryTypes.map((type) => (
-                    <SelectItem key={type} value={type} className="text-white font-semibold">
+                    <SelectItem key={type} value={type} className={selectItemClass}>
                       {type}
                     </SelectItem>
                   ))}
@@ -732,7 +742,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label className="text-sm text-gray-400 block mb-2">
+              <Label className="text-sm text-slate-600 block mb-2">
                 Équipements
               </Label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -757,7 +767,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
             <div className="space-y-2 md:col-span-2">
               <Label
                 htmlFor="additionalEquipment"
-                className="text-sm text-gray-400"
+                className="text-sm text-slate-600"
               >
                 Équipements supplémentaires
               </Label>
@@ -776,11 +786,11 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         {/* Médias */}
         <TabsContent
           value="media"
-          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+          className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-lg"
         >
           <div className="space-y-5">
             <div>
-              <Label className="text-sm text-gray-400 block mb-2">
+              <Label className="text-sm text-slate-600 block mb-2">
                 Drag & Drop des photos (png/jpg, max 6 Mo, 20 fichiers)
               </Label>
               <label
@@ -789,8 +799,8 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 onDrop={handleDrop}
                 className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-6 text-sm transition ${
                   isDragging
-                    ? "border-[#DA1212] bg-[#DA1212]/10 text-white"
-                    : "border-gray-700 bg-[#0f1118] text-gray-400 hover:border-[#DA1212]"
+                    ? "border-[#DA1212] bg-[#DA1212]/10 text-[#DA1212]"
+                    : "border-slate-200 bg-slate-50 text-slate-500 hover:border-[#DA1212]"
                 }`}
               >
                 <Upload size={20} className="mb-2" />
@@ -809,7 +819,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                   {persistedImages.map((image, index) => (
                     <div key={`persisted-${index}`} className="relative group">
-                      <div className="aspect-[4/3] rounded-md overflow-hidden bg-gray-800">
+                      <div className="aspect-[4/3] rounded-md overflow-hidden bg-slate-100">
                         <img
                           src={image}
                           alt={`Vehicle image ${index + 1}`}
@@ -829,7 +839,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   ))}
                   {vehicleImages.map((image, index) => (
                     <div key={`new-${index}`} className="relative group">
-                      <div className="aspect-[4/3] rounded-md overflow-hidden bg-gray-800">
+                      <div className="aspect-[4/3] rounded-md overflow-hidden bg-slate-100">
                         <img
                           src={URL.createObjectURL(image)}
                           alt={`Vehicle image ${index + 1}`}
@@ -848,17 +858,17 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 </div>
               )}
               {uploadError && (
-                <p className="mt-2 text-sm text-red-400">{uploadError}</p>
+                <p className="mt-2 text-sm text-red-500">{uploadError}</p>
               )}
               {isUploading && (
-                <p className="mt-2 text-sm text-gray-400">
+                <p className="mt-2 text-sm text-slate-500">
                   Upload en cours…
                 </p>
               )}
             </div>
 
             <div className="space-y-3">
-              <Label className="text-sm text-gray-400 block">
+              <Label className="text-sm text-slate-600 block">
                 URLs des photos (optionnel) — une par ligne
               </Label>
               <Textarea
@@ -867,7 +877,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 className={`${inputClass} min-h-[140px]`}
                 placeholder="https://.../photo1.jpg\nhttps://.../photo2.jpg"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500">
                 Les URLs et les images déposées seront fusionnées et stockées dans
                 `images[]` côté Supabase.
               </p>
@@ -878,16 +888,16 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         {/* Documents confidentiels */}
         <TabsContent
           value="documents"
-          className="space-y-4 rounded-xl border border-[#1f2937] bg-[#0f1118] p-4 sm:p-5 shadow-lg"
+          className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-lg"
         >
-          <div className="p-4 bg-gray-800/30 border border-gray-800 rounded-md mb-4">
-            <div className="flex items-center text-amber-400 mb-2">
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-md mb-4">
+            <div className="flex items-center text-amber-700 mb-2">
               <FileText size={18} className="mr-2" />
               <span className="font-medium">
                 Zone sécurisée - Documents confidentiels
               </span>
             </div>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-amber-800">
               Les documents téléchargés dans cette section sont strictement
               confidentiels et ne seront jamais visibles sur l'interface
               publique.
@@ -895,12 +905,12 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
           </div>
 
           <div>
-            <Label className="text-sm text-gray-400 block mb-2">
+            <Label className="text-sm text-slate-600 block mb-2">
               Documents administratifs
             </Label>
             <div className="flex items-center space-x-4">
               <label className="cursor-pointer">
-                <div className="flex items-center justify-center px-4 py-2 border border-dashed border-gray-700 rounded-md hover:bg-gray-800/30 transition-colors">
+                <div className="flex items-center justify-center px-4 py-2 border border-dashed border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
                   <Upload size={18} className="mr-2" />
                   <span>Ajouter des documents</span>
                 </div>
@@ -919,16 +929,16 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
               {documents.map((doc, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 bg-gray-800/30 border border-gray-800 rounded-md"
+                  className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-md"
                 >
                   <div className="flex items-center">
-                    <FileText size={16} className="mr-2 text-gray-400" />
+                    <FileText size={16} className="mr-2 text-slate-500" />
                     <span className="text-sm">{doc.name}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeDocument(index)}
-                    className="text-gray-400 hover:text-white p-1"
+                    className="text-slate-500 hover:text-slate-900 p-1"
                   >
                     <X size={16} />
                   </button>
@@ -940,41 +950,41 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
       </Tabs>
 
       {/* Footer : Total + Boutons */}
-      <div className="space-y-4 pt-6 border-t border-gray-800">
+      <div className="space-y-4 pt-6 border-t border-slate-200">
         <div className="mt-2 grid gap-4 md:grid-cols-[2fr,1fr] items-start">
-          <div className="space-y-2 text-sm text-gray-400">
+          <div className="space-y-2 text-sm text-slate-600">
             <p>
               Prix mensuel{" "}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-slate-900">
                 {monthlyPrice.toFixed(0)} € / mois
               </span>
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-500">
               Total estimé sur {leaseDuration} mois :{" "}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-slate-900">
                 {totalPrice.toLocaleString("fr-FR")} €
               </span>{" "}
               hors frais de mise en route, assurances et options facultatives.
             </p>
           </div>
 
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-zinc-900 via-black to-zinc-900 px-4 py-3 shadow-lg">
-            <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+          <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-white via-white to-slate-50 px-4 py-3 shadow-lg">
+            <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
               Récapitulatif du contrat
             </p>
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-gray-400">Loyer mensuel</span>
-              <span className="text-2xl font-semibold text-white">
+              <span className="text-sm text-slate-600">Loyer mensuel</span>
+              <span className="text-2xl font-semibold text-slate-900">
                 {monthlyPrice.toFixed(0)} €
-                <span className="text-xs font-normal text-gray-400">
+                <span className="text-xs font-normal text-slate-500">
                   {" "}
                   /mois
                 </span>
               </span>
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
+            <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
               <span>Total sur {leaseDuration} mois</span>
-              <span className="font-medium text-white">
+              <span className="font-medium text-slate-900">
                 {totalPrice.toLocaleString("fr-FR")} €
               </span>
             </div>

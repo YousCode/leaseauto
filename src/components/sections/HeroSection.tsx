@@ -77,7 +77,7 @@ export function HeroSection() {
             className="absolute inset-0 w-full h-full object-cover opacity-60"
             loading={activeIndex === 0 ? "eager" : "lazy"}
             decoding="async"
-            fetchpriority={activeIndex === 0 ? "high" : "auto"}
+            fetchPriority={activeIndex === 0 ? "high" : "auto"}
           />
         </AnimatePresence>
         

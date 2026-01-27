@@ -271,19 +271,19 @@ const AdminVehicleManager = () => {
   const draftCount = visibleVehicles.filter((v: any) => v.status !== "published").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1020] via-[#0d1224] to-[#0b0f1c] text-white">
+    <div className="min-h-screen bg-[#f7f8fb] text-slate-900">
       <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-[#7f8bb0]">Admin</p>
-            <h1 className="text-3xl font-bold mt-2">Parc véhicules</h1>
-            <p className="text-sm text-gray-400">Pilote les annonces, photos et statuts en un coup d’œil.</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#DA1212]">Admin</p>
+            <h1 className="text-3xl font-bold mt-2 text-slate-900">Parc véhicules</h1>
+            <p className="text-sm text-slate-600">Pilote les annonces, photos et statuts en un coup d’œil.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
               onClick={toggleConfidentialInfo}
-              className="border-white/10 bg-white/5 hover:bg-white/10"
+              className="border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
             >
               {showConfidentialInfo ? (
                 <>
@@ -296,7 +296,7 @@ const AdminVehicleManager = () => {
               )}
             </Button>
             <Button
-              className="bg-gradient-to-r from-[#DA1212] to-[#f43f5e] hover:opacity-90 shadow-lg shadow-[#da1212]/30"
+              className="bg-[#DA1212] hover:bg-[#b50f0f] shadow-lg shadow-[#da1212]/30"
               onClick={handleAddVehicle}
             >
               <Plus size={18} className="mr-2" /> Nouveau véhicule
@@ -305,30 +305,30 @@ const AdminVehicleManager = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <Card className="bg-white border border-slate-200 shadow-sm">
             <CardContent className="py-4">
-              <p className="text-xs uppercase text-gray-400">Total</p>
+              <p className="text-xs uppercase text-slate-500">Total</p>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-semibold">{totalVehicles}</span>
-                <Badge className="bg-white/10 text-white border-white/20">Toutes</Badge>
+                <Badge className="bg-slate-100 text-slate-700 border-slate-200">Toutes</Badge>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <Card className="bg-white border border-slate-200 shadow-sm">
             <CardContent className="py-4">
-              <p className="text-xs uppercase text-gray-400">En ligne</p>
+              <p className="text-xs uppercase text-slate-500">En ligne</p>
               <div className="flex items-end justify-between">
-                <span className="text-2xl font-semibold text-emerald-300">{publishedCount}</span>
-                <Badge className="bg-emerald-500/10 text-emerald-200 border-emerald-500/30">Publié</Badge>
+                <span className="text-2xl font-semibold text-emerald-600">{publishedCount}</span>
+                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Publié</Badge>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <Card className="bg-white border border-slate-200 shadow-sm">
             <CardContent className="py-4">
-              <p className="text-xs uppercase text-gray-400">Brouillons / à revoir</p>
+              <p className="text-xs uppercase text-slate-500">Brouillons / à revoir</p>
               <div className="flex items-end justify-between">
-                <span className="text-2xl font-semibold text-amber-300">{draftCount}</span>
-                <Badge className="bg-amber-500/10 text-amber-200 border-amber-500/30">Hors ligne</Badge>
+                <span className="text-2xl font-semibold text-amber-600">{draftCount}</span>
+                <Badge className="bg-amber-100 text-amber-700 border-amber-200">Hors ligne</Badge>
               </div>
             </CardContent>
           </Card>
@@ -342,7 +342,7 @@ const AdminVehicleManager = () => {
             <div
               key={vehicle.id}
               className={[
-                "group relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4 hover:border-[#DA1212]/40 hover:shadow-[0_10px_50px_-20px_rgba(218,18,18,0.7)] transition",
+                "group relative rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.12)] hover:shadow-[0_18px_45px_rgba(218,18,18,0.12)] transition",
                 isDeleting ? "opacity-60 blur-[0.2px]" : "",
               ].join(" ")}
             >
@@ -355,7 +355,7 @@ const AdminVehicleManager = () => {
                 </div>
               )}
               <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative w-full md:w-52 h-36 overflow-hidden rounded-xl bg-black/40 border border-white/5">
+                <div className="relative w-full md:w-52 h-36 overflow-hidden rounded-xl bg-slate-100 border border-slate-200">
                   {getPrimaryImage(vehicle) ? (
                     <img
                       src={getPrimaryImage(vehicle) as string}
@@ -363,12 +363,12 @@ const AdminVehicleManager = () => {
                       className="w-full h-full object-cover transform group-hover:scale-105 transition duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full grid place-items-center text-gray-500 text-sm">
+                    <div className="w-full h-full grid place-items-center text-slate-400 text-sm">
                       Pas de photo
                     </div>
                   )}
                   {showConfidentialInfo && (
-                    <div className="absolute top-2 left-2 rounded-full bg-black/60 px-3 py-1 text-xs text-amber-200 border border-amber-500/30">
+                    <div className="absolute top-2 left-2 rounded-full bg-white/90 px-3 py-1 text-xs text-amber-700 border border-amber-200">
                       <Shield size={12} className="inline mr-1" />
                       {vehicle.registration || "Immat. non renseignée"}
                     </div>
@@ -377,7 +377,7 @@ const AdminVehicleManager = () => {
                     {(vehicle.images ?? []).slice(0, 3).map((img: string, idx: number) => (
                       <span
                         key={idx}
-                        className="h-8 w-8 rounded-lg border border-white/20 overflow-hidden bg-black/40"
+                        className="h-8 w-8 rounded-lg border border-white overflow-hidden bg-white"
                       >
                         <img src={img} alt={`v-thumb-${idx}`} className="w-full h-full object-cover" />
                       </span>
@@ -388,31 +388,31 @@ const AdminVehicleManager = () => {
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-gray-400">
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
                         {vehicle.brand || "Marque"} · {vehicle.model || "Modèle"}
                       </p>
-                      <h3 className="text-xl font-semibold">{vehicle.title || vehicle.name}</h3>
-                      <div className="flex flex-wrap gap-2 mt-1 text-xs text-gray-400">
-                        <span className="px-2 py-1 rounded-full bg-white/5 border border-white/10">
+                      <h3 className="text-xl font-semibold text-slate-900">{vehicle.title || vehicle.name}</h3>
+                      <div className="flex flex-wrap gap-2 mt-1 text-xs text-slate-600">
+                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
                           {vehicle.year || "Année ?"}
                         </span>
-                        <span className="px-2 py-1 rounded-full bg-white/5 border border-white/10">
+                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
                           {formatMileage(vehicle.mileage)}
                         </span>
-                        <span className="px-2 py-1 rounded-full bg-white/5 border border-white/10">
+                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
                           {vehicle.energy || vehicle.fuel || "Énergie ?"}
                         </span>
-                        <span className="px-2 py-1 rounded-full bg-white/5 border border-white/10">
+                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
                           {vehicle.gearbox || vehicle.transmission || "Boîte ?"}
                         </span>
                       </div>
                     </div>
                     <div className="text-right space-y-1">
                       <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                           Loyer mensuel
                         </p>
-                        <div className="text-2xl font-bold text-white">
+                        <div className="text-2xl font-bold text-slate-900">
                           {formatAmount(
                             vehicle.monthly ??
                               (vehicle as any).monthly_price ??
@@ -424,11 +424,11 @@ const AdminVehicleManager = () => {
                           )}
                         </div>
                       </div>
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">
+                    <div>
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                           Prix total
                         </p>
-                        <div className="text-base font-semibold text-gray-200">
+                        <div className="text-base font-semibold text-slate-900">
                           {formatAmount(
                             vehicle.price ?? (vehicle as any).totalPrice ?? null,
                             "€",
@@ -442,13 +442,13 @@ const AdminVehicleManager = () => {
                     <Badge
                       className={`border ${
                         vehicle.status === "published"
-                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-200"
-                          : "bg-amber-500/15 border-amber-500/30 text-amber-200"
+                          ? "bg-emerald-100 border-emerald-200 text-emerald-700"
+                          : "bg-amber-100 border-amber-200 text-amber-700"
                       }`}
                     >
                       {vehicle.status === "published" ? "Publié" : "Hors ligne"}
                     </Badge>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-slate-500">
                       {vehicle.city || "Ville non renseignée"}
                     </span>
                   </div>
@@ -457,13 +457,13 @@ const AdminVehicleManager = () => {
                     {(vehicle.options || []).slice(0, 4).map((opt: string, idx: number) => (
                       <span
                         key={idx}
-                        className="text-xs px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-200"
+                        className="text-xs px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700"
                       >
                         {opt}
                       </span>
                     ))}
                     {(vehicle.options || []).length > 4 && (
-                      <span className="text-xs px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-400">
+                      <span className="text-xs px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-500">
                         +{(vehicle.options || []).length - 4} options
                       </span>
                     )}
@@ -473,7 +473,7 @@ const AdminVehicleManager = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-white/20 text-white bg-white/5 hover:bg-white/10"
+                      className="border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
                       onClick={() => handleEditVehicle(vehicle)}
                     >
                       <Pencil size={14} className="mr-2" /> Modifier
@@ -481,7 +481,7 @@ const AdminVehicleManager = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-red-400/40 text-red-200 bg-red-500/10 hover:bg-red-500/20"
+                      className="border-red-200 text-red-700 bg-red-50 hover:bg-red-100"
                       disabled={isDeleting}
                       onClick={() => handleDeleteVehicle(vehicle)}
                     >
@@ -491,7 +491,7 @@ const AdminVehicleManager = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-white/20 text-white bg-white/5 hover:bg-white/10"
+                      className="border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
                       onClick={() => (vehicle.slug ? window.open(`/vehicules/${vehicle.slug}`, "_blank") : null)}
                     >
                       Aperçu public
@@ -504,14 +504,14 @@ const AdminVehicleManager = () => {
         })}
 
           {remoteVehicles.length === 0 && (
-            <Card className="bg-white/5 border-dashed border-white/10 text-center py-10">
+            <Card className="bg-white border-dashed border-slate-200 text-center py-10">
               <CardContent>
-                <p className="text-lg font-semibold">Aucun véhicule pour le moment</p>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-lg font-semibold text-slate-900">Aucun véhicule pour le moment</p>
+                <p className="text-sm text-slate-500 mb-4">
                   Ajoute ta première annonce pour la voir apparaître ici.
                 </p>
                 <Button
-                  className="bg-gradient-to-r from-[#DA1212] to-[#f43f5e]"
+                  className="bg-[#DA1212] hover:bg-[#b50f0f]"
                   onClick={handleAddVehicle}
                 >
                   <Plus size={16} className="mr-2" /> Ajouter un véhicule

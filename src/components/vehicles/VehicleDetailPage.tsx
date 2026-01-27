@@ -155,6 +155,13 @@ const VehicleDetailPage = () => {
     "Configuration premium préparée, dossier financier piloté, livraison rapide partout en France. Garantie et historique vérifiés.";
   const descriptionShort =
     descriptionFull.length > 220 ? descriptionFull.slice(0, 220).trim() + "…" : descriptionFull;
+  const descriptionItems = useMemo(() => {
+    if (!descriptionFull) return [];
+    return descriptionFull
+      .split(/(?:(?<=\.)\s+)|(?:\s*·\s*)|(?:\s+-\s+)|(?:\s*;\s*)/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 6 && t.length < 400);
+  }, [descriptionFull]);
 
   return (
     <>
@@ -465,10 +472,33 @@ const VehicleDetailPage = () => {
                     )}
                   </div>
 
-                  <p className="text-sm text-slate-700 leading-relaxed">
-                    <span className="md:hidden">{descOpen ? descriptionFull : descriptionShort}</span>
-                    <span className="hidden md:inline">{descriptionFull}</span>
-                  </p>
+                  {/* Description formatée */}
+                  {descriptionItems.length >= 4 ? (
+                    <div className="space-y-2">
+                      <ul className="space-y-1.5 text-sm text-slate-700 leading-relaxed">
+                        {(descOpen ? descriptionItems : descriptionItems.slice(0, 8)).map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <CheckCircle className="h-4 w-4 mt-0.5 text-[#DA1212]" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {descriptionItems.length > 8 && (
+                        <button
+                          type="button"
+                          onClick={() => setDescOpen((v) => !v)}
+                          className="text-xs font-semibold text-[#DA1212]"
+                        >
+                          {descOpen ? "Réduire" : `Voir les ${descriptionItems.length - 8} lignes suivantes`}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                      <span className="md:hidden">{descOpen ? descriptionFull : descriptionShort}</span>
+                      <span className="hidden md:inline">{descriptionFull}</span>
+                    </p>
+                  )}
 
                   {(optionsList.length > 0 || equipmentList.length > 0) && (
                     <div className="border-t border-slate-200 pt-4 grid gap-4 md:grid-cols-2">
@@ -779,15 +809,28 @@ const VehicleDetailPage = () => {
                 {displayVehicle.title || `${displayVehicle.brand} ${displayVehicle.model}`}
               </p>
               <div className="space-y-2">
-                <p className="text-slate-700 leading-relaxed">{descOpen ? descriptionFull : descriptionShort}</p>
-                {descriptionFull.length > 220 && (
-                  <button
-                    type="button"
-                    onClick={() => setDescOpen((v) => !v)}
-                    className="text-sm font-semibold text-[#DA1212]"
-                  >
-                    {descOpen ? "Réduire" : "Lire la suite"}
-                  </button>
+                {descriptionItems.length >= 4 ? (
+                  <div className="space-y-2">
+                    <ul className="space-y-1.5 text-sm text-slate-700 leading-relaxed">
+                      {(descOpen ? descriptionItems : descriptionItems.slice(0, 6)).map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <CheckCircle className="h-4 w-4 mt-0.5 text-[#DA1212]" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {descriptionItems.length > 6 && (
+                      <button
+                        type="button"
+                        onClick={() => setDescOpen((v) => !v)}
+                        className="text-sm font-semibold text-[#DA1212]"
+                      >
+                        {descOpen ? "Réduire" : `Voir les ${descriptionItems.length - 6} lignes suivantes`}
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-slate-700 leading-relaxed">{descOpen ? descriptionFull : descriptionShort}</p>
                 )}
               </div>
 

@@ -36,7 +36,7 @@ export function VehicleCard({
           loading="lazy"
           decoding="async"
           sizes="(max-width:768px) 100vw, (max-width:1280px) 50vw, 33vw"
-          fetchpriority="auto"
+          fetchPriority="auto"
         />
         {highlight && (
           <span
