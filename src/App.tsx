@@ -28,6 +28,10 @@ const ServicesPage = lazy(() => import("@/pages/Services"));
 const DossierPage = lazy(() => import("@/pages/Dossier"));
 const DossierTrackingPage = lazy(() => import("@/pages/DossierTracking"));
 const FinancementPage = lazy(() => import("@/pages/Financement"));
+const MentionsLegalesPage = lazy(() => import("@/pages/MentionsLegales"));
+const PolitiqueConfidentialitePage = lazy(() => import("@/pages/PolitiqueConfidentialite"));
+const ConditionsGeneralesPage = lazy(() => import("@/pages/ConditionsGenerales"));
+const CookiesPage = lazy(() => import("@/pages/Cookies"));
 
 const PublicLayout = () => (
   <>
@@ -67,6 +71,10 @@ function App() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/dossier" element={<DossierPage />} />
             <Route path="/dossier/mon-dossier" element={<DossierTrackingPage />} />
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+            <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialitePage />} />
+            <Route path="/conditions-generales" element={<ConditionsGeneralesPage />} />
+            <Route path="/cookies" element={<CookiesPage />} />
           </Route>
 
           {/* Redirections EN -> FR */}

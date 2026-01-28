@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Calendar, CheckCircle, Gauge, MapPin, MoveRight, Shield, Zap } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Circle, Gauge, MapPin, MoveRight, Shield, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -158,10 +158,21 @@ const VehicleDetailPage = () => {
   const descriptionItems = useMemo(() => {
     if (!descriptionFull) return [];
     return descriptionFull
-      .split(/(?:(?<=\.)\s+)|(?:\s*·\s*)|(?:\s+-\s+)|(?:\s*;\s*)/)
+      .split(/(?:(?<=\.)\s+)|(?:\s*·\s*)|(?:\s+-\s+)|(?:\s*;\s*)|(?:\s*:\s+(?=[A-Z0-9]))/)
       .map((t) => t.trim())
-      .filter((t) => t.length > 6 && t.length < 400);
+      .filter((t) => t.length > 6 && t.length < 300);
   }, [descriptionFull]);
+
+  const pickIcon = (text: string) => {
+    const lower = text.toLowerCase();
+    if (lower.includes("prix") || lower.includes("€") || lower.includes("mois")) {
+      return { Icon: CheckCircle, className: "text-[#DA1212]" };
+    }
+    if (lower.includes("crédit") || lower.includes("remboursement") || lower.includes("vérifiez")) {
+      return { Icon: AlertTriangle, className: "text-amber-500" };
+    }
+    return { Icon: Circle, className: "text-slate-400" };
+  };
 
   return (
     <>
@@ -810,22 +821,25 @@ const VehicleDetailPage = () => {
               </p>
               <div className="space-y-2">
                 {descriptionItems.length >= 4 ? (
-                  <div className="space-y-2">
-                    <ul className="space-y-1.5 text-sm text-slate-700 leading-relaxed">
-                      {(descOpen ? descriptionItems : descriptionItems.slice(0, 6)).map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 mt-0.5 text-[#DA1212]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
+                  <div className="space-y-3">
+                    <ul className="grid gap-2 text-sm text-slate-700 leading-relaxed md:grid-cols-2">
+                      {(descOpen ? descriptionItems : descriptionItems.slice(0, 8)).map((item, idx) => {
+                        const { Icon, className } = pickIcon(item);
+                        return (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Icon className={`h-4 w-4 mt-0.5 ${className}`} />
+                            <span>{item}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
-                    {descriptionItems.length > 6 && (
+                    {descriptionItems.length > 8 && (
                       <button
                         type="button"
                         onClick={() => setDescOpen((v) => !v)}
                         className="text-sm font-semibold text-[#DA1212]"
                       >
-                        {descOpen ? "Réduire" : `Voir les ${descriptionItems.length - 6} lignes suivantes`}
+                        {descOpen ? "Réduire" : `Voir les ${descriptionItems.length - 8} lignes suivantes`}
                       </button>
                     )}
                   </div>
