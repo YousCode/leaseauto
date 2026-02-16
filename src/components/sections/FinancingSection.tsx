@@ -13,6 +13,8 @@ import {
 import { CarFront, Check, ArrowRight, Calculator } from "lucide-react";
 import { AnimatePresence, motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { clampNumber, simulateLinearLoa } from "@/lib/finance";
 
 const SOLUTIONS = [
   {
@@ -27,7 +29,6 @@ const SOLUTIONS = [
 const DEFAULT_LOA_DURATION_MONTHS = 60;
 
 // Helpers
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 const toNumber = (v: string, fallback: number) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
@@ -71,40 +72,26 @@ const NumberCounter = ({ end, duration = 1.2 }: { end: number; duration?: number
 const FinancingSection = () => {
   const navigate = useNavigate();
 
-  const [price, setPrice] = useState(32000);
-  const [duration, setDuration] = useState(DEFAULT_LOA_DURATION_MONTHS);
+  const [price, setPrice] = useLocalStorage<number>("leaseauto:simu:price", 32000);
+  const [duration, setDuration] = useLocalStorage<number>("leaseauto:simu:duration", DEFAULT_LOA_DURATION_MONTHS);
   // ✅ Apport 20% par défaut, modifiable
-  const [depositPercent, setDepositPercent] = useState(20);
+  const [depositPercent, setDepositPercent] = useLocalStorage<number>("leaseauto:simu:depositPercent", 20);
 
   // (Optionnel) VR 30% modifiable — si tu veux garder fixe, mets const residualPercent = 30;
-  const [residualPercent, setResidualPercent] = useState(30);
+  const [residualPercent, setResidualPercent] = useLocalStorage<number>("leaseauto:simu:residualPercent", 30);
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const simulation = useMemo(() => {
-    const capital = Math.max(0, price);
-
-    const depositP = clamp(depositPercent, 0, 100);
-    const depositAmount = (depositP / 100) * capital;
-
-    const financedAmount = Math.max(0, capital - depositAmount);
-
-    const vrP = clamp(residualPercent, 0, 60); // 60% max par sécurité (à ajuster)
-    const residual = (vrP / 100) * financedAmount;
-
-    const financed = Math.max(0, financedAmount - residual);
-
-    if (!financed || duration <= 0) {
-      return { monthly: 0, depositAmount: Math.round(depositAmount), residual: Math.round(residual) };
-    }
-
-    // Calcul indicatif sans taux (linéaire)
-    return {
-      monthly: Math.round(financed / duration),
-      depositAmount: Math.round(depositAmount),
-      residual: Math.round(residual),
-    };
-  }, [price, duration, depositPercent, residualPercent]);
+  const simulation = useMemo(
+    () =>
+      simulateLinearLoa({
+        price,
+        durationMonths: duration,
+        depositPercent,
+        residualPercent,
+      }),
+    [price, duration, depositPercent, residualPercent],
+  );
 
   const { ref: loaRef } = useInView({ threshold: 0.2 });
   const { ref: simuRef } = useInView({ threshold: 0.3 });
@@ -325,7 +312,9 @@ const FinancingSection = () => {
                         <Input
                           type="number"
                           value={duration}
-                          onChange={(e) => setDuration(clamp(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))}
+                          onChange={(e) =>
+                            setDuration(clampNumber(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))
+                          }
                           className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
                           placeholder="60"
                         />
@@ -341,7 +330,7 @@ const FinancingSection = () => {
                           value={depositPercent}
                           min={0}
                           max={100}
-                          onChange={(e) => setDepositPercent(clamp(toNumber(e.target.value, 20), 0, 100))}
+                          onChange={(e) => setDepositPercent(clampNumber(toNumber(e.target.value, 20), 0, 100))}
                           className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
                           placeholder="20"
                         />
@@ -351,7 +340,7 @@ const FinancingSection = () => {
                           min={0}
                           max={50}
                           value={depositPercent}
-                          onChange={(e) => setDepositPercent(clamp(Number(e.target.value), 0, 100))}
+                          onChange={(e) => setDepositPercent(clampNumber(Number(e.target.value), 0, 100))}
                           className="w-full"
                         />
                         <div className="flex flex-wrap gap-2 pt-1">

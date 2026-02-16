@@ -26,6 +26,8 @@ import {
   Search,
 } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { clampNumber, simulateLinearLoa } from "@/lib/finance";
 
 type Solution = {
   title: string;
@@ -107,7 +109,6 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 const toNumber = (v: string, fallback: number) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
@@ -205,30 +206,24 @@ const Card = ({ children, className }: { children: React.ReactNode; className?: 
 
 const FinancementPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [price, setPrice] = useState(32000);
-  const [duration, setDuration] = useState(DEFAULT_LOA_DURATION_MONTHS);
-  const [depositPercent, setDepositPercent] = useState(20);
-  const residualPercent = 30;
+  const [price, setPrice] = useLocalStorage<number>("leaseauto:simu:price", 32000);
+  const [duration, setDuration] = useLocalStorage<number>("leaseauto:simu:duration", DEFAULT_LOA_DURATION_MONTHS);
+  const [depositPercent, setDepositPercent] = useLocalStorage<number>("leaseauto:simu:depositPercent", 20);
+  const [residualPercent] = useLocalStorage<number>("leaseauto:simu:residualPercent", 30);
   const navigate = useNavigate();
   const { data: vehicles = [] } = useVehicles("published");
   const [query, setQuery] = useState("");
 
-  const simulation = useMemo(() => {
-    const capital = Math.max(0, price);
-    const deposit = clamp(depositPercent, 0, 100);
-    const depositAmount = (deposit / 100) * capital;
-    const financedAmount = Math.max(0, capital - depositAmount);
-    const residual = (clamp(residualPercent, 0, 60) / 100) * financedAmount;
-    const financed = Math.max(0, financedAmount - residual);
-    if (!financed || duration <= 0) {
-      return { monthly: 0, depositAmount: Math.round(depositAmount), residual: Math.round(residual) };
-    }
-    return {
-      monthly: Math.round(financed / duration),
-      depositAmount: Math.round(depositAmount),
-      residual: Math.round(residual),
-    };
-  }, [depositPercent, duration, price, residualPercent]);
+  const simulation = useMemo(
+    () =>
+      simulateLinearLoa({
+        price,
+        durationMonths: duration,
+        depositPercent,
+        residualPercent,
+      }),
+    [depositPercent, duration, price, residualPercent],
+  );
 
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
@@ -719,7 +714,9 @@ const FinancementPage = () => {
                 <Input
                   type="number"
                   value={duration}
-                  onChange={(e) => setDuration(clamp(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))}
+                  onChange={(e) =>
+                    setDuration(clampNumber(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))
+                  }
                   className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
                   placeholder="60"
                 />
@@ -732,7 +729,7 @@ const FinancementPage = () => {
                   value={depositPercent}
                   min={0}
                   max={100}
-                  onChange={(e) => setDepositPercent(clamp(toNumber(e.target.value, 20), 0, 100))}
+                  onChange={(e) => setDepositPercent(clampNumber(toNumber(e.target.value, 20), 0, 100))}
                   className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
                   placeholder="20"
                 />
@@ -741,7 +738,7 @@ const FinancementPage = () => {
                   min={0}
                   max={50}
                   value={depositPercent}
-                  onChange={(e) => setDepositPercent(clamp(Number(e.target.value), 0, 100))}
+                  onChange={(e) => setDepositPercent(clampNumber(Number(e.target.value), 0, 100))}
                   className="w-full accent-[#E52127]"
                 />
                 <div className="flex flex-wrap gap-2 pt-1">

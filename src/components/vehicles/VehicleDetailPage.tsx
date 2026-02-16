@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import LazyImage from "@/components/ui/LazyImage";
 import { useVehicleBySlug } from "@/hooks/useVehicleBySlug";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BrandLogo } from "@/lib/BrandLogo";
+import { estimateVehicleMonthly } from "@/lib/finance";
 
 const ACCENT = "#DA1212";
 const ACCENT_DARK = "#0b0d12";
@@ -74,8 +76,11 @@ const VehicleDetailPage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const [financeDuration, setFinanceDuration] = useState(DEFAULT_FINANCE_DURATION_MONTHS);
-  const [firstPayment, setFirstPayment] = useState<number | null>(null);
+  const [financeDuration, setFinanceDuration] = useLocalStorage<number>(
+    "leaseauto:vehicle-simu:duration",
+    DEFAULT_FINANCE_DURATION_MONTHS,
+  );
+  const [firstPayment, setFirstPayment] = useLocalStorage<number | null>("leaseauto:vehicle-simu:firstPayment", null);
   const [isLOA, setIsLOA] = useState(false);
 
   const [descOpen, setDescOpen] = useState(false);
@@ -128,30 +133,16 @@ const VehicleDetailPage = () => {
   const goBack = () => navigate("/vehicules");
 
   const simulated = useMemo(() => {
-    const priceNumber =
-      typeof displayVehicle?.price === "number"
-        ? displayVehicle.price
-        : displayVehicle?.price
-          ? Number(String(displayVehicle.price).replace(/[^\d]/g, ""))
-          : null;
+    const value = estimateVehicleMonthly({
+      price: displayVehicle?.price,
+      fallbackMonthly: typeof displayVehicle?.monthly === "number" ? displayVehicle.monthly : null,
+      durationMonths: financeDuration,
+      firstPayment,
+    });
 
-    const baseMonthly =
-      (priceNumber && priceNumber > 0
-        ? Math.max(99, priceNumber / Math.max(12, financeDuration))
-        : null) ??
-      (displayVehicle?.monthly as number | undefined) ??
-      null;
+    if (value === null) return { value: null, label: "Sur mesure" };
 
-    if (baseMonthly === null) return { value: null, label: "Sur mesure" };
-
-    const upfrontImpact =
-      firstPayment && firstPayment > 0 ? -firstPayment / Math.max(6, financeDuration) : 0;
-    const value = baseMonthly + upfrontImpact;
-
-    if (!Number.isFinite(value) || value <= 0) return { value: null, label: "Sur mesure" };
-
-    const rounded = Math.max(99, Math.round(value));
-    return { value: rounded, label: `${rounded.toLocaleString("fr-FR")} €/mois` };
+    return { value, label: `${value.toLocaleString("fr-FR")} €/mois` };
   }, [displayVehicle?.monthly, displayVehicle?.price, financeDuration, firstPayment]);
 
   const descriptionFull =
