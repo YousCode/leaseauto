@@ -112,6 +112,7 @@ const toNumber = (v: string, fallback: number) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
 };
+const DEFAULT_LOA_DURATION_MONTHS = 60;
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <section className="mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8">{children}</section>
@@ -205,7 +206,7 @@ const Card = ({ children, className }: { children: React.ReactNode; className?: 
 const FinancementPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [price, setPrice] = useState(32000);
-  const [duration, setDuration] = useState(48);
+  const [duration, setDuration] = useState(DEFAULT_LOA_DURATION_MONTHS);
   const [depositPercent, setDepositPercent] = useState(20);
   const residualPercent = 30;
   const navigate = useNavigate();
@@ -718,9 +719,9 @@ const FinancementPage = () => {
                 <Input
                   type="number"
                   value={duration}
-                  onChange={(e) => setDuration(clamp(toNumber(e.target.value, 48), 12, 84))}
+                  onChange={(e) => setDuration(clamp(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))}
                   className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
-                  placeholder="48"
+                  placeholder="60"
                 />
               </div>
 

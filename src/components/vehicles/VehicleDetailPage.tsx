@@ -11,6 +11,7 @@ import { BrandLogo } from "@/lib/BrandLogo";
 
 const ACCENT = "#DA1212";
 const ACCENT_DARK = "#0b0d12";
+const DEFAULT_FINANCE_DURATION_MONTHS = 60;
 
 type VehicleProps = {
   id?: string;
@@ -73,7 +74,7 @@ const VehicleDetailPage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const [financeDuration, setFinanceDuration] = useState(48);
+  const [financeDuration, setFinanceDuration] = useState(DEFAULT_FINANCE_DURATION_MONTHS);
   const [firstPayment, setFirstPayment] = useState<number | null>(null);
   const [isLOA, setIsLOA] = useState(false);
 
@@ -135,13 +136,16 @@ const VehicleDetailPage = () => {
           : null;
 
     const baseMonthly =
-      (priceNumber && priceNumber > 0 ? Math.max(99, priceNumber / Math.max(12, financeDuration)) : null) ??
+      (priceNumber && priceNumber > 0
+        ? Math.max(99, priceNumber / Math.max(12, financeDuration))
+        : null) ??
       (displayVehicle?.monthly as number | undefined) ??
       null;
 
     if (baseMonthly === null) return { value: null, label: "Sur mesure" };
 
-    const upfrontImpact = firstPayment && firstPayment > 0 ? -firstPayment / Math.max(6, financeDuration) : 0;
+    const upfrontImpact =
+      firstPayment && firstPayment > 0 ? -firstPayment / Math.max(6, financeDuration) : 0;
     const value = baseMonthly + upfrontImpact;
 
     if (!Number.isFinite(value) || value <= 0) return { value: null, label: "Sur mesure" };
@@ -426,7 +430,9 @@ const VehicleDetailPage = () => {
                       max={72}
                       step={6}
                       value={financeDuration}
-                      onChange={(e) => setFinanceDuration(Math.min(72, Math.max(24, Number(e.target.value) || 24)))}
+                      onChange={(e) =>
+                        setFinanceDuration(Math.min(72, Math.max(24, Number(e.target.value) || DEFAULT_FINANCE_DURATION_MONTHS)))
+                      }
                       className="w-full sm:w-16 rounded-md border border-slate-200 px-2 py-1 text-right text-sm"
                     />
                   </div>
@@ -757,7 +763,9 @@ const VehicleDetailPage = () => {
                     max={72}
                     step={6}
                     value={financeDuration}
-                    onChange={(e) => setFinanceDuration(Math.min(72, Math.max(24, Number(e.target.value) || 24)))}
+                    onChange={(e) =>
+                      setFinanceDuration(Math.min(72, Math.max(24, Number(e.target.value) || DEFAULT_FINANCE_DURATION_MONTHS)))
+                    }
                     className="w-full rounded-md border border-slate-200 px-2 py-1 text-right text-sm"
                   />
                 </div>

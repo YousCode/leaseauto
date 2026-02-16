@@ -24,6 +24,7 @@ const SOLUTIONS = [
     accentKeys: ["achat", "louez"],
   },
 ];
+const DEFAULT_LOA_DURATION_MONTHS = 60;
 
 // Helpers
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
@@ -71,8 +72,7 @@ const FinancingSection = () => {
   const navigate = useNavigate();
 
   const [price, setPrice] = useState(32000);
-  const [duration, setDuration] = useState(48);
-
+  const [duration, setDuration] = useState(DEFAULT_LOA_DURATION_MONTHS);
   // ✅ Apport 20% par défaut, modifiable
   const [depositPercent, setDepositPercent] = useState(20);
 
@@ -325,9 +325,9 @@ const FinancingSection = () => {
                         <Input
                           type="number"
                           value={duration}
-                          onChange={(e) => setDuration(clamp(toNumber(e.target.value, 48), 12, 84))}
+                          onChange={(e) => setDuration(clamp(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))}
                           className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
-                          placeholder="48"
+                          placeholder="60"
                         />
                       </div>
 
