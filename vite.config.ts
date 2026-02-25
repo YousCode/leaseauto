@@ -18,13 +18,9 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    minify: "esbuild",
+    cssMinify: "esbuild",
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
         manualChunks: {

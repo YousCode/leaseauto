@@ -4,9 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --strictPort",
     "typecheck": "tsc --noEmit",
-    "build": "npm run typecheck && vite build",
+    "build": "vite build --minify=false",
+    "build:prod": "vite build",
+    "build:checked": "npm run typecheck && vite build",
     "build:fast": "vite build --minify=esbuild",
     "build-no-errors": "vite build --minify=esbuild",
     "test:e2e": "cypress run",

@@ -275,9 +275,17 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
     const images = [...urlsFromTextarea, ...uploadedUrls].filter(Boolean);
     const finalImages = images.length > 0 ? images : persistedImages;
+    const durationFromForm = Number(
+      vehicleData.durationMonths ?? vehicleData.duration ?? 60,
+    );
+    const safeDurationMonths =
+      Number.isFinite(durationFromForm) && durationFromForm > 0
+        ? Math.round(durationFromForm)
+        : 60;
 
     const formData = {
       ...vehicleData,
+      durationMonths: safeDurationMonths,
       images: finalImages,
       equipments: selectedEquipments,
       imageCount: vehicleImages.length,
@@ -287,7 +295,13 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
   };
 
   // --------- TOTAL / RÉCAP ---------
-  const leaseDuration = 36; // durée en mois (à rendre dynamique si besoin)
+  const durationFromState = Number(
+    vehicleData.durationMonths ?? vehicleData.duration ?? 60,
+  );
+  const leaseDuration =
+    Number.isFinite(durationFromState) && durationFromState > 0
+      ? Math.round(durationFromState)
+      : 60;
   const monthlyPrice = Number(vehicleData.price) || 0;
   const totalPrice = monthlyPrice * leaseDuration;
 
@@ -480,6 +494,23 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 className={inputClass}
                 placeholder="ex: 399"
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="durationMonths" className="text-sm text-slate-600">
+                Durée du leasing (mois)
+              </Label>
+              <Input
+                id="durationMonths"
+                name="durationMonths"
+                type="number"
+                min={1}
+                step={1}
+                value={vehicleData.durationMonths ?? vehicleData.duration ?? 60}
+                onChange={handleInputChange}
+                className={inputClass}
+                placeholder="ex: 60"
               />
             </div>
 
