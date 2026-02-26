@@ -11,12 +11,12 @@ export default defineConfig({
   },
   plugins: [react()],
   resolve: {
-    preserveSymlinks: true,
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
+    target: "esnext",
     chunkSizeWarningLimit: 1000,
     minify: "esbuild",
     cssMinify: "esbuild",
