@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useScrollRaf } from "@/hooks/useScrollRaf";
 
 const Navbar = () => {
@@ -160,70 +160,68 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-40">
-          <div className="bg-gray-900/95 backdrop-blur-md h-full">
-            <div className="p-6">
-              <div className="flex flex-col space-y-6">
-                <button
-                  onClick={() => {
-                    navigate("/");
-                    setTimeout(() => scrollToSection("hero"), 100);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
-                >
-                  Accueil
-                </button>
-                <Link
-                  to="/vehicules"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left block"
-                >
-                  Véhicules
-                </Link>
-                <button
-                  onClick={() => {
-                    scrollToSection("services");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
-                >
-                  Services
-                </button>
-                <button
-                  onClick={() => {
-                    scrollToSection("about");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
-                >
-                  À Propos
-                </button>
-                <button
-                  onClick={() => {
-                    scrollToSection("contact");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-white/90 hover:text-white transition-colors font-medium py-3 border-b border-white/20 text-left"
-                >
-                  Contact
-                </button>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="md:hidden fixed inset-0 top-16 z-40"
+          >
+            <div className="bg-gray-900/97 backdrop-blur-md h-full">
+              <div className="p-6">
+                <div className="flex flex-col space-y-1">
+                  {[
+                    { label: "Accueil", action: () => { navigate("/"); setTimeout(() => scrollToSection("hero"), 80); } },
+                    { label: "Services", action: () => scrollToSection("services") },
+                    { label: "À Propos", action: () => scrollToSection("about") },
+                    { label: "Contact", action: () => scrollToSection("contact") },
+                  ].map(({ label, action }, i) => (
+                    <motion.button
+                      key={label}
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.18, delay: i * 0.05 }}
+                      onClick={() => { action(); setIsMobileMenuOpen(false); }}
+                      className="text-white/90 hover:text-white transition-colors font-medium py-4 border-b border-white/10 text-left text-lg"
+                    >
+                      {label}
+                    </motion.button>
+                  ))}
+                  <motion.div
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.18, delay: 0.2 }}
+                  >
+                    <Link
+                      to="/vehicules"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-white/90 hover:text-white transition-colors font-medium py-4 border-b border-white/10 text-left text-lg block"
+                    >
+                      Véhicules
+                    </Link>
+                  </motion.div>
 
-                <Button
-                  className="bg-red-600 hover:bg-red-700 text-white font-medium w-full mt-4 rounded-lg shadow-md"
-                  onClick={() => {
-                    scrollToSection("contact");
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  Demander un Devis
-                </Button>
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: 0.28 }}
+                    className="pt-6"
+                  >
+                    <Button
+                      className="bg-red-600 hover:bg-red-700 text-white font-medium w-full rounded-xl shadow-md h-12 text-base"
+                      onClick={() => { scrollToSection("contact"); setIsMobileMenuOpen(false); }}
+                    >
+                      Demander un Devis
+                    </Button>
+                  </motion.div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

@@ -257,7 +257,7 @@ export const ContactSection = () => {
                   <Phone className="w-4 h-4" />
                   Appeler
                 </a>
-                <a
+                <a 
                   href="mailto:leaseauto.epinay@gmail.com"
                   className="h-12 rounded-xl border border-[#f3b8b0] bg-white font-semibold flex items-center justify-center gap-2 text-[#b33527] hover:border-[#e84b3c] hover:text-[#9f2b20] hover:bg-[#fff7f5] transition"
                 >

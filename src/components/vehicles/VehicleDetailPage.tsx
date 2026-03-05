@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Circle, Gauge, MapPin, MoveRight, Shield, Zap } from "lucide-react";
@@ -183,8 +184,17 @@ const VehicleDetailPage = () => {
 
       {isLoading ? (
         <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-10">
-          <div className="mx-auto max-w-6xl px-4">
-            <p className="text-sm text-slate-500">Chargement du véhicule…</p>
+          <div className="mx-auto max-w-6xl px-4 md:px-6 space-y-6">
+            <div className="h-8 w-40 rounded-full bg-slate-200 animate-pulse" />
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-3">
+                <div className="aspect-[4/3] rounded-2xl bg-slate-200 animate-pulse" />
+                <div className="grid grid-cols-4 gap-2">
+                  {[...Array(4)].map((_,i) => <div key={i} className="h-24 rounded-xl bg-slate-200 animate-pulse" />)}
+                </div>
+              </div>
+              <div className="rounded-2xl bg-slate-200 animate-pulse h-[460px]" />
+            </div>
           </div>
         </main>
       ) : !displayVehicle ? (
@@ -223,7 +233,12 @@ const VehicleDetailPage = () => {
               {/* =======================
                   GALLERY (FIXED)
                   ======================= */}
-              <div className="space-y-3">
+              <motion.div
+                initial={{ opacity: 0, x: -18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="space-y-3"
+              >
                 <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm aspect-[4/3] sm:aspect-auto sm:h-[360px] md:h-[480px] lg:h-[520px] max-h-[60vh]">
                   {/* tap opens lightbox */}
                   <button
@@ -334,70 +349,69 @@ const VehicleDetailPage = () => {
                 </div>
 
                 {/* Trust pills */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
-                    <div>
-                      <p className="font-semibold">Garantie 12 mois</p>
-                      <p className="text-xs text-slate-500">Roulez tranquille</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
-                    <div>
-                      <p className="font-semibold">Véhicule expertisé</p>
-                      <p className="text-xs text-slate-500">Contrôles complets</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
-                    <div>
-                      <p className="font-semibold">Prépa esthétique</p>
-                      <p className="text-xs text-slate-500">Finition showroom</p>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+                  {[
+                    { label: "Garantie 12 mois", sub: "Roulez tranquille" },
+                    { label: "Véhicule expertisé", sub: "Contrôles complets" },
+                    { label: "Prépa esthétique", sub: "Finition showroom" },
+                  ].map(({ label, sub }, i) => (
+                    <motion.div
+                      key={label}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: 0.3 + i * 0.07 }}
+                      className="flex items-start gap-2"
+                    >
+                      <CheckCircle className="h-5 w-5 flex-shrink-0" style={{ color: ACCENT }} />
+                      <div>
+                        <p className="font-semibold">{label}</p>
+                        <p className="text-xs text-slate-500">{sub}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* =======================
                   FINANCE CARD (yours)
                   ======================= */}
-              <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6 space-y-4">
-                <div className="space-y-1">
-                  <p className="text-sm text-slate-500">Prix TTC</p>
-                  <h1 className="text-3xl font-semibold leading-tight" style={{ color: ACCENT }}>
-                    {priceLabel}
-                  </h1>
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <p className="text-sm text-slate-600">Mensualité estimée</p>
-                    <p className="text-xl font-semibold" style={{ color: ACCENT_DARK }}>
+              <motion.aside
+                initial={{ opacity: 0, x: 18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
+                className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6 space-y-4"
+              >
+                {/* Header véhicule */}
+                <div className="flex items-start gap-3 pb-4 border-b border-slate-100">
+                  <BrandLogo brand={displayVehicle.brand} className="h-10 w-10 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs uppercase tracking-widest text-slate-400">{displayVehicle.brand}</p>
+                    <p className="font-semibold text-slate-900 leading-tight line-clamp-2">
+                      {displayVehicle.title || `${displayVehicle.brand} ${displayVehicle.model}`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Specs pills */}
+                <div className="grid grid-cols-2 gap-2">
+                  {specPills.map((pill, idx) => (
+                    <div key={idx} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                      <pill.icon className="h-3.5 w-3.5 text-slate-500 flex-shrink-0" />
+                      <span className="text-xs font-medium text-slate-700 truncate">{pill.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Prix */}
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-1">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Prix du véhicule</p>
+                  <p className="text-3xl font-bold leading-tight" style={{ color: ACCENT }}>{priceLabel}</p>
+                  <div className="flex items-baseline gap-2 pt-1">
+                    <p className="text-sm text-slate-500">Loyer mensuel</p>
+                    <p className="text-xl font-semibold text-slate-900">
                       {simulated.value !== null ? simulated.label : monthlyLabel}
                     </p>
                   </div>
-                  <p className="text-sm text-slate-500 flex items-center gap-2">
-                    <MapPin size={14} />
-                    Livrable rapidement
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2 rounded-lg border border-slate-200 p-1">
-                  <Button
-                    className={`flex-1 h-11 rounded-md ${
-                      !isLOA ? "bg-[#DA1212] text-white hover:bg-[#b80f0f]" : "bg-white text-slate-800 hover:bg-slate-100"
-                    }`}
-                    onClick={() => setIsLOA(false)}
-                  >
-                    LLD
-                  </Button>
-                  <Button
-                    className={`flex-1 h-11 rounded-md ${
-                      isLOA ? "bg-[#DA1212] text-white hover:bg-[#b80f0f]" : "bg-white text-slate-800 hover:bg-slate-100"
-                    }`}
-                    variant="outline"
-                    onClick={() => setIsLOA(true)}
-                  >
-                    LOA
-                  </Button>
                 </div>
 
                 <div className="space-y-2">
@@ -442,20 +456,37 @@ const VehicleDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="rounded-xl text-white p-4 space-y-2" style={{ backgroundColor: ACCENT_DARK }}>
-                  <p className="text-xs uppercase tracking-wide text-white/80">Votre mensualité</p>
-                  <p className="text-2xl font-bold">{simulated.value !== null ? simulated.label : monthlyLabel}</p>
-                  <Button className="w-full h-11 rounded-md bg-[#DA1212] text-white hover:bg-[#b80f0f]">
-                    Calculez votre mensualité
-                  </Button>
+                <div className="rounded-xl text-white p-4 space-y-3" style={{ backgroundColor: ACCENT_DARK }}>
+                  <p className="text-xs uppercase tracking-wide text-white/60">Votre mensualité estimée</p>
+                  <p className="text-3xl font-bold">{simulated.value !== null ? simulated.label : monthlyLabel}</p>
+                  <a
+                    href="tel:0184218393"
+                    className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] transition-colors text-sm"
+                  >
+                    Appeler pour un devis
+                  </a>
+                  <a
+                    href={`https://wa.me/33184218393?text=${encodeURIComponent(`Bonjour, je suis intéressé par ce véhicule : ${displayVehicle.title || displayVehicle.model}`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-colors text-sm"
+                  >
+                    WhatsApp
+                  </a>
                 </div>
-              </aside>
+              </motion.aside>
             </div>
 
             {/* =======================
                 DESCRIPTION (PRO)
                 ======================= */}
-            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] mt-6" data-contact-anchor>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut", delay: 0.2 }}
+              className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] mt-6"
+              data-contact-anchor
+            >
               <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm space-y-4">
                 <div className="flex items-center gap-2 text-slate-500 text-sm">
                   <Shield className="h-4 w-4" />
@@ -554,22 +585,44 @@ const VehicleDetailPage = () => {
 
               <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm space-y-4">
                 <h3 className="text-base font-semibold text-slate-900">Livraison & garanties</h3>
-                <ul className="space-y-2 text-sm text-slate-700">
-                  <li className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-slate-900" />
-                    Garantie 12 mois incluse
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <MoveRight className="h-4 w-4 text-slate-900" />
-                    Dossier financé en 48h
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-slate-900" />
-                    Livraison France métropolitaine
-                  </li>
+                <ul className="space-y-3 text-sm text-slate-700">
+                  {[
+                    { Icon: Shield, text: "Garantie 12 mois incluse" },
+                    { Icon: MoveRight, text: "Dossier financé en 48h" },
+                    { Icon: MapPin, text: "Livraison France métropolitaine" },
+                  ].map(({ Icon, text }, i) => (
+                    <motion.li
+                      key={text}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.22, delay: 0.3 + i * 0.06 }}
+                      className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5"
+                    >
+                      <Icon className="h-4 w-4 text-[#DA1212] flex-shrink-0" />
+                      <span className="font-medium">{text}</span>
+                    </motion.li>
+                  ))}
                 </ul>
+
+                {/* Quick contact */}
+                <div className="pt-2 space-y-2">
+                  <a
+                    href="tel:0184218393"
+                    className="flex items-center justify-center w-full h-11 rounded-xl bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] transition-colors text-sm"
+                  >
+                    01 84 21 83 93 — Appeler
+                  </a>
+                  <a
+                    href={`https://wa.me/33184218393?text=${encodeURIComponent(`Bonjour, je suis intéressé par : ${displayVehicle.title || displayVehicle.model}`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center w-full h-11 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium hover:border-slate-400 transition-colors text-sm"
+                  >
+                    Écrire sur WhatsApp
+                  </a>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </section>
 
           {/* Mobile layout dedicated */}
@@ -713,24 +766,11 @@ const VehicleDetailPage = () => {
 
             {/* Financing mobile */}
             <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
-              <div className="flex gap-2 rounded-lg border border-slate-200 p-1">
-                <Button
-                  className={`h-11 rounded-md flex-1 ${
-                    !isLOA ? "bg-[#DA1212] text-white hover:bg-[#b80f0f]" : "bg-white text-slate-800 hover:bg-slate-100"
-                  }`}
-                  onClick={() => setIsLOA(false)}
-                >
-                  LLD
-                </Button>
-                <Button
-                  className={`h-11 rounded-md flex-1 ${
-                    isLOA ? "bg-[#DA1212] text-white hover:bg-[#b80f0f]" : "bg-white text-slate-800 hover:bg-slate-100"
-                  }`}
-                  variant="outline"
-                  onClick={() => setIsLOA(true)}
-                >
-                  LOA
-                </Button>
+              <div className="flex items-baseline justify-between">
+                <p className="text-sm text-slate-500">Loyer mensuel estimé</p>
+                <p className="text-xl font-bold" style={{ color: ACCENT }}>
+                  {simulated.value !== null ? simulated.label : monthlyLabel}
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -775,12 +815,15 @@ const VehicleDetailPage = () => {
                 </div>
               </div>
 
-              <div className="rounded-xl text-white p-4 space-y-2" style={{ backgroundColor: ACCENT_DARK }}>
-                <p className="text-xs uppercase tracking-wide text-white/80">Votre mensualité</p>
+              <div className="rounded-xl text-white p-4 space-y-3" style={{ backgroundColor: ACCENT_DARK }}>
+                <p className="text-xs uppercase tracking-wide text-white/60">Mensualité estimée</p>
                 <p className="text-2xl font-bold">{simulated.value !== null ? simulated.label : monthlyLabel}</p>
-                <Button className="w-full h-11 rounded-md bg-[#DA1212] text-white hover:bg-[#b80f0f]">
-                  Calculez votre mensualité
-                </Button>
+                <a
+                  href="tel:0184218393"
+                  className="flex items-center justify-center w-full h-11 rounded-lg bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] transition-colors text-sm"
+                >
+                  Appeler pour un devis
+                </a>
               </div>
             </aside>
 

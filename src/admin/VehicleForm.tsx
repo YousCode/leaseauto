@@ -294,16 +294,10 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
     onSubmit(formData);
   };
 
-  // --------- TOTAL / RÉCAP ---------
-  const durationFromState = Number(
-    vehicleData.durationMonths ?? vehicleData.duration ?? 60,
-  );
-  const leaseDuration =
-    Number.isFinite(durationFromState) && durationFromState > 0
-      ? Math.round(durationFromState)
-      : 60;
-  const monthlyPrice = Number(vehicleData.price) || 0;
-  const totalPrice = monthlyPrice * leaseDuration;
+  // --------- RÉCAP ---------
+  const vehiclePrice = Number(vehicleData.price) || 0;
+  const monthlyPrice = Number(vehicleData.monthly) || 0;
+  const leaseDuration = Number(vehicleData.durationMonths ?? vehicleData.duration ?? 60) || 60;
 
   const inputClass =
     "bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#DA1212] focus:ring-[#DA1212]/30 rounded-lg";
@@ -483,7 +477,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm text-slate-600">
-                Prix (€/mois) <span className="text-[#DA1212]">*</span>
+                Prix du véhicule (€) <span className="text-[#DA1212]">*</span>
               </Label>
               <Input
                 id="price"
@@ -492,7 +486,23 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 value={vehicleData.price || ""}
                 onChange={handleInputChange}
                 className={inputClass}
-                placeholder="ex: 399"
+                placeholder="ex: 40000"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="monthly" className="text-sm text-slate-600">
+                Loyer mensuel (€/mois) <span className="text-[#DA1212]">*</span>
+              </Label>
+              <Input
+                id="monthly"
+                name="monthly"
+                type="number"
+                value={vehicleData.monthly || ""}
+                onChange={handleInputChange}
+                className={inputClass}
+                placeholder="ex: 600"
                 required
               />
             </div>
@@ -511,21 +521,6 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 onChange={handleInputChange}
                 className={inputClass}
                 placeholder="ex: 60"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="totalPrice" className="text-sm text-slate-600">
-                Prix total (€)
-              </Label>
-              <Input
-                id="totalPrice"
-                name="totalPrice"
-                type="number"
-                value={vehicleData.totalPrice || ""}
-                onChange={handleInputChange}
-                className={inputClass}
-                placeholder="ex: 28 990"
               />
             </div>
 
@@ -985,17 +980,16 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         <div className="mt-2 grid gap-4 md:grid-cols-[2fr,1fr] items-start">
           <div className="space-y-2 text-sm text-slate-600">
             <p>
-              Prix mensuel{" "}
+              Prix du véhicule{" "}
               <span className="font-semibold text-slate-900">
-                {monthlyPrice.toFixed(0)} € / mois
+                {vehiclePrice > 0 ? vehiclePrice.toLocaleString("fr-FR") + " €" : "—"}
               </span>
             </p>
-            <p className="text-xs text-slate-500">
-              Total estimé sur {leaseDuration} mois :{" "}
+            <p>
+              Loyer mensuel{" "}
               <span className="font-semibold text-slate-900">
-                {totalPrice.toLocaleString("fr-FR")} €
-              </span>{" "}
-              hors frais de mise en route, assurances et options facultatives.
+                {monthlyPrice > 0 ? monthlyPrice.toFixed(0) + " €/mois" : "—"}
+              </span>
             </p>
           </div>
 
@@ -1004,20 +998,20 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
               Récapitulatif du contrat
             </p>
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-slate-600">Loyer mensuel</span>
-              <span className="text-2xl font-semibold text-slate-900">
-                {monthlyPrice.toFixed(0)} €
-                <span className="text-xs font-normal text-slate-500">
-                  {" "}
-                  /mois
-                </span>
+              <span className="text-sm text-slate-600">Prix véhicule</span>
+              <span className="text-xl font-semibold text-slate-900">
+                {vehiclePrice > 0 ? vehiclePrice.toLocaleString("fr-FR") + " €" : "—"}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
-              <span>Total sur {leaseDuration} mois</span>
+              <span>Loyer mensuel</span>
               <span className="font-medium text-slate-900">
-                {totalPrice.toLocaleString("fr-FR")} €
+                {monthlyPrice > 0 ? monthlyPrice.toFixed(0) + " €/mois" : "—"}
               </span>
+            </div>
+            <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
+              <span>Durée</span>
+              <span>{leaseDuration} mois</span>
             </div>
           </div>
         </div>

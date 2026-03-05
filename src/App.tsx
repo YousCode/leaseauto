@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, Navigate, useParams, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 import { Toaster } from "@/components/ui/toaster";
 import ComingSoon from "@/pages/ComingSoon";
@@ -33,15 +34,27 @@ const PolitiqueConfidentialitePage = lazy(() => import("@/pages/PolitiqueConfide
 const ConditionsGeneralesPage = lazy(() => import("@/pages/ConditionsGenerales"));
 const CookiesPage = lazy(() => import("@/pages/Cookies"));
 
-const PublicLayout = () => (
-  <>
-    <HeaderSection />
-    {/* Décale le contenu sous le header fixe */}
-    <div className="pt-24">
-      <Outlet />
-    </div>
-  </>
-);
+const PublicLayout = () => {
+  const location = useLocation();
+  return (
+    <>
+      <HeaderSection />
+      <div className="pt-24">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </>
+  );
+};
 
 function App() {
   if (MAINTENANCE_MODE) {
@@ -53,8 +66,9 @@ function App() {
       <div className="min-h-screen bg-white">
       <Suspense
         fallback={
-          <div className="w-screen h-screen flex items-center justify-center bg-white">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <div className="w-screen h-screen flex flex-col items-center justify-center bg-white gap-4">
+            <div className="w-8 h-8 rounded-full border-2 border-slate-100 border-t-red-600 animate-spin" />
+            <p className="text-sm text-slate-400 tracking-widest uppercase">Chargement</p>
           </div>
         }
       >

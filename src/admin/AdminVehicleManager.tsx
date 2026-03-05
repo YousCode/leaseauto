@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import slugify from "slugify";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -149,8 +150,8 @@ const AdminVehicleManager = () => {
         : vehicleData.price ?? null;
     const monthlyNumber =
       typeof vehicleData.monthly === "string"
-        ? Number(vehicleData.monthly.replace(/[^\d]/g, "")) || priceNumber
-        : vehicleData.monthly ?? priceNumber;
+        ? Number(vehicleData.monthly.replace(/[^\d]/g, "")) || null
+        : vehicleData.monthly ?? null;
     const safeTitle =
       vehicleData.title ||
       `${vehicleData.brand ?? ""} ${vehicleData.model ?? ""} ${vehicleData.version ?? ""}`.trim() ||
@@ -163,9 +164,8 @@ const AdminVehicleManager = () => {
       status: "published",
       brand: vehicleData.brand ?? null,
       model: vehicleData.model ?? null,
-      price: vehicleData.totalPrice
-        ? Number(vehicleData.totalPrice) || priceNumber
-        : priceNumber,
+      // Le prix persistant est uniquement celui saisi dans "Prix (€/mois)".
+      price: priceNumber,
       monthly: monthlyNumber,
       year: vehicleData.year ? Number(vehicleData.year) : null,
       mileage: vehicleData.mileage ? Number(vehicleData.mileage) : null,
@@ -271,9 +271,19 @@ const AdminVehicleManager = () => {
   const draftCount = visibleVehicles.filter((v: any) => v.status !== "published").length;
 
   return (
-    <div className="min-h-screen bg-[#f7f8fb] text-slate-900">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+      className="min-h-screen bg-[#f7f8fb] text-slate-900"
+    >
       <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+        >
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-[#DA1212]">Admin</p>
             <h1 className="text-3xl font-bold mt-2 text-slate-900">Parc véhicules</h1>
@@ -302,47 +312,70 @@ const AdminVehicleManager = () => {
               <Plus size={18} className="mr-2" /> Nouveau véhicule
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-white border border-slate-200 shadow-sm">
-            <CardContent className="py-4">
-              <p className="text-xs uppercase text-slate-500">Total</p>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-semibold">{totalVehicles}</span>
-                <Badge className="bg-slate-100 text-slate-700 border-slate-200">Toutes</Badge>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border border-slate-200 shadow-sm">
-            <CardContent className="py-4">
-              <p className="text-xs uppercase text-slate-500">En ligne</p>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-semibold text-emerald-600">{publishedCount}</span>
-                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Publié</Badge>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border border-slate-200 shadow-sm">
-            <CardContent className="py-4">
-              <p className="text-xs uppercase text-slate-500">Brouillons / à revoir</p>
-              <div className="flex items-end justify-between">
-                <span className="text-2xl font-semibold text-amber-600">{draftCount}</span>
-                <Badge className="bg-amber-100 text-amber-700 border-amber-200">Hors ligne</Badge>
-              </div>
-            </CardContent>
-          </Card>
+          {[
+            { label: "Total", value: totalVehicles, badge: "Toutes", badgeCls: "bg-slate-100 text-slate-700 border-slate-200", valCls: "" },
+            { label: "En ligne", value: publishedCount, badge: "Publié", badgeCls: "bg-emerald-100 text-emerald-700 border-emerald-200", valCls: "text-emerald-600" },
+            { label: "Brouillons / à revoir", value: draftCount, badge: "Hors ligne", badgeCls: "bg-amber-100 text-amber-700 border-amber-200", valCls: "text-amber-600" },
+          ].map(({ label, value, badge, badgeCls, valCls }, i) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, ease: "easeOut", delay: 0.08 + i * 0.07 }}
+            >
+              <Card className="bg-white border border-slate-200 shadow-sm">
+                <CardContent className="py-4">
+                  <p className="text-xs uppercase text-slate-500">{label}</p>
+                  <div className="flex items-end justify-between">
+                    <span className={`text-2xl font-semibold ${valCls}`}>{value}</span>
+                    <Badge className={badgeCls}>{badge}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
 
+        <AnimatePresence>
         <div className="grid gap-4">
-          {visibleVehicles.map((vehicle: any) => {
+          {isLoading ? (
+            <div className="grid gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="rounded-2xl border border-slate-200 bg-white p-4 animate-pulse">
+                  <div className="flex gap-4">
+                    <div className="w-52 h-36 rounded-xl bg-slate-100 flex-shrink-0" />
+                    <div className="flex-1 space-y-3">
+                      <div className="h-3 w-1/4 rounded-full bg-slate-100" />
+                      <div className="h-5 w-1/2 rounded-full bg-slate-100" />
+                      <div className="flex gap-2">
+                        <div className="h-6 w-16 rounded-full bg-slate-100" />
+                        <div className="h-6 w-16 rounded-full bg-slate-100" />
+                      </div>
+                      <div className="flex gap-2 pt-2">
+                        <div className="h-8 w-24 rounded-lg bg-slate-100" />
+                        <div className="h-8 w-20 rounded-lg bg-slate-100" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {visibleVehicles.map((vehicle: any, index: number) => {
             const key = vehicle.id || vehicle.slug;
             const isDeleting = deletingId === key;
             return (
-            <div
+            <motion.div
               key={vehicle.id}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.28, ease: "easeOut", delay: Math.min(index * 0.06, 0.35) }}
               className={[
-                "group relative rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.12)] hover:shadow-[0_18px_45px_rgba(218,18,18,0.12)] transition",
+                "group relative rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.12)] hover:shadow-[0_18px_45px_rgba(218,18,18,0.12)] transition-shadow",
                 isDeleting ? "opacity-60 blur-[0.2px]" : "",
               ].join(" ")}
             >
@@ -499,28 +532,36 @@ const AdminVehicleManager = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
 
-          {remoteVehicles.length === 0 && (
-            <Card className="bg-white border-dashed border-slate-200 text-center py-10">
-              <CardContent>
-                <p className="text-lg font-semibold text-slate-900">Aucun véhicule pour le moment</p>
-                <p className="text-sm text-slate-500 mb-4">
-                  Ajoute ta première annonce pour la voir apparaître ici.
-                </p>
-                <Button
-                  className="bg-[#DA1212] hover:bg-[#b50f0f]"
-                  onClick={handleAddVehicle}
-                >
-                  <Plus size={16} className="mr-2" /> Ajouter un véhicule
-                </Button>
-              </CardContent>
-            </Card>
+          {remoteVehicles.length === 0 && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="bg-white border-dashed border-slate-200 text-center py-10">
+                <CardContent>
+                  <p className="text-lg font-semibold text-slate-900">Aucun véhicule pour le moment</p>
+                  <p className="text-sm text-slate-500 mb-4">
+                    Ajoute ta première annonce pour la voir apparaître ici.
+                  </p>
+                  <Button
+                    className="bg-[#DA1212] hover:bg-[#b50f0f]"
+                    onClick={handleAddVehicle}
+                  >
+                    <Plus size={16} className="mr-2" /> Ajouter un véhicule
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
         </div>
+        </AnimatePresence>
       </div>
+    </motion.div>
 
       <Dialog open={isAddVehicleOpen} onOpenChange={setIsAddVehicleOpen}>
         <DialogContent className="w-[95vw] sm:w-[90vw] sm:max-w-5xl bg-white text-slate-900 border border-slate-200 shadow-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-0">

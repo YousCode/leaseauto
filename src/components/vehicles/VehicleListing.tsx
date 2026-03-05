@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
 import { VehicleCard } from "./VehicleCard";
 import type { Vehicle } from "@/types/vehicle";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -126,12 +127,25 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
           </header>
 
           {isLoading ? (
-            <p className="text-sm text-slate-500">Chargement des véhicules...</p>
+            <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="rounded-2xl bg-white border border-slate-200 overflow-hidden animate-pulse">
+                  <div className="aspect-[4/3] bg-slate-100" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-2.5 bg-slate-100 rounded-full w-1/4" />
+                    <div className="h-4 bg-slate-100 rounded-full w-2/3" />
+                    <div className="h-2.5 bg-slate-100 rounded-full w-full" />
+                    <div className="h-2.5 bg-slate-100 rounded-full w-3/4" />
+                    <div className="h-10 bg-slate-100 rounded-xl w-full mt-3" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : filtered.length === 0 ? (
             <p className="text-sm text-slate-500">Aucun véhicule disponible pour le moment.</p>
           ) : (
             <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">
-              {filtered.map((v: any) => {
+              {filtered.map((v: any, index: number) => {
                 const monthlyRaw =
                   v.monthly_price ?? v.monthly ?? v.price_loa ?? v.price ?? null;
                 const monthlyPrice = typeof monthlyRaw === "number" ? monthlyRaw : null;
@@ -157,28 +171,34 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                     : "—";
 
                 return (
-                  <VehicleCard
+                  <motion.div
                     key={v.slug || v.id || `${v.brand}-${v.model}`}
-                    slug={v.slug || String(v.id)}
-                    imageUrl={primaryImage}
-                    brand={v.brand || "Marque"}
-                    model={v.model || v.title || "Modèle"}
-                    year={v.year || undefined}
-                    mileage={v.mileage || undefined}
-                    energy={energy}
-                    transmission={transmission}
-                    monthlyPrice={monthlyPrice}
-                    highlight={
-                      v.highlight ||
-                      (v.new_arrival
-                        ? "nouveau"
-                        : v.availability === "immediate"
-                        ? "dispo"
-                        : v.featured
-                        ? "promo"
-                        : null)
-                    }
-                  />
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut", delay: Math.min(index * 0.06, 0.4) }}
+                  >
+                    <VehicleCard
+                      slug={v.slug || String(v.id)}
+                      imageUrl={primaryImage}
+                      brand={v.brand || "Marque"}
+                      model={v.model || v.title || "Modèle"}
+                      year={v.year || undefined}
+                      mileage={v.mileage || undefined}
+                      energy={energy}
+                      transmission={transmission}
+                      monthlyPrice={monthlyPrice}
+                      highlight={
+                        v.highlight ||
+                        (v.new_arrival
+                          ? "nouveau"
+                          : v.availability === "immediate"
+                          ? "dispo"
+                          : v.featured
+                          ? "promo"
+                          : null)
+                      }
+                    />
+                  </motion.div>
                 );
               })}
             </div>

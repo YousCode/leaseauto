@@ -404,52 +404,30 @@ const AdminDashboard = () => {
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-10">
         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-0 bg-gradient-to-br from-white to-neutral-50 shadow-sm">
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-neutral-500">En ligne</p>
-                <p className="text-3xl font-semibold">{metrics.published}</p>
-                <span className="text-xs text-neutral-500">
-                  annonces actives
-                </span>
-              </div>
-              <Sparkles className="h-10 w-10 text-[#ff6e14]" />
-            </CardContent>
-          </Card>
-          <Card className="border-0 bg-white shadow-sm">
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-neutral-500">Brouillons</p>
-                <p className="text-3xl font-semibold">{metrics.drafts}</p>
-                <span className="text-xs text-neutral-500">
-                  en attente de publication
-                </span>
-              </div>
-              <ShieldCheck className="h-10 w-10 text-neutral-600" />
-            </CardContent>
-          </Card>
-          <Card className="border-0 bg-white shadow-sm">
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-neutral-500">Leads 30 derniers jours</p>
-                <p className="text-3xl font-semibold">{metrics.leads}</p>
-                <span className="text-xs text-neutral-500">contacts qualifiés</span>
-              </div>
-              <Users className="h-10 w-10 text-neutral-600" />
-            </CardContent>
-          </Card>
-          <Card className="border-0 bg-white shadow-sm">
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-neutral-500">Vues cumulées</p>
-                <p className="text-3xl font-semibold">{metrics.visits}</p>
-                <span className="text-xs text-neutral-500">
-                  visites certifiées
-                </span>
-              </div>
-              <Eye className="h-10 w-10 text-neutral-600" />
-            </CardContent>
-          </Card>
+          {[
+            { label: "En ligne", value: metrics.published, sub: "annonces actives", icon: Sparkles, accent: true },
+            { label: "Brouillons", value: metrics.drafts, sub: "en attente", icon: ShieldCheck, accent: false },
+            { label: "Leads 30j", value: metrics.leads, sub: "contacts qualifiés", icon: Users, accent: false },
+            { label: "Vues cumulées", value: metrics.visits, sub: "visites certifiées", icon: Eye, accent: false },
+          ].map(({ label, value, sub, icon: Icon, accent }, i) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut", delay: i * 0.07 }}
+            >
+              <Card className={`border-0 shadow-sm ${accent ? "bg-gradient-to-br from-white to-neutral-50" : "bg-white"}`}>
+                <CardContent className="flex items-center justify-between p-5">
+                  <div>
+                    <p className="text-sm text-neutral-500">{label}</p>
+                    <p className="text-3xl font-semibold">{value}</p>
+                    <span className="text-xs text-neutral-500">{sub}</span>
+                  </div>
+                  <Icon className={`h-10 w-10 ${accent ? "text-[#ff6e14]" : "text-neutral-400"}`} />
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </section>
 
         <section className="rounded-3xl border border-neutral-200 bg-white shadow-sm">
@@ -487,8 +465,30 @@ const AdminDashboard = () => {
           </div>
 
           {isLoading ? (
-            <div className="px-6 py-10 text-center text-sm text-neutral-500">
-              Synchronisation en cours...
+            <div className="space-y-6 px-6 py-8">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 animate-pulse lg:grid-cols-[260px,1fr,220px]">
+                  <div className="h-52 rounded-2xl bg-neutral-100" />
+                  <div className="space-y-4">
+                    <div className="h-5 w-2/3 rounded-full bg-neutral-100" />
+                    <div className="h-4 w-1/3 rounded-full bg-neutral-100" />
+                    <div className="flex gap-2">
+                      <div className="h-7 w-20 rounded-full bg-neutral-100" />
+                      <div className="h-7 w-16 rounded-full bg-neutral-100" />
+                    </div>
+                    <div className="h-8 w-1/3 rounded-full bg-neutral-100" />
+                    <div className="flex gap-2">
+                      <div className="h-9 w-28 rounded-lg bg-neutral-100" />
+                      <div className="h-9 w-20 rounded-lg bg-neutral-100" />
+                    </div>
+                  </div>
+                  <div className="rounded-3xl bg-neutral-50 p-4 space-y-3">
+                    <div className="h-8 rounded-xl bg-neutral-100" />
+                    <div className="h-8 rounded-xl bg-neutral-100" />
+                    <div className="h-8 rounded-xl bg-neutral-100" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : filteredVehicles.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-neutral-500">
@@ -497,13 +497,13 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <div className="space-y-6 px-6 py-8">
-              {filteredVehicles.map((vehicle) => (
+              {filteredVehicles.map((vehicle, index) => (
                 <motion.article
                   key={vehicle.id}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 shadow-sm lg:grid-cols-[260px,1fr,220px]"
+                  transition={{ duration: 0.3, ease: "easeOut", delay: Math.min(index * 0.06, 0.3) }}
+                  className="group grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 shadow-sm transition-shadow hover:shadow-md lg:grid-cols-[260px,1fr,220px]"
                 >
                   <div className="space-y-3">
                     <div className="relative h-52 w-full overflow-hidden rounded-2xl bg-neutral-100 border border-neutral-200">
@@ -514,7 +514,7 @@ const AdminDashboard = () => {
                           FALLBACK_IMAGE
                         }
                         alt={vehicle.name || "Véhicule"}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
                     <div className="flex items-center justify-between text-xs text-neutral-500">
