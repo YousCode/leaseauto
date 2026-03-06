@@ -271,7 +271,8 @@ const AdminVehicleManager = () => {
   const draftCount = visibleVehicles.filter((v: any) => v.status !== "published").length;
 
   return (
-    <motion.div
+    <>
+      <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: "easeOut" }}
@@ -579,7 +580,7 @@ const AdminVehicleManager = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 
