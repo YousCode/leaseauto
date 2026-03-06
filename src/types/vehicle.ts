@@ -3,7 +3,6 @@ import type { Database } from "./supabase";
 export type VehicleRow = Database["public"]["Tables"]["vehicles"]["Row"];
 
 export type Vehicle = VehicleRow & {
-  category?: string | null;
   energy?: string | null;
   transmission?: string | null;
   price_loa?: number | null;

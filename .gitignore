@@ -39,11 +39,19 @@ public/videos/
 *.avi
 *.mkv
 *.webm
+*.m4v
+*.wmv
+*.flv
 
 # Large reference images
 header-reference.png
 image.png
 *.backup.*
+*.psd
+*.ai
+*.tiff
+*.tif
+*.raw
 
 # Environment files
 .env
@@ -51,3 +59,24 @@ image.png
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Large files and archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.iso
+*.dmg
+*.bin
+*.bak
+*.tmp
+*.temp
+*.sql
+*.sqlite
+*.sqlite3
+
+# Accidental duplicated local folders/files
+node_modules 2/
+package-lock 2.json

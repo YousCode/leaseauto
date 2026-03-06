@@ -5,6 +5,7 @@ import slugify from "slugify";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -12,15 +13,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
-import { Pencil, Trash2, Plus, Eye, EyeOff, Shield } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Pencil, Trash2, Plus, Eye, EyeOff, ExternalLink, Search, Car } from "lucide-react";
 import type { VehicleCardProps } from "@/components/vehicles/VehicleCard";
 import VehicleForm from "./VehicleForm";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -48,19 +47,20 @@ const AdminVehicleManager = () => {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] =
-    useState<ExtendedVehicleProps | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<ExtendedVehicleProps | null>(null);
   const [showConfidentialInfo, setShowConfidentialInfo] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
 
   const formatDeletionError = (raw: any) => {
     const message = raw?.message || raw?.toString?.() || "Erreur inconnue";
     if (message.toLowerCase().includes("storage.delete_object")) {
-      return "Suppression bloquée côté Supabase (fonction storage.delete_object absente). Vérifie le trigger ou l'extension Storage dans la base avant de réessayer.";
+      return "Suppression bloquée côté Supabase (fonction storage.delete_object absente).";
     }
     if (message.toLowerCase().includes("permission") || message.toLowerCase().includes("policy")) {
-      return "Droits insuffisants pour supprimer ce véhicule (RLS ou rôle). Connecte-toi en admin ou ajuste les politiques Supabase.";
+      return "Droits insuffisants pour supprimer ce véhicule (RLS).";
     }
     return message;
   };
@@ -77,49 +77,20 @@ const AdminVehicleManager = () => {
 
   const handleDeleteVehicle = async (vehicle: ExtendedVehicleProps) => {
     const { id, slug, title, brand, model } = vehicle;
-    if (!id && !slug) {
-      toast({
-        title: "❌ Suppression impossible",
-        description: "Identifiant manquant pour ce véhicule.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    if (!id && !slug) return;
     const label = title || `${brand ?? ""} ${model ?? ""}`.trim() || "ce véhicule";
-    const confirmed = window.confirm(
-      `Supprimer définitivement ${label} ? Cette action est irréversible.`,
-    );
-    if (!confirmed) {
-      toast({
-        title: "Suppression annulée",
-        description: "Aucune action n'a été réalisée.",
-      });
-      return;
-    }
+    const confirmed = window.confirm(`Supprimer définitivement "${label}" ?`);
+    if (!confirmed) return;
 
     try {
       setDeletingId(id || slug || null);
       await vehicleService.delete({ id, slug });
       const hideKey = id || slug;
-      if (hideKey) {
-        setHiddenIds((prev) => {
-          const next = new Set(prev);
-          next.add(hideKey);
-          return next;
-        });
-      }
+      if (hideKey) setHiddenIds((prev) => new Set([...prev, hideKey]));
       qc.invalidateQueries({ queryKey: ["vehicles"] });
-      toast({
-        title: "✅ Véhicule supprimé",
-        description: `${label} a été retiré.`,
-      });
+      toast({ title: "Véhicule supprimé", description: label });
     } catch (error: any) {
-      toast({
-        title: "❌ Suppression impossible",
-        description: formatDeletionError(error),
-        variant: "destructive",
-      });
+      toast({ title: "Suppression impossible", description: formatDeletionError(error), variant: "destructive" });
     } finally {
       setDeletingId(null);
     }
@@ -129,8 +100,7 @@ const AdminVehicleManager = () => {
     const baseSlug =
       vehicleData.slug ||
       slugify(
-        vehicleData.title ||
-          `${vehicleData.brand ?? ""} ${vehicleData.model ?? ""} ${vehicleData.version ?? ""}`,
+        vehicleData.title || `${vehicleData.brand ?? ""} ${vehicleData.model ?? ""} ${vehicleData.version ?? ""}`,
         { lower: true, strict: true, locale: "fr" },
       );
     const uniqueSlug =
@@ -144,6 +114,7 @@ const AdminVehicleManager = () => {
         : vehicleData.image
           ? [vehicleData.image]
           : [FALLBACK_IMAGE]) || [FALLBACK_IMAGE];
+
     const priceNumber =
       typeof vehicleData.price === "string"
         ? Number(vehicleData.price.replace(/[^\d]/g, "")) || null
@@ -158,13 +129,12 @@ const AdminVehicleManager = () => {
       uniqueSlug;
 
     const payload = {
-      // Colonnes présentes dans la table Supabase "vehicles"
       slug: uniqueSlug,
       title: safeTitle,
       status: "published",
       brand: vehicleData.brand ?? null,
       model: vehicleData.model ?? null,
-      // Le prix persistant est uniquement celui saisi dans "Prix (€/mois)".
+      category: vehicleData.category ?? null,
       price: priceNumber,
       monthly: monthlyNumber,
       year: vehicleData.year ? Number(vehicleData.year) : null,
@@ -185,44 +155,42 @@ const AdminVehicleManager = () => {
     try {
       if (selectedVehicle?.id) {
         await vehicleService.update(selectedVehicle.id, payload as any);
-        toast({
-          title: "Annonce mise à jour",
-          description: `${vehicleData.title || baseSlug} a été mise à jour.`,
-        });
+        toast({ title: "Annonce mise à jour", description: safeTitle });
       } else {
         await vehicleService.create(payload as any);
-        toast({
-          title: "Annonce créée",
-          description: `${vehicleData.title || baseSlug} est publiée.`,
-        });
+        toast({ title: "Annonce créée", description: safeTitle });
       }
-
       qc.invalidateQueries({ queryKey: ["vehicles"], exact: false });
       setIsAddVehicleOpen(false);
       setSelectedVehicle(null);
     } catch (error: any) {
       try {
-        localStorage.setItem(
-          "lastFailedVehiclePayload",
-          JSON.stringify({ vehicleData, payload }),
-        );
-      } catch {
-        // ignore storage errors
-      }
-      const reason =
-        error?.message ||
-        "Insertion bloquée (vérifie RLS Supabase ou les colonnes obligatoires).";
+        localStorage.setItem("lastFailedVehiclePayload", JSON.stringify({ vehicleData, payload }));
+      } catch {}
+      const reason = error?.message || "Vérifiez les colonnes Supabase ou les règles RLS.";
       alert(`Impossible d'enregistrer l'annonce : ${reason}`);
-      toast({
-        title: "Enregistrement impossible",
-        description: reason,
-        variant: "destructive",
-      });
+      toast({ title: "Enregistrement impossible", description: reason, variant: "destructive" });
     }
   };
 
-  const toggleConfidentialInfo = () => {
-    setShowConfidentialInfo(!showConfidentialInfo);
+  const getPrimaryImage = (vehicle: any) => {
+    if (Array.isArray(vehicle.images) && vehicle.images.length > 0) return vehicle.images[0];
+    if (vehicle.image) return vehicle.image;
+    return null;
+  };
+
+  const formatAmount = (value: any) => {
+    if (value === null || value === undefined) return null;
+    const n = typeof value === "number" ? value : Number(String(value).replace(/[^\d.,]/g, "").replace(",", "."));
+    if (!Number.isFinite(n) || n === 0) return null;
+    return Math.round(n).toLocaleString("fr-FR");
+  };
+
+  const formatMileage = (value: any) => {
+    if (!value) return null;
+    const n = typeof value === "number" ? value : Number(String(value).replace(/[^\d]/g, ""));
+    if (!n) return null;
+    return `${n.toLocaleString("fr-FR")} km`;
   };
 
   const visibleVehicles = useMemo(() => {
@@ -232,337 +200,302 @@ const AdminVehicleManager = () => {
     });
   }, [remoteVehicles, hiddenIds]);
 
-  const totalVehicles = useMemo(
-    () => (Array.isArray(visibleVehicles) ? visibleVehicles.length : 0),
-    [visibleVehicles],
-  );
-
-  const formatMileage = (value: number | string | null | undefined) => {
-    if (value === null || value === undefined) return "N/A";
-    if (typeof value === "number") return `${value.toLocaleString()} km`;
-    if (typeof value === "string") return value.includes("km") ? value : `${value} km`;
-    return "N/A";
-  };
-
-  const formatAmount = (
-    value: number | string | null | undefined,
-    suffix: "/mois" | "€" | string = "€",
-  ) => {
-    if (value === null || value === undefined) return "N/A";
-    const numeric =
-      typeof value === "number" ? value : Number(String(value).replace(/[^\d]/g, ""));
-    if (!Number.isFinite(numeric)) return String(value);
-    const formatted = numeric.toLocaleString();
-    return suffix ? `${formatted} ${suffix}` : formatted;
-  };
-
-  // Compat helper (évite toute régression si une référence à l’ancien nom subsiste)
-  const formatPrice = formatAmount;
-
-  const getPrimaryImage = (vehicle: any) => {
-    if (vehicle.image) return vehicle.image;
-    if (Array.isArray(vehicle.images) && vehicle.images.length > 0) {
-      return vehicle.images[0];
+  const filteredVehicles = useMemo(() => {
+    let list = [...visibleVehicles];
+    if (statusFilter === "published") list = list.filter((v: any) => v.status === "published");
+    if (statusFilter === "draft") list = list.filter((v: any) => v.status !== "published");
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      list = list.filter((v: any) => {
+        const brand = (v.brand || "").toLowerCase();
+        const model = (v.model || v.title || "").toLowerCase();
+        return brand.includes(s) || model.includes(s);
+      });
     }
-    return null;
-  };
+    return list;
+  }, [visibleVehicles, search, statusFilter]);
 
   const publishedCount = visibleVehicles.filter((v: any) => v.status === "published").length;
   const draftCount = visibleVehicles.filter((v: any) => v.status !== "published").length;
 
   return (
     <>
-      <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: "easeOut" }}
-      className="min-h-screen bg-[#f7f8fb] text-slate-900"
-    >
-      <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
-          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-        >
-          <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-[#DA1212]">Admin</p>
-            <h1 className="text-3xl font-bold mt-2 text-slate-900">Parc véhicules</h1>
-            <p className="text-sm text-slate-600">Pilote les annonces, photos et statuts en un coup d’œil.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              variant="outline"
-              onClick={toggleConfidentialInfo}
-              className="border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
-            >
-              {showConfidentialInfo ? (
-                <>
-                  <EyeOff size={16} className="mr-2" /> Masquer infos immatriculation
-                </>
-              ) : (
-                <>
-                  <Eye size={16} className="mr-2" /> Afficher infos immatriculation
-                </>
-              )}
-            </Button>
-            <Button
-              className="bg-[#DA1212] hover:bg-[#b50f0f] shadow-lg shadow-[#da1212]/30"
-              onClick={handleAddVehicle}
-            >
-              <Plus size={18} className="mr-2" /> Nouveau véhicule
-            </Button>
-          </div>
-        </motion.div>
+      <div className="min-h-screen bg-[#f7f8fb]">
+        <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { label: "Total", value: totalVehicles, badge: "Toutes", badgeCls: "bg-slate-100 text-slate-700 border-slate-200", valCls: "" },
-            { label: "En ligne", value: publishedCount, badge: "Publié", badgeCls: "bg-emerald-100 text-emerald-700 border-emerald-200", valCls: "text-emerald-600" },
-            { label: "Brouillons / à revoir", value: draftCount, badge: "Hors ligne", badgeCls: "bg-amber-100 text-amber-700 border-amber-200", valCls: "text-amber-600" },
-          ].map(({ label, value, badge, badgeCls, valCls }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, ease: "easeOut", delay: 0.08 + i * 0.07 }}
-            >
-              <Card className="bg-white border border-slate-200 shadow-sm">
-                <CardContent className="py-4">
-                  <p className="text-xs uppercase text-slate-500">{label}</p>
-                  <div className="flex items-end justify-between">
-                    <span className={`text-2xl font-semibold ${valCls}`}>{value}</span>
-                    <Badge className={badgeCls}>{badge}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          >
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.28em] text-[#DA1212] font-medium">Admin</p>
+              <h1 className="text-2xl font-bold mt-0.5 text-slate-900">Parc véhicules</h1>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowConfidentialInfo(!showConfidentialInfo)}
+                className="border-slate-200 text-slate-600 bg-white hover:bg-slate-50 text-xs"
+              >
+                {showConfidentialInfo ? <EyeOff size={14} className="mr-1.5" /> : <Eye size={14} className="mr-1.5" />}
+                Immatriculations
+              </Button>
+              <Button
+                size="sm"
+                className="bg-[#DA1212] hover:bg-[#b50f0f] shadow-sm shadow-[#da1212]/30 text-sm"
+                onClick={handleAddVehicle}
+              >
+                <Plus size={15} className="mr-1.5" /> Nouveau
+              </Button>
+            </div>
+          </motion.div>
 
-        <AnimatePresence>
-        <div className="grid gap-4">
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, delay: 0.05 }}
+            className="grid grid-cols-3 gap-3"
+          >
+            {[
+              { label: "Total", value: visibleVehicles.length, color: "text-slate-900" },
+              { label: "En ligne", value: publishedCount, color: "text-emerald-600" },
+              { label: "Archivés", value: draftCount, color: "text-amber-500" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+                <p className="text-[11px] uppercase tracking-widest text-slate-400 font-medium">{label}</p>
+                <p className={`text-2xl font-bold mt-0.5 ${color}`}>{value}</p>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Search + Filter */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+            className="flex flex-col sm:flex-row gap-2"
+          >
+            <div className="relative flex-1">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Rechercher marque ou modèle…"
+                className="pl-8 bg-white border-slate-200 text-sm h-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+              <SelectTrigger className="w-full sm:w-40 bg-white border-slate-200 h-9 text-sm">
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="published">En ligne</SelectItem>
+                <SelectItem value="draft">Hors ligne</SelectItem>
+              </SelectContent>
+            </Select>
+          </motion.div>
+
+          {/* Vehicle list */}
           {isLoading ? (
-            <div className="grid gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="rounded-2xl border border-slate-200 bg-white p-4 animate-pulse">
-                  <div className="flex gap-4">
-                    <div className="w-52 h-36 rounded-xl bg-slate-100 flex-shrink-0" />
-                    <div className="flex-1 space-y-3">
-                      <div className="h-3 w-1/4 rounded-full bg-slate-100" />
-                      <div className="h-5 w-1/2 rounded-full bg-slate-100" />
-                      <div className="flex gap-2">
-                        <div className="h-6 w-16 rounded-full bg-slate-100" />
-                        <div className="h-6 w-16 rounded-full bg-slate-100" />
-                      </div>
-                      <div className="flex gap-2 pt-2">
-                        <div className="h-8 w-24 rounded-lg bg-slate-100" />
-                        <div className="h-8 w-20 rounded-lg bg-slate-100" />
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200 p-3 animate-pulse">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-20 h-14 rounded-lg bg-slate-100 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-slate-100 rounded-full w-1/3" />
+                      <div className="h-4 bg-slate-100 rounded-full w-1/2" />
+                      <div className="flex gap-1.5">
+                        <div className="h-5 w-12 bg-slate-100 rounded-full" />
+                        <div className="h-5 w-16 bg-slate-100 rounded-full" />
                       </div>
                     </div>
+                    <div className="w-20 h-6 bg-slate-100 rounded-lg" />
                   </div>
                 </div>
               ))}
             </div>
-          ) : null}
-          {visibleVehicles.map((vehicle: any, index: number) => {
-            const key = vehicle.id || vehicle.slug;
-            const isDeleting = deletingId === key;
-            return (
-            <motion.div
-              key={vehicle.id}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.28, ease: "easeOut", delay: Math.min(index * 0.06, 0.35) }}
-              className={[
-                "group relative rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.12)] hover:shadow-[0_18px_45px_rgba(218,18,18,0.12)] transition-shadow",
-                isDeleting ? "opacity-60 blur-[0.2px]" : "",
-              ].join(" ")}
-            >
-              {isDeleting && (
-                <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center z-10">
-                  <div className="flex items-center gap-2 text-sm text-white">
-                    <div className="h-3 w-3 animate-ping rounded-full bg-red-400" />
-                    Suppression en cours...
-                  </div>
-                </div>
+          ) : filteredVehicles.length === 0 ? (
+            <div className="bg-white rounded-xl border border-dashed border-slate-200 py-16 text-center">
+              <Car size={32} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-slate-500 font-medium">
+                {search ? "Aucun résultat pour cette recherche" : "Aucun véhicule"}
+              </p>
+              {!search && (
+                <Button className="mt-4 bg-[#DA1212] hover:bg-[#b50f0f]" size="sm" onClick={handleAddVehicle}>
+                  <Plus size={14} className="mr-1.5" /> Ajouter un véhicule
+                </Button>
               )}
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative w-full md:w-52 h-36 overflow-hidden rounded-xl bg-slate-100 border border-slate-200">
-                  {getPrimaryImage(vehicle) ? (
-                    <img
-                      src={getPrimaryImage(vehicle) as string}
-                      alt={vehicle.name}
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full grid place-items-center text-slate-400 text-sm">
-                      Pas de photo
-                    </div>
-                  )}
-                  {showConfidentialInfo && (
-                    <div className="absolute top-2 left-2 rounded-full bg-white/90 px-3 py-1 text-xs text-amber-700 border border-amber-200">
-                      <Shield size={12} className="inline mr-1" />
-                      {vehicle.registration || "Immat. non renseignée"}
-                    </div>
-                  )}
-                  <div className="absolute bottom-2 right-2 flex gap-2">
-                    {(vehicle.images ?? []).slice(0, 3).map((img: string, idx: number) => (
-                      <span
-                        key={idx}
-                        className="h-8 w-8 rounded-lg border border-white overflow-hidden bg-white"
-                      >
-                        <img src={img} alt={`v-thumb-${idx}`} className="w-full h-full object-cover" />
-                      </span>
-                    ))}
-                  </div>
-                </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-slate-400 font-medium px-1">
+                {filteredVehicles.length} véhicule{filteredVehicles.length > 1 ? "s" : ""}
+                {search ? ` pour "${search}"` : ""}
+              </p>
+              <AnimatePresence>
+                {filteredVehicles.map((vehicle: any, index: number) => {
+                  const key = vehicle.id || vehicle.slug;
+                  const isDeleting = deletingId === key;
+                  const img = getPrimaryImage(vehicle);
+                  const monthly = formatAmount(vehicle.monthly ?? vehicle.monthly_price ?? vehicle.price_loa);
+                  const brand = vehicle.brand || "—";
+                  const model = vehicle.model || vehicle.title || "—";
+                  const title = `${brand} ${model}`.trim();
 
-                <div className="flex-1 space-y-2">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                        {vehicle.brand || "Marque"} · {vehicle.model || "Modèle"}
-                      </p>
-                      <h3 className="text-xl font-semibold text-slate-900">{vehicle.title || vehicle.name}</h3>
-                      <div className="flex flex-wrap gap-2 mt-1 text-xs text-slate-600">
-                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
-                          {vehicle.year || "Année ?"}
-                        </span>
-                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
-                          {formatMileage(vehicle.mileage)}
-                        </span>
-                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
-                          {vehicle.energy || vehicle.fuel || "Énergie ?"}
-                        </span>
-                        <span className="px-2 py-1 rounded-full bg-slate-100 border border-slate-200">
-                          {vehicle.gearbox || vehicle.transmission || "Boîte ?"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                          Loyer mensuel
-                        </p>
-                        <div className="text-2xl font-bold text-slate-900">
-                          {formatAmount(
-                            vehicle.monthly ??
-                              (vehicle as any).monthly_price ??
-                              (vehicle as any).price_loa ??
-                              (vehicle as any).price_lld ??
-                              vehicle.price ??
-                              null,
-                            "/mois",
+                  return (
+                    <motion.div
+                      key={key}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: 0.2, ease: "easeOut", delay: Math.min(index * 0.03, 0.25) }}
+                      className={`group relative bg-white rounded-xl border border-slate-200 p-3 transition-shadow hover:shadow-md hover:border-slate-300 ${isDeleting ? "opacity-50" : ""}`}
+                    >
+                      {isDeleting && (
+                        <div className="absolute inset-0 rounded-xl bg-white/70 backdrop-blur-sm flex items-center justify-center z-10">
+                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <div className="h-2.5 w-2.5 animate-ping rounded-full bg-red-400" />
+                            Suppression…
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 items-center">
+                        {/* Thumbnail */}
+                        <div className="relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                          {img ? (
+                            <img src={img} alt={title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full grid place-items-center text-slate-300">
+                              <Car size={18} />
+                            </div>
+                          )}
+                          {showConfidentialInfo && vehicle.registration && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <span className="text-[9px] text-white font-mono leading-tight text-center px-1">
+                                {vehicle.registration}
+                              </span>
+                            </div>
                           )}
                         </div>
-                      </div>
-                    <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                          Prix total
-                        </p>
-                        <div className="text-base font-semibold text-slate-900">
-                          {formatAmount(
-                            vehicle.price ?? (vehicle as any).totalPrice ?? null,
-                            "€",
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-medium">
+                              {brand}
+                            </span>
+                            {vehicle.category && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                                {vehicle.category}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-semibold text-slate-900 truncate leading-tight mt-0.5">
+                            {model}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            {vehicle.year && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600">
+                                {vehicle.year}
+                              </span>
+                            )}
+                            {formatMileage(vehicle.mileage) && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600">
+                                {formatMileage(vehicle.mileage)}
+                              </span>
+                            )}
+                            {vehicle.energy && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600">
+                                {vehicle.energy}
+                              </span>
+                            )}
+                            {vehicle.city && (
+                              <span className="text-[10px] text-slate-400">{vehicle.city}</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Price + Status */}
+                        <div className="flex-shrink-0 text-right hidden sm:block">
+                          {monthly ? (
+                            <>
+                              <p className="text-base font-bold text-slate-900">{monthly} €</p>
+                              <p className="text-[10px] text-slate-400">/mois</p>
+                            </>
+                          ) : (
+                            <p className="text-sm text-slate-300">—</p>
                           )}
+                          <div className="mt-1">
+                            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium border ${
+                              vehicle.status === "published"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : "bg-amber-50 text-amber-700 border-amber-200"
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${vehicle.status === "published" ? "bg-emerald-500" : "bg-amber-400"}`} />
+                              {vehicle.status === "published" ? "En ligne" : "Hors ligne"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex-shrink-0 flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleEditVehicle(vehicle)}
+                            className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-colors"
+                            title="Modifier"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          {vehicle.slug && (
+                            <button
+                              onClick={() => window.open(`/vehicules/${vehicle.slug}`, "_blank")}
+                              className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors"
+                              title="Voir l'annonce"
+                            >
+                              <ExternalLink size={13} />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteVehicle(vehicle)}
+                            disabled={isDeleting}
+                            className="p-2 rounded-lg border border-red-100 bg-red-50 hover:bg-red-100 text-red-500 transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={13} />
+                          </button>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Badge
-                      className={`border ${
-                        vehicle.status === "published"
-                          ? "bg-emerald-100 border-emerald-200 text-emerald-700"
-                          : "bg-amber-100 border-amber-200 text-amber-700"
-                      }`}
-                    >
-                      {vehicle.status === "published" ? "Publié" : "Hors ligne"}
-                    </Badge>
-                    <span className="text-sm text-slate-500">
-                      {vehicle.city || "Ville non renseignée"}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {(vehicle.options || []).slice(0, 4).map((opt: string, idx: number) => (
-                      <span
-                        key={idx}
-                        className="text-xs px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700"
-                      >
-                        {opt}
-                      </span>
-                    ))}
-                    {(vehicle.options || []).length > 4 && (
-                      <span className="text-xs px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-500">
-                        +{(vehicle.options || []).length - 4} options
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
-                      onClick={() => handleEditVehicle(vehicle)}
-                    >
-                      <Pencil size={14} className="mr-2" /> Modifier
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-red-200 text-red-700 bg-red-50 hover:bg-red-100"
-                      disabled={isDeleting}
-                      onClick={() => handleDeleteVehicle(vehicle)}
-                    >
-                      <Trash2 size={14} className="mr-2" />
-                      {isDeleting ? "Suppression..." : "Supprimer"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
-                      onClick={() => (vehicle.slug ? window.open(`/vehicules/${vehicle.slug}`, "_blank") : null)}
-                    >
-                      Aperçu public
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-
-          {remoteVehicles.length === 0 && !isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="bg-white border-dashed border-slate-200 text-center py-10">
-                <CardContent>
-                  <p className="text-lg font-semibold text-slate-900">Aucun véhicule pour le moment</p>
-                  <p className="text-sm text-slate-500 mb-4">
-                    Ajoute ta première annonce pour la voir apparaître ici.
-                  </p>
-                  <Button
-                    className="bg-[#DA1212] hover:bg-[#b50f0f]"
-                    onClick={handleAddVehicle}
-                  >
-                    <Plus size={16} className="mr-2" /> Ajouter un véhicule
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
+                      {/* Mobile: price + status row */}
+                      <div className="sm:hidden flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+                        {monthly ? (
+                          <span className="text-sm font-bold text-slate-900">{monthly} €<span className="text-xs font-normal text-slate-400">/mois</span></span>
+                        ) : <span />}
+                        <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium border ${
+                          vehicle.status === "published"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-amber-50 text-amber-700 border-amber-200"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${vehicle.status === "published" ? "bg-emerald-500" : "bg-amber-400"}`} />
+                          {vehicle.status === "published" ? "En ligne" : "Hors ligne"}
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
           )}
         </div>
-        </AnimatePresence>
       </div>
-    </motion.div>
 
       <Dialog open={isAddVehicleOpen} onOpenChange={setIsAddVehicleOpen}>
         <DialogContent className="w-[95vw] sm:w-[90vw] sm:max-w-5xl bg-white text-slate-900 border border-slate-200 shadow-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-0">
@@ -585,4 +518,3 @@ const AdminVehicleManager = () => {
 };
 
 export default AdminVehicleManager;
-// @ts-nocheck

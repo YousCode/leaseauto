@@ -1,13 +1,25 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { VehicleCard } from "./VehicleCard";
 import type { Vehicle } from "@/types/vehicle";
 import { useVehicles } from "@/hooks/useVehicles";
 import { Helmet } from "react-helmet-async";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSearchParams } from "react-router-dom";
+
+export const CATEGORY_CONFIG: Record<string, { pill: string; active: string; badge: string; dot: string }> = {
+  "SUV":        { pill: "bg-sky-50 text-sky-700 border-sky-200 hover:border-sky-400",         active: "bg-sky-600 text-white border-sky-600",         badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500" },
+  "Citadine":   { pill: "bg-rose-50 text-rose-700 border-rose-200 hover:border-rose-400",       active: "bg-rose-500 text-white border-rose-500",       badge: "bg-rose-100 text-rose-700",     dot: "bg-rose-500" },
+  "Utilitaire": { pill: "bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-400",   active: "bg-amber-500 text-white border-amber-500",     badge: "bg-amber-100 text-amber-700",   dot: "bg-amber-500" },
+  "Berline":    { pill: "bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-400",  active: "bg-slate-600 text-white border-slate-600",     badge: "bg-slate-200 text-slate-700",   dot: "bg-slate-500" },
+  "Break":      { pill: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:border-emerald-400", active: "bg-emerald-600 text-white border-emerald-600", badge: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
+  "Coupé":      { pill: "bg-violet-50 text-violet-700 border-violet-200 hover:border-violet-400", active: "bg-violet-600 text-white border-violet-600", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500" },
+  "Cabriolet":  { pill: "bg-pink-50 text-pink-700 border-pink-200 hover:border-pink-400",       active: "bg-pink-500 text-white border-pink-500",       badge: "bg-pink-100 text-pink-700",     dot: "bg-pink-500" },
+  "Crossover":  { pill: "bg-cyan-50 text-cyan-700 border-cyan-200 hover:border-cyan-400",       active: "bg-cyan-600 text-white border-cyan-600",       badge: "bg-cyan-100 text-cyan-700",     dot: "bg-cyan-500" },
+  "Monospace":  { pill: "bg-indigo-50 text-indigo-700 border-indigo-200 hover:border-indigo-400", active: "bg-indigo-600 text-white border-indigo-600", badge: "bg-indigo-100 text-indigo-700", dot: "bg-indigo-500" },
+  "4x4":        { pill: "bg-stone-100 text-stone-700 border-stone-300 hover:border-stone-500",  active: "bg-stone-600 text-white border-stone-600",     badge: "bg-stone-200 text-stone-700",   dot: "bg-stone-500" },
+};
 
 type VehicleListingProps = {
   vehicles?: Vehicle[];
@@ -21,6 +33,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState<string>(searchParams.get("q") ?? "");
   const [sort, setSort] = useState<"price-asc" | "price-desc" | "year-desc" | "km-asc" | "featured">("featured");
+  const [activeCategory, setActiveCategory] = useState<string>("Tous");
 
   const vehicles = useMemo(() => (override as any[]) || (fetchedVehicles as any[]) || [], [override, fetchedVehicles]);
 
@@ -41,8 +54,24 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>();
+    (vehicles as any[]).forEach((v) => {
+      const cat = v.category || v.type || v.vehicle_type;
+      if (cat && typeof cat === "string" && cat.trim()) cats.add(cat.trim());
+    });
+    return Array.from(cats).sort();
+  }, [vehicles]);
+
   const filtered = useMemo(() => {
     let list = [...vehicles] as any[];
+
+    if (activeCategory !== "Tous") {
+      list = list.filter((v) => {
+        const cat = v.category || v.type || v.vehicle_type || "";
+        return cat === activeCategory;
+      });
+    }
 
     if (search.trim()) {
       const s = search.toLowerCase();
@@ -80,7 +109,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
     }
 
     return list;
-  }, [vehicles, search, sort]);
+  }, [vehicles, search, sort, activeCategory]);
 
   return (
     <>
@@ -125,6 +154,51 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
               </Select>
             </div>
           </header>
+
+          {availableCategories.length > 0 && (
+            <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap">
+              <button
+                onClick={() => setActiveCategory("Tous")}
+                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  activeCategory === "Tous"
+                    ? "bg-brand-navy text-white border-brand-navy"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                }`}
+              >
+                Tous
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${activeCategory === "Tous" ? "bg-white/20" : "bg-slate-100 text-slate-500"}`}>
+                  {(vehicles as any[]).length}
+                </span>
+              </button>
+              {availableCategories.map((cat) => {
+                const cfg = CATEGORY_CONFIG[cat] ?? {
+                  pill: "bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400",
+                  active: "bg-slate-500 text-white border-slate-500",
+                  badge: "bg-slate-100 text-slate-600",
+                  dot: "bg-slate-400",
+                };
+                const count = (vehicles as any[]).filter(
+                  (v) => (v.category || v.type || v.vehicle_type) === cat
+                ).length;
+                const isActive = activeCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(isActive ? "Tous" : cat)}
+                    className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                      isActive ? cfg.active : cfg.pill
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? "bg-white/70" : cfg.dot}`} />
+                    {cat}
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${isActive ? "bg-white/20" : cfg.badge}`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {isLoading ? (
             <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CATEGORY_CONFIG } from "@/components/vehicles/VehicleListing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -329,30 +330,30 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="flex flex-wrap gap-2 mb-6 bg-slate-100 border border-slate-200 rounded-xl p-1 md:grid md:grid-cols-4">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-6 bg-slate-100 border border-slate-200 rounded-xl p-1 h-auto">
           <TabsTrigger
             value="general"
-            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
-            Informations générales
+            Infos générales
           </TabsTrigger>
           <TabsTrigger
             value="technical"
-            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
-            Caractéristiques techniques
+            Caractéristiques
           </TabsTrigger>
           <TabsTrigger
             value="media"
-            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
             Médias
           </TabsTrigger>
           <TabsTrigger
             value="documents"
-            className="rounded-lg text-slate-700 font-semibold data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
-            Documents confidentiels
+            Documents
           </TabsTrigger>
         </TabsList>
 
@@ -397,6 +398,51 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 placeholder="ex: 3008"
                 required
               />
+            </div>
+
+            <div className="space-y-3 md:col-span-2">
+              <div className="flex items-baseline justify-between">
+                <Label className="text-sm font-medium text-slate-700">
+                  Type de véhicule
+                </Label>
+                {vehicleData.category ? (
+                  <span className="text-xs text-[#DA1212] font-medium">{vehicleData.category} sélectionné</span>
+                ) : (
+                  <span className="text-xs text-slate-400">Aucun type sélectionné</span>
+                )}
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {vehicleTypes.map((type) => {
+                  const cfg = CATEGORY_CONFIG[type] ?? {
+                    badge: "bg-slate-100 text-slate-600",
+                    dot: "bg-slate-400",
+                    active: "bg-slate-600 text-white border-slate-600",
+                  };
+                  const isSelected = vehicleData.category === type;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleSelectChange("category", isSelected ? "" : type)}
+                      className={`relative flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-xl border-2 text-xs font-semibold transition-all duration-150 focus:outline-none ${
+                        isSelected
+                          ? "border-[#DA1212] bg-[#DA1212]/5 text-[#DA1212] shadow-sm"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[#DA1212] flex items-center justify-center">
+                          <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                            <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                      )}
+                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isSelected ? "bg-[#DA1212]" : cfg.dot}`} />
+                      <span className="leading-tight text-center">{type}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -448,8 +494,8 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 htmlFor="registrationDate"
                 className="text-sm text-slate-600"
               >
-                Date de mise en circulation (MM/AAAA){" "}
-                <span className="text-[#DA1212]">*</span>
+                Date de mise en circulation (MM/AAAA)
+                <span className="ml-1 text-xs text-slate-400 font-normal">(optionnel)</span>
               </Label>
               <div className="relative">
                 <Input
@@ -459,7 +505,6 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   value={vehicleData.registrationDate || ""}
                   onChange={handleInputChange}
                   className={`${inputClass} cursor-pointer pr-12 appearance-none focus:shadow-[0_0_0_4px_rgba(218,18,18,0.12)]`}
-                  required
                 />
                 <Calendar
                   size={18}
@@ -575,28 +620,6 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
           className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-lg"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category" className="text-sm text-slate-600">
-                Type de véhicule <span className="text-[#DA1212]">*</span>
-              </Label>
-              <Select
-                name="category"
-                value={vehicleData.category || ""}
-                onValueChange={(value) => handleSelectChange("category", value)}
-              >
-                <SelectTrigger className={selectTriggerClass}>
-                  <SelectValue placeholder="Sélectionner un type" />
-                </SelectTrigger>
-                <SelectContent className={selectContentClass}>
-                  {vehicleTypes.map((type) => (
-                    <SelectItem key={type} value={type} className={selectItemClass}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="mileage" className="text-sm text-slate-600">
                 Kilométrage <span className="text-[#DA1212]">*</span>

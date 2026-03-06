@@ -100,6 +100,7 @@ export type Database = {
       vehicles: {
         Row: {
           brand: string | null
+          category: string | null
           city: string | null
           co2_emissions: number | null
           color: string | null
@@ -136,6 +137,7 @@ export type Database = {
         }
         Insert: {
           brand?: string | null
+          category?: string | null
           city?: string | null
           co2_emissions?: number | null
           color?: string | null
@@ -172,6 +174,7 @@ export type Database = {
         }
         Update: {
           brand?: string | null
+          category?: string | null
           city?: string | null
           co2_emissions?: number | null
           color?: string | null
