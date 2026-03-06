@@ -8,6 +8,68 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSearchParams } from "react-router-dom";
 
+const CATEGORY_SECTIONS = [
+  "Utilitaire",
+  "SUV",
+  "Berline",
+  "Citadine",
+  "Crossover",
+  "Monospace",
+  "Break",
+  "Coupé",
+  "Cabriolet",
+  "4x4",
+] as const;
+
+const CATEGORY_LABELS: Record<string, string> = {
+  Utilitaire: "Utilitaires",
+  SUV: "SUV",
+  Berline: "Berlines",
+  Citadine: "Citadines",
+  Crossover: "Crossovers",
+  Monospace: "Monospaces",
+  Break: "Breaks",
+  "Coupé": "Coupés",
+  Cabriolet: "Cabriolets",
+  "4x4": "4x4",
+};
+
+const normalizeCategory = (raw: unknown): string | null => {
+  if (typeof raw !== "string") return null;
+  const base = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+  if (!base) return null;
+
+  const aliases: Record<string, string> = {
+    suv: "SUV",
+    suvs: "SUV",
+    utilitaire: "Utilitaire",
+    utilitaires: "Utilitaire",
+    fourgon: "Utilitaire",
+    fourgonnette: "Utilitaire",
+    berline: "Berline",
+    berlines: "Berline",
+    citadine: "Citadine",
+    citadines: "Citadine",
+    crossover: "Crossover",
+    crossovers: "Crossover",
+    monospace: "Monospace",
+    monospaces: "Monospace",
+    break: "Break",
+    breaks: "Break",
+    coupe: "Coupé",
+    coupes: "Coupé",
+    cabriolet: "Cabriolet",
+    cabriolets: "Cabriolet",
+    "4x4": "4x4",
+  };
+
+  return aliases[base] ?? raw.trim();
+};
+
 export const CATEGORY_CONFIG: Record<string, { pill: string; active: string; badge: string; dot: string }> = {
   "SUV":        { pill: "bg-sky-50 text-sky-700 border-sky-200 hover:border-sky-400",         active: "bg-sky-600 text-white border-sky-600",         badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500" },
   "Citadine":   { pill: "bg-rose-50 text-rose-700 border-rose-200 hover:border-rose-400",       active: "bg-rose-500 text-white border-rose-500",       badge: "bg-rose-100 text-rose-700",     dot: "bg-rose-500" },
@@ -33,13 +95,17 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState<string>(searchParams.get("q") ?? "");
   const [sort, setSort] = useState<"price-asc" | "price-desc" | "year-desc" | "km-asc" | "featured">("featured");
-  const [activeCategory, setActiveCategory] = useState<string>("Tous");
+  const [activeCategory, setActiveCategory] = useState<string>(
+    normalizeCategory(searchParams.get("category")) ?? "Tous",
+  );
 
   const vehicles = useMemo(() => (override as any[]) || (fetchedVehicles as any[]) || [], [override, fetchedVehicles]);
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
+    const category = normalizeCategory(searchParams.get("category")) ?? "Tous";
     if (q !== search) setSearch(q);
+    if (category !== activeCategory) setActiveCategory(category);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -50,25 +116,38 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
     } else {
       params.delete("q");
     }
+    if (activeCategory !== "Tous") {
+      params.set("category", activeCategory);
+    } else {
+      params.delete("category");
+    }
     setSearchParams(params, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, activeCategory]);
 
   const availableCategories = useMemo(() => {
     const cats = new Set<string>();
     (vehicles as any[]).forEach((v) => {
-      const cat = v.category || v.type || v.vehicle_type;
-      if (cat && typeof cat === "string" && cat.trim()) cats.add(cat.trim());
+      const cat = normalizeCategory(v.category || v.type || v.vehicle_type);
+      if (cat) cats.add(cat);
     });
     return Array.from(cats).sort();
   }, [vehicles]);
+
+  const displayedCategories = useMemo(() => {
+    const known = [...CATEGORY_SECTIONS].filter(
+      (cat) => availableCategories.includes(cat) || cat === activeCategory,
+    );
+    const extra = availableCategories.filter((cat) => !CATEGORY_SECTIONS.includes(cat as any));
+    return [...known, ...extra];
+  }, [availableCategories, activeCategory]);
 
   const filtered = useMemo(() => {
     let list = [...vehicles] as any[];
 
     if (activeCategory !== "Tous") {
       list = list.filter((v) => {
-        const cat = v.category || v.type || v.vehicle_type || "";
+        const cat = normalizeCategory(v.category || v.type || v.vehicle_type || "");
         return cat === activeCategory;
       });
     }
@@ -170,7 +249,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                   {(vehicles as any[]).length}
                 </span>
               </button>
-              {availableCategories.map((cat) => {
+              {displayedCategories.map((cat) => {
                 const cfg = CATEGORY_CONFIG[cat] ?? {
                   pill: "bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400",
                   active: "bg-slate-500 text-white border-slate-500",
@@ -178,7 +257,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                   dot: "bg-slate-400",
                 };
                 const count = (vehicles as any[]).filter(
-                  (v) => (v.category || v.type || v.vehicle_type) === cat
+                  (v) => normalizeCategory(v.category || v.type || v.vehicle_type) === cat
                 ).length;
                 const isActive = activeCategory === cat;
                 return (
@@ -190,7 +269,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                     }`}
                   >
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? "bg-white/70" : cfg.dot}`} />
-                    {cat}
+                    {CATEGORY_LABELS[cat] ?? cat}
                     <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${isActive ? "bg-white/20" : cfg.badge}`}>
                       {count}
                     </span>

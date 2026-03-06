@@ -38,7 +38,7 @@ export function VehicleCard({
   return (
     <Link
       to={`/vehicules/${slug}`}
-      className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-[0_4px_24px_rgba(11,17,32,0.07)] hover:shadow-[0_12px_40px_rgba(11,17,32,0.13)] hover:-translate-y-1 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2"
+      className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-[0_4px_24px_rgba(11,17,32,0.07)] hover:shadow-[0_20px_50px_rgba(229,33,39,0.18),0_6px_20px_rgba(11,17,32,0.1)] hover:-translate-y-1.5 hover:border-red-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2"
     >
       {/* Image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
@@ -70,6 +70,9 @@ export function VehicleCard({
           </span>
         )}
       </div>
+
+      {/* Red accent line on hover */}
+      <div className="h-[2px] w-0 group-hover:w-full bg-gradient-to-r from-brand-red to-red-400 transition-all duration-500 ease-out" />
 
       {/* Content */}
       <div className="px-4 pt-3.5 pb-4 flex flex-col gap-3">

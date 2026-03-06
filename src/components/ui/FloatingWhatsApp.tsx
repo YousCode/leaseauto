@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-const num = import.meta.env.VITE_WHATSAPP_NUM; // 33767793106
+const num = import.meta.env.VITE_WHATSAPP_NUM || "33767793106";
 
 export default function FloatingWhatsApp() {
   return (

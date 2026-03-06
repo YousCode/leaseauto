@@ -2,7 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Circle, Gauge, MapPin, MoveRight, Shield, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Gauge,
+  MapPin,
+  MessageCircle,
+  MoveRight,
+  Phone,
+  Settings2,
+  Shield,
+  Zap,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -13,8 +27,8 @@ import { BrandLogo } from "@/lib/BrandLogo";
 import { estimateVehicleMonthly } from "@/lib/finance";
 
 const ACCENT = "#DA1212";
-const ACCENT_DARK = "#0b0d12";
 const DEFAULT_FINANCE_DURATION_MONTHS = 60;
+const WHATSAPP_PHONE = "33767793106";
 
 type VehicleProps = {
   id?: string;
@@ -38,8 +52,6 @@ type VehicleProps = {
 };
 
 const FALLBACK_IMAGES = [
-  "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1600&q=80",
   "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1600&q=80",
 ];
 
@@ -81,10 +93,14 @@ const VehicleDetailPage = () => {
     "leaseauto:vehicle-simu:duration",
     DEFAULT_FINANCE_DURATION_MONTHS,
   );
-  const [firstPayment, setFirstPayment] = useLocalStorage<number | null>("leaseauto:vehicle-simu:firstPayment", null);
-  const [isLOA, setIsLOA] = useState(false);
-
+  const [firstPayment, setFirstPayment] = useLocalStorage<number | null>(
+    "leaseauto:vehicle-simu:firstPayment",
+    null,
+  );
   const [descOpen, setDescOpen] = useState(false);
+  const financeSteps = [24, 36, 48, 60, 72];
+  const financeMin = 24;
+  const financeMax = 72;
 
   const displayVehicle: VehicleProps | null = useMemo(() => {
     const remote = vehicleData as Record<string, any> | null;
@@ -93,8 +109,9 @@ const VehicleDetailPage = () => {
       ...FALLBACK_VEHICLE,
       ...remote,
       images:
-        (Array.isArray(remote.images) && remote.images.length > 0 ? remote.images : FALLBACK_IMAGES) ??
-        FALLBACK_IMAGES,
+        (Array.isArray(remote.images) && remote.images.length > 0
+          ? remote.images
+          : FALLBACK_IMAGES) ?? FALLBACK_IMAGES,
     };
   }, [vehicleData]);
 
@@ -106,13 +123,20 @@ const VehicleDetailPage = () => {
 
   const sanitizedImages =
     Array.isArray(displayVehicle?.images) && (displayVehicle?.images?.length ?? 0) > 0
-      ? (displayVehicle?.images as string[]).filter((img) => typeof img === "string" && img.trim().length > 0)
+      ? (displayVehicle?.images as string[]).filter(
+          (img) => typeof img === "string" && img.trim().length > 0,
+        )
       : [];
 
   const images = sanitizedImages.length > 0 ? sanitizedImages : FALLBACK_IMAGES;
 
-  const priceLabel = displayVehicle?.price ? `${formatNumber(displayVehicle.price)} €` : "Prix sur demande";
-  const monthlyLabel = displayVehicle?.monthly ? `${formatNumber(displayVehicle.monthly)} €/mois` : "Loyer sur mesure";
+  const priceLabel = displayVehicle?.price
+    ? `${Math.round(displayVehicle.price).toLocaleString("fr-FR")} €`
+    : "Prix sur demande";
+
+  const monthlyLabel = displayVehicle?.monthly
+    ? `${Math.round(displayVehicle.monthly).toLocaleString("fr-FR")} €/mois`
+    : "Loyer sur mesure";
 
   const optionsList =
     Array.isArray(displayVehicle?.options) && displayVehicle.options.length > 0
@@ -125,893 +149,560 @@ const VehicleDetailPage = () => {
       : [];
 
   const specPills = [
-    { icon: Gauge, label: displayVehicle?.mileage ? `${formatNumber(displayVehicle.mileage)} km` : "Kilométrage" },
-    { icon: Zap, label: displayVehicle?.energy ?? "Motorisation" },
-    { icon: Calendar, label: displayVehicle?.year ? String(displayVehicle.year) : "Année" },
-    { icon: MapPin, label: displayVehicle?.city ?? "France entière" },
-  ];
+    displayVehicle?.mileage != null
+      ? { Icon: Gauge, label: `${formatNumber(displayVehicle.mileage)} km` }
+      : null,
+    displayVehicle?.energy ? { Icon: Zap, label: displayVehicle.energy } : null,
+    displayVehicle?.year ? { Icon: Calendar, label: String(displayVehicle.year) } : null,
+    displayVehicle?.gearbox ? { Icon: Settings2, label: displayVehicle.gearbox } : null,
+    displayVehicle?.city ? { Icon: MapPin, label: displayVehicle.city } : null,
+  ].filter((p): p is { Icon: typeof Gauge; label: string } => p !== null);
 
   const goBack = () => navigate("/vehicules");
 
   const simulated = useMemo(() => {
     const value = estimateVehicleMonthly({
       price: displayVehicle?.price,
-      fallbackMonthly: typeof displayVehicle?.monthly === "number" ? displayVehicle.monthly : null,
+      fallbackMonthly:
+        typeof displayVehicle?.monthly === "number" ? displayVehicle.monthly : null,
       durationMonths: financeDuration,
       firstPayment,
     });
-
     if (value === null) return { value: null, label: "Sur mesure" };
-
-    return { value, label: `${value.toLocaleString("fr-FR")} €/mois` };
+    return { value, label: `${Math.round(value).toLocaleString("fr-FR")} €/mois` };
   }, [displayVehicle?.monthly, displayVehicle?.price, financeDuration, firstPayment]);
+  const financeProgress = Math.min(
+    100,
+    Math.max(0, ((financeDuration - financeMin) / (financeMax - financeMin)) * 100),
+  );
 
   const descriptionFull =
     displayVehicle?.description ||
     "Configuration premium préparée, dossier financier piloté, livraison rapide partout en France. Garantie et historique vérifiés.";
   const descriptionShort =
-    descriptionFull.length > 220 ? descriptionFull.slice(0, 220).trim() + "…" : descriptionFull;
-  const descriptionItems = useMemo(() => {
-    if (!descriptionFull) return [];
-    return descriptionFull
-      .split(/(?:(?<=\.)\s+)|(?:\s*·\s*)|(?:\s+-\s+)|(?:\s*;\s*)|(?:\s*:\s+(?=[A-Z0-9]))/)
-      .map((t) => t.trim())
-      .filter((t) => t.length > 6 && t.length < 300);
-  }, [descriptionFull]);
+    descriptionFull.length > 300
+      ? descriptionFull.slice(0, 300).trimEnd() + "…"
+      : descriptionFull;
 
-  const pickIcon = (text: string) => {
-    const lower = text.toLowerCase();
-    if (lower.includes("prix") || lower.includes("€") || lower.includes("mois")) {
-      return { Icon: CheckCircle, className: "text-[#DA1212]" };
-    }
-    if (lower.includes("crédit") || lower.includes("remboursement") || lower.includes("vérifiez")) {
-      return { Icon: AlertTriangle, className: "text-amber-500" };
-    }
-    return { Icon: Circle, className: "text-slate-400" };
-  };
+  const vehicleName = displayVehicle
+    ? [displayVehicle.brand, displayVehicle.model, displayVehicle.version]
+        .filter(Boolean)
+        .join(" ")
+    : "Véhicule";
+
+  const whatsappMsg = encodeURIComponent(
+    `Bonjour, je suis intéressé par ce véhicule : ${vehicleName}${displayVehicle?.price ? ` — ${priceLabel}` : ""}`,
+  );
+
+  const prevImage = () => setActiveIndex((p) => (p - 1 + images.length) % images.length);
+  const nextImage = () => setActiveIndex((p) => (p + 1) % images.length);
 
   return (
     <>
       <Helmet>
-        <title>{displayVehicle ? `${displayVehicle.title ?? displayVehicle.model}` : "Véhicule"} — Lease Auto</title>
+        <title>{vehicleName} — Lease Auto</title>
         <meta
           name="description"
-          content={`${displayVehicle?.brand ?? ""} ${displayVehicle?.model ?? ""} ${displayVehicle?.year ?? ""} · ${
-            displayVehicle?.mileage ?? ""
-          } km`}
+          content={`${vehicleName} · ${displayVehicle?.mileage ? formatNumber(displayVehicle.mileage) + " km" : ""} · ${displayVehicle?.energy ?? ""}`}
         />
       </Helmet>
 
       {isLoading ? (
-        <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-10">
-          <div className="mx-auto max-w-6xl px-4 md:px-6 space-y-6">
-            <div className="h-8 w-40 rounded-full bg-slate-200 animate-pulse" />
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <main className="bg-white min-h-screen">
+          <div className="mx-auto max-w-6xl px-4 md:px-6 py-8 space-y-6">
+            <div className="h-7 w-36 rounded-full bg-slate-100 animate-pulse" />
+            <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="space-y-3">
-                <div className="aspect-[4/3] rounded-2xl bg-slate-200 animate-pulse" />
-                <div className="grid grid-cols-4 gap-2">
-                  {[...Array(4)].map((_,i) => <div key={i} className="h-24 rounded-xl bg-slate-200 animate-pulse" />)}
+                <div className="aspect-[4/3] rounded-2xl bg-slate-100 animate-pulse" />
+                <div className="flex gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-16 flex-1 rounded-xl bg-slate-100 animate-pulse" />
+                  ))}
                 </div>
               </div>
-              <div className="rounded-2xl bg-slate-200 animate-pulse h-[460px]" />
+              <div className="rounded-2xl bg-slate-100 animate-pulse h-[520px]" />
             </div>
           </div>
         </main>
       ) : !displayVehicle ? (
-        <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-10">
-          <div className="mx-auto max-w-6xl px-4 space-y-4">
+        <main className="bg-white min-h-screen">
+          <div className="mx-auto max-w-6xl px-4 py-20 space-y-4">
             <p className="text-lg font-semibold text-slate-800">Véhicule introuvable</p>
-            <p className="text-sm text-slate-600">Le véhicule n&apos;est plus disponible ou le lien est incorrect.</p>
-            <Button onClick={goBack} className="bg-[#0f4b5f] text-white hover:bg-[#0d4051] w-fit">
+            <p className="text-sm text-slate-500">
+              Ce véhicule n&apos;est plus disponible ou le lien est incorrect.
+            </p>
+            <Button onClick={goBack} variant="outline" className="mt-2">
+              <ArrowLeft size={15} className="mr-2" />
               Retour aux véhicules
             </Button>
           </div>
         </main>
       ) : (
-        <main className="bg-[#f7f9fb] text-slate-900 min-h-screen pt-2 pb-36 md:pb-12">
-          <section className="hidden md:block mx-auto w-full max-w-6xl px-6 py-6 space-y-6">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <Button
-                variant="ghost"
+        <main className="bg-white min-h-screen pb-28 md:pb-12">
+          {/* Breadcrumb */}
+          <div className="border-b border-slate-100">
+            <div className="mx-auto max-w-6xl px-4 md:px-6 h-11 flex items-center gap-2 text-sm">
+              <button
                 onClick={goBack}
-                className="w-fit text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                className="flex items-center gap-1.5 text-slate-400 hover:text-slate-800 transition-colors font-medium"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour aux véhicules
-              </Button>
-
-              <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-slate-500">
-                <span>Accueil</span>
-                <span>›</span>
-                <span>Véhicules</span>
-                <span>›</span>
-                <span className="font-semibold text-slate-800">{displayVehicle.model}</span>
-              </div>
+                <ArrowLeft size={14} />
+                Véhicules
+              </button>
+              <span className="text-slate-200">/</span>
+              <span className="text-slate-700 font-medium truncate max-w-[180px] md:max-w-none">
+                {vehicleName}
+              </span>
             </div>
+          </div>
 
-            <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              {/* =======================
-                  GALLERY (FIXED)
-                  ======================= */}
+          {/* Main content */}
+          <div className="mx-auto max-w-6xl px-4 md:px-6 py-6 md:py-8 overflow-hidden">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-8 lg:items-start">
+
+              {/* ====== LEFT COLUMN ====== */}
               <motion.div
-                initial={{ opacity: 0, x: -18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="space-y-3"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-5 min-w-0"
               >
-                <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm aspect-[4/3] sm:aspect-auto sm:h-[360px] md:h-[480px] lg:h-[520px] max-h-[60vh]">
-                  {/* tap opens lightbox */}
-                  <button
-                    type="button"
-                    onClick={() => setLightboxOpen(true)}
-                    className="absolute inset-0 z-[2]"
-                    aria-label="Ouvrir la galerie"
-                  />
-
-                  {/* IMPORTANT: contain on mobile, cover on desktop */}
-                  <img
-                    src={images[activeIndex] || FALLBACK_IMAGES[0]}
-                    alt={displayVehicle.title || "Véhicule"}
-                    className="absolute inset-0 h-full w-full object-contain md:object-cover object-center bg-black"
-                    loading={activeIndex === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                  />
-
-                  {/* Counter */}
-                  <div className="absolute right-3 top-3 z-[3] rounded-full bg-black/55 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
-                    {activeIndex + 1} / {images.length}
+                {/* Gallery */}
+                <div className="space-y-2.5">
+                  {/* Main image */}
+                  <div className="relative overflow-hidden rounded-2xl bg-slate-50 border border-slate-100 aspect-[16/10] md:aspect-[4/3]">
+                    <button
+                      type="button"
+                      onClick={() => setLightboxOpen(true)}
+                      className="absolute inset-0 z-[2] cursor-zoom-in"
+                      aria-label="Agrandir"
+                    />
+                    <img
+                      src={images[activeIndex] || FALLBACK_IMAGES[0]}
+                      alt={vehicleName}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
+                    {/* Counter */}
+                    <div className="absolute top-3 right-3 z-[3] rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+                      {activeIndex + 1} / {images.length}
+                    </div>
+                    {/* Nav arrows */}
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                          className="absolute left-3 top-1/2 z-[3] -translate-y-1/2 flex items-center justify-center h-9 w-9 rounded-full bg-white/90 shadow hover:bg-white active:scale-95 transition-all"
+                          aria-label="Image précédente"
+                        >
+                          <ChevronLeft size={18} className="text-slate-700" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                          className="absolute right-3 top-1/2 z-[3] -translate-y-1/2 flex items-center justify-center h-9 w-9 rounded-full bg-white/90 shadow hover:bg-white active:scale-95 transition-all"
+                          aria-label="Image suivante"
+                        >
+                          <ChevronRight size={18} className="text-slate-700" />
+                        </button>
+                      </>
+                    )}
                   </div>
 
-                  {images.length > 1 && (
-                    <>
+                  {/* Thumbnails */}
+                  <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    {images.slice(0, 10).map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveIndex(idx)}
+                        className={`flex-shrink-0 h-16 w-24 overflow-hidden rounded-xl border-2 transition-all snap-start ${
+                          idx === activeIndex
+                            ? "border-[#DA1212] opacity-100"
+                            : "border-transparent opacity-60 hover:opacity-90 hover:border-slate-200"
+                        }`}
+                        aria-label={`Photo ${idx + 1}`}
+                      >
+                        <LazyImage src={img} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                    {images.length > 10 && (
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
-                        }}
-                        className="absolute left-3 top-1/2 z-[3] -translate-y-1/2 rounded-full bg-white/85 p-3 text-sm font-semibold text-slate-800 shadow hover:bg-white active:scale-95"
-                        aria-label="Image précédente"
+                        onClick={() => setLightboxOpen(true)}
+                        className="flex-shrink-0 h-16 w-24 rounded-xl border-2 border-transparent bg-slate-100 text-xs font-semibold text-slate-500 hover:bg-slate-200 transition snap-start"
                       >
-                        ‹
+                        +{images.length - 10}
                       </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveIndex((prev) => (prev + 1) % images.length);
-                        }}
-                        className="absolute right-3 top-1/2 z-[3] -translate-y-1/2 rounded-full bg-white/85 p-3 text-sm font-semibold text-slate-800 shadow hover:bg-white active:scale-95"
-                        aria-label="Image suivante"
-                      >
-                        ›
-                      </button>
-                    </>
-                  )}
+                    )}
+                  </div>
                 </div>
 
-                {/* Thumbs mobile (snap + bigger + valid Tailwind heights) */}
-                <div className="flex gap-3 overflow-x-auto pb-3 md:hidden snap-x snap-mandatory">
-                  <div className="w-2" aria-hidden />
-                  {images.slice(0, 10).map((img, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setActiveIndex(idx)}
-                      className={`h-24 w-36 flex-shrink-0 overflow-hidden rounded-xl border transition snap-center ${
-                        idx === activeIndex
-                          ? "border-[#DA1212] ring-2 ring-[#DA1212]"
-                          : "border-slate-200 hover:border-slate-400"
-                      }`}
-                      aria-label={`Voir la photo ${idx + 1}`}
-                    >
-                      <LazyImage src={img} alt={`Thumb ${idx + 1}`} className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                  {images.length > 10 && (
-                    <button
-                      type="button"
-                      onClick={() => setLightboxOpen(true)}
-                      className="h-24 w-24 flex-shrink-0 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 hover:border-slate-400"
-                      aria-label="Voir toutes les photos"
-                    >
-                      +{images.length - 10}
-                    </button>
-                  )}
-                  <div className="w-2" aria-hidden />
+                {/* Mobile: compact price + specs card */}
+                <div className="lg:hidden rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+                  <div className="text-center">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{displayVehicle.brand}</p>
+                    <h1 className="text-lg font-bold text-slate-900 leading-tight mt-0.5">
+                      {displayVehicle.model}{displayVehicle.version ? ` ${displayVehicle.version}` : ""}
+                    </h1>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {specPills.map(({ Icon, label }, idx) => (
+                      <span key={idx} className="flex items-center gap-1 rounded-full bg-slate-50 border border-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500">
+                        <Icon size={10} className="text-slate-400" />
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="border-t border-slate-100 pt-3 text-center">
+                    <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400">Prix du véhicule</p>
+                    <p className="text-2xl font-black leading-tight mt-0.5" style={{ color: ACCENT }}>{priceLabel}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Loyer mensuel <span className="font-bold text-slate-800">{simulated.value !== null ? simulated.label : monthlyLabel}</span>
+                    </p>
+                  </div>
                 </div>
 
-                {/* Thumbs desktop */}
-                <div className="hidden md:grid grid-cols-4 gap-2">
-                  {images.slice(0, 8).map((img, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setActiveIndex(idx)}
-                      className={`h-24 overflow-hidden rounded-xl border transition ${
-                        idx === activeIndex
-                          ? "border-[#DA1212] ring-2 ring-[#DA1212]"
-                          : "border-slate-200 hover:border-slate-400"
-                      }`}
-                    >
-                      <LazyImage src={img} alt={`Thumb ${idx + 1}`} className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                  {images.length > 8 && (
-                    <button
-                      type="button"
-                      onClick={() => setLightboxOpen(true)}
-                      className="h-24 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-slate-400"
-                    >
-                      Voir tout
-                    </button>
-                  )}
-                </div>
-
-                {/* Trust pills */}
-                <div className="grid grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+                {/* Trust strip */}
+                <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:auto-rows-fr md:items-stretch md:overflow-visible">
                   {[
-                    { label: "Garantie 12 mois", sub: "Roulez tranquille" },
-                    { label: "Véhicule expertisé", sub: "Contrôles complets" },
-                    { label: "Prépa esthétique", sub: "Finition showroom" },
-                  ].map(({ label, sub }, i) => (
-                    <motion.div
+                    { Icon: Shield, label: "Garantie 12 mois", sub: "Incluse" },
+                    { Icon: CheckCircle, label: "Véhicule contrôlé", sub: "Expertise complète" },
+                    { Icon: MoveRight, label: "Livraison nationale", sub: "France entière" },
+                  ].map(({ Icon, label, sub }) => (
+                    <div
                       key={label}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, delay: 0.3 + i * 0.07 }}
-                      className="flex items-start gap-2"
+                      className="flex h-full min-h-[88px] flex-shrink-0 w-[140px] md:w-auto flex-col items-center justify-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-center"
                     >
-                      <CheckCircle className="h-5 w-5 flex-shrink-0" style={{ color: ACCENT }} />
-                      <div>
-                        <p className="font-semibold">{label}</p>
-                        <p className="text-xs text-slate-500">{sub}</p>
+                      <Icon size={14} className="mx-auto mb-1" style={{ color: ACCENT }} />
+                      <p className="text-[10px] md:text-[11px] font-semibold text-slate-800 leading-tight">{label}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 mt-0.5">{sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Description */}
+                <div className="rounded-2xl border border-slate-100 bg-white p-4 md:p-5 space-y-3 overflow-hidden">
+                  <div className="flex items-center gap-2">
+                    <Shield size={12} className="text-slate-300" />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                      Fiche certifiée Lease Auto
+                    </span>
+                  </div>
+                  <h2 className="text-sm md:text-base font-semibold text-slate-900">{vehicleName}</h2>
+                  <p className="text-[13px] md:text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words [overflow-wrap:anywhere]">
+                    {descOpen ? descriptionFull : descriptionShort}
+                  </p>
+                  {descriptionFull.length > 300 && (
+                    <button
+                      type="button"
+                      onClick={() => setDescOpen((v) => !v)}
+                      className="text-xs font-semibold transition-colors"
+                      style={{ color: ACCENT }}
+                    >
+                      {descOpen ? "Voir moins ↑" : "Lire la suite ↓"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Options + Equipment */}
+                {(optionsList.length > 0 || equipmentList.length > 0) && (
+                  <div className="rounded-2xl border border-slate-100 bg-white p-4 md:p-5 space-y-5 overflow-hidden">
+                    {optionsList.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          Points forts
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {optionsList.map((opt, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700"
+                            >
+                              <CheckCircle size={10} style={{ color: ACCENT }} />
+                              {opt}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </motion.div>
+                    )}
+                    {equipmentList.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          Équipements
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {equipmentList.map((opt, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded-full border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                            >
+                              {opt}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Delivery (desktop, below left col) */}
+                <div className="hidden lg:flex items-center gap-6 px-1">
+                  {[
+                    { Icon: Shield, text: "Garantie 12 mois incluse" },
+                    { Icon: MoveRight, text: "Dossier traité en 48h" },
+                    { Icon: MapPin, text: "Livraison France métropolitaine" },
+                  ].map(({ Icon, text }) => (
+                    <div key={text} className="flex items-center gap-2 text-xs text-slate-400">
+                      <Icon size={12} style={{ color: ACCENT }} className="flex-shrink-0" />
+                      {text}
+                    </div>
                   ))}
                 </div>
               </motion.div>
 
-              {/* =======================
-                  FINANCE CARD (yours)
-                  ======================= */}
+              {/* ====== RIGHT COLUMN: Sticky Finance Card ====== */}
               <motion.aside
-                initial={{ opacity: 0, x: 18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
-                className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6 space-y-4"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.08 }}
+                className="space-y-4 lg:self-start"
               >
-                {/* Header véhicule */}
-                <div className="flex items-start gap-3 pb-4 border-b border-slate-100">
-                  <BrandLogo brand={displayVehicle.brand} className="h-10 w-10 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs uppercase tracking-widest text-slate-400">{displayVehicle.brand}</p>
-                    <p className="font-semibold text-slate-900 leading-tight line-clamp-2">
-                      {displayVehicle.title || `${displayVehicle.brand} ${displayVehicle.model}`}
+                <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-[0_10px_34px_rgba(15,23,42,0.08)] bg-white">
+                  {/* Brand + model + specs (hidden on mobile, shown in mobile price card instead) */}
+                  <div className="hidden lg:block p-5 space-y-4 bg-white">
+                    <div className="flex items-center gap-3">
+                      <BrandLogo brand={displayVehicle.brand} className="h-9 w-9 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">
+                          {displayVehicle.brand}
+                        </p>
+                        <h1 className="text-[15px] font-bold text-slate-900 leading-tight">
+                          {displayVehicle.model}
+                          {displayVehicle.version ? ` ${displayVehicle.version}` : ""}
+                        </h1>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {specPills.map(({ Icon, label }, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1.5"
+                        >
+                          <Icon size={11} className="text-slate-400 flex-shrink-0" />
+                          <span className="text-[11px] font-medium text-slate-600 whitespace-nowrap">{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <div className="px-5 py-4 lg:border-t border-b border-slate-100 bg-white space-y-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      Prix du véhicule
+                    </p>
+                    <p className="text-[2rem] font-black leading-none" style={{ color: ACCENT }}>
+                      {priceLabel}
+                    </p>
+                    <div className="flex items-baseline gap-2 pt-1.5">
+                      <span className="text-xs text-slate-400 whitespace-nowrap">Loyer mensuel</span>
+                      <span className="text-lg font-bold text-slate-900 whitespace-nowrap">
+                        {simulated.value !== null ? simulated.label : monthlyLabel}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Finance simulator */}
+                  <div className="px-5 py-4 space-y-4 border-b border-slate-100 bg-white">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-slate-500">Durée de financement</p>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-800">
+                          {financeDuration} mois
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={financeMin}
+                        max={financeMax}
+                        step={6}
+                        value={financeDuration}
+                        onChange={(e) => setFinanceDuration(Number(e.target.value))}
+                        className="finance-range w-full"
+                        style={{
+                          background: `linear-gradient(to right, #DA1212 0%, #DA1212 ${financeProgress}%, #e2e8f0 ${financeProgress}%, #e2e8f0 100%)`,
+                        }}
+                        aria-label="Durée de financement"
+                      />
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {financeSteps.map((month) => {
+                          const active = financeDuration === month;
+                          return (
+                            <button
+                              key={month}
+                              type="button"
+                              onClick={() => setFinanceDuration(month)}
+                              className={`rounded-md border px-1.5 py-1 text-[10px] font-semibold transition-colors ${
+                                active
+                                  ? "border-[#DA1212] bg-[#DA1212]/10 text-[#DA1212]"
+                                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                              }`}
+                            >
+                              {month}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>{financeMin} mois</span>
+                        <span>{financeMax} mois</span>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs text-slate-600 flex-shrink-0">Première mensualité</p>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={firstPayment ?? ""}
+                            onChange={(e) =>
+                              setFirstPayment(e.target.value ? Number(e.target.value) : null)
+                            }
+                            className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-right text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:border-[#DA1212]"
+                            placeholder="0"
+                          />
+                          <span className="text-xs text-slate-400">€</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA section */}
+                  <div className="bg-white px-5 py-5 space-y-3.5 border-t border-slate-100">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-1">
+                        Votre mensualité estimée
+                      </p>
+                      <p className="text-[2rem] font-black text-slate-900 leading-none">
+                        {simulated.value !== null ? simulated.label : monthlyLabel}
+                      </p>
+                    </div>
+                    <a
+                      href="tel:0184218393"
+                      className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] active:scale-[0.98] transition-all text-sm shadow-[0_4px_20px_rgba(218,18,18,0.45)]"
+                    >
+                      <Phone size={15} />
+                      Appeler pour un devis
+                    </a>
+                    <a
+                      href={`https://wa.me/${WHATSAPP_PHONE}?text=${whatsappMsg}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-emerald-200 text-emerald-700 bg-emerald-50/60 font-semibold hover:bg-emerald-100/60 transition-colors text-sm"
+                    >
+                      <MessageCircle size={15} />
+                      WhatsApp
+                    </a>
+                    <p className="text-[11px] text-slate-400 text-center">
+                      WhatsApp direct: +33 7 67 79 31 06
                     </p>
                   </div>
                 </div>
 
-                {/* Specs pills */}
-                <div className="grid grid-cols-2 gap-2">
-                  {specPills.map((pill, idx) => (
-                    <div key={idx} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-                      <pill.icon className="h-3.5 w-3.5 text-slate-500 flex-shrink-0" />
-                      <span className="text-xs font-medium text-slate-700 truncate">{pill.label}</span>
+                {/* Delivery (mobile — shown in right column) */}
+                <div className="lg:hidden rounded-2xl border border-slate-100 bg-white p-4 space-y-2.5">
+                  {[
+                    { Icon: Shield, text: "Garantie 12 mois incluse" },
+                    { Icon: MoveRight, text: "Dossier traité en 48h" },
+                    { Icon: MapPin, text: "Livraison France métropolitaine" },
+                  ].map(({ Icon, text }) => (
+                    <div key={text} className="flex items-center gap-2.5 text-sm text-slate-600">
+                      <Icon size={14} style={{ color: ACCENT }} className="flex-shrink-0" />
+                      {text}
                     </div>
                   ))}
-                </div>
-
-                {/* Prix */}
-                <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-1">
-                  <p className="text-xs uppercase tracking-wide text-slate-500">Prix du véhicule</p>
-                  <p className="text-3xl font-bold leading-tight" style={{ color: ACCENT }}>{priceLabel}</p>
-                  <div className="flex items-baseline gap-2 pt-1">
-                    <p className="text-sm text-slate-500">Loyer mensuel</p>
-                    <p className="text-xl font-semibold text-slate-900">
-                      {simulated.value !== null ? simulated.label : monthlyLabel}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm text-slate-600">
-                    <span>Durée de financement</span>
-                    <span className="font-semibold">{financeDuration} mois</span>
-                  </div>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <input
-                      type="range"
-                      min={24}
-                      max={72}
-                      step={6}
-                      value={financeDuration}
-                      onChange={(e) => setFinanceDuration(Number(e.target.value))}
-                      className="w-full sm:flex-1 accent-[#DA1212]"
-                    />
-                    <input
-                      type="number"
-                      min={24}
-                      max={72}
-                      step={6}
-                      value={financeDuration}
-                      onChange={(e) =>
-                        setFinanceDuration(Math.min(72, Math.max(24, Number(e.target.value) || DEFAULT_FINANCE_DURATION_MONTHS)))
-                      }
-                      className="w-full sm:w-16 rounded-md border border-slate-200 px-2 py-1 text-right text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-                    <span>Première mensualité</span>
-                    <input
-                      type="number"
-                      value={firstPayment ?? ""}
-                      onChange={(e) => setFirstPayment(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full sm:w-32 rounded-md border border-slate-200 px-2 py-1 text-right text-sm"
-                      placeholder="0 €"
-                    />
-                  </div>
-                </div>
-
-                <div className="rounded-xl text-white p-4 space-y-3" style={{ backgroundColor: ACCENT_DARK }}>
-                  <p className="text-xs uppercase tracking-wide text-white/60">Votre mensualité estimée</p>
-                  <p className="text-3xl font-bold">{simulated.value !== null ? simulated.label : monthlyLabel}</p>
-                  <a
-                    href="tel:0184218393"
-                    className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] transition-colors text-sm"
-                  >
-                    Appeler pour un devis
-                  </a>
-                  <a
-                    href={`https://wa.me/33184218393?text=${encodeURIComponent(`Bonjour, je suis intéressé par ce véhicule : ${displayVehicle.title || displayVehicle.model}`)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-colors text-sm"
-                  >
-                    WhatsApp
-                  </a>
                 </div>
               </motion.aside>
             </div>
+          </div>
 
-            {/* =======================
-                DESCRIPTION (PRO)
-                ======================= */}
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut", delay: 0.2 }}
-              className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] mt-6"
-              data-contact-anchor
-            >
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm space-y-4">
-                <div className="flex items-center gap-2 text-slate-500 text-sm">
-                  <Shield className="h-4 w-4" />
-                  Fiche certifiée Lease Auto
-                </div>
-
-                <p className="text-xl font-semibold text-slate-900">
-                  {displayVehicle.title || `${displayVehicle.brand} ${displayVehicle.model}`}
+          {/* Sticky mobile CTA */}
+          <div
+            className="fixed inset-x-0 bottom-0 z-30 bg-white/96 backdrop-blur-sm border-t border-slate-100 px-4 py-3 md:hidden"
+            style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400">Prix TTC</p>
+                <p className="text-xl font-black leading-tight" style={{ color: ACCENT }}>
+                  {priceLabel}
                 </p>
-
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-slate-900">Présentation détaillée</p>
-                    {descriptionFull.length > 220 && (
-                      <button
-                        type="button"
-                        onClick={() => setDescOpen((v) => !v)}
-                        className="text-xs font-semibold text-[#DA1212] md:hidden"
-                      >
-                        {descOpen ? "Réduire" : "Lire la suite"}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Description formatée */}
-                  {descriptionItems.length >= 4 ? (
-                    <div className="space-y-2">
-                      <ul className="space-y-1.5 text-sm text-slate-700 leading-relaxed">
-                        {(descOpen ? descriptionItems : descriptionItems.slice(0, 8)).map((item, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="h-4 w-4 mt-0.5 text-[#DA1212]" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {descriptionItems.length > 8 && (
-                        <button
-                          type="button"
-                          onClick={() => setDescOpen((v) => !v)}
-                          className="text-xs font-semibold text-[#DA1212]"
-                        >
-                          {descOpen ? "Réduire" : `Voir les ${descriptionItems.length - 8} lignes suivantes`}
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-                      <span className="md:hidden">{descOpen ? descriptionFull : descriptionShort}</span>
-                      <span className="hidden md:inline">{descriptionFull}</span>
-                    </p>
-                  )}
-
-                  {(optionsList.length > 0 || equipmentList.length > 0) && (
-                    <div className="border-t border-slate-200 pt-4 grid gap-4 md:grid-cols-2">
-                      {optionsList.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs uppercase tracking-wide text-slate-500">Points forts</p>
-                          <ul className="space-y-1.5 text-sm text-slate-800">
-                            {optionsList.slice(0, 6).map((opt, idx) => (
-                              <li key={idx} className="flex items-start gap-2">
-                                <CheckCircle className="h-4 w-4 mt-0.5" style={{ color: ACCENT }} />
-                                <span>{opt}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {equipmentList.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs uppercase tracking-wide text-slate-500">Équipements</p>
-                          <ul className="space-y-1.5 text-sm text-slate-800">
-                            {equipmentList.slice(0, 6).map((opt, idx) => (
-                              <li key={idx} className="flex items-start gap-2">
-                                <CheckCircle className="h-4 w-4 mt-0.5" style={{ color: ACCENT }} />
-                                <span>{opt}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Énergie</p>
-                    <p className="text-sm font-semibold text-slate-900">{displayVehicle.energy ?? "—"}</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Boîte</p>
-                    <p className="text-sm font-semibold text-slate-900">{displayVehicle.gearbox ?? "—"}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm space-y-4">
-                <h3 className="text-base font-semibold text-slate-900">Livraison & garanties</h3>
-                <ul className="space-y-3 text-sm text-slate-700">
-                  {[
-                    { Icon: Shield, text: "Garantie 12 mois incluse" },
-                    { Icon: MoveRight, text: "Dossier financé en 48h" },
-                    { Icon: MapPin, text: "Livraison France métropolitaine" },
-                  ].map(({ Icon, text }, i) => (
-                    <motion.li
-                      key={text}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.22, delay: 0.3 + i * 0.06 }}
-                      className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5"
-                    >
-                      <Icon className="h-4 w-4 text-[#DA1212] flex-shrink-0" />
-                      <span className="font-medium">{text}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-
-                {/* Quick contact */}
-                <div className="pt-2 space-y-2">
-                  <a
-                    href="tel:0184218393"
-                    className="flex items-center justify-center w-full h-11 rounded-xl bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] transition-colors text-sm"
-                  >
-                    01 84 21 83 93 — Appeler
-                  </a>
-                  <a
-                    href={`https://wa.me/33184218393?text=${encodeURIComponent(`Bonjour, je suis intéressé par : ${displayVehicle.title || displayVehicle.model}`)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center w-full h-11 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium hover:border-slate-400 transition-colors text-sm"
-                  >
-                    Écrire sur WhatsApp
-                  </a>
-                </div>
-              </div>
-            </motion.div>
-          </section>
-
-          {/* Mobile layout dedicated */}
-          <section className="md:hidden mx-auto w-full max-w-6xl px-3 py-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                onClick={goBack}
-                className="w-fit text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour
-              </Button>
-              <div className="flex flex-wrap items-center gap-1 text-[11px] text-slate-500">
-                <span>Accueil</span>
-                <span>›</span>
-                <span>Véhicules</span>
-                <span>›</span>
-                <span className="font-semibold text-slate-800">{displayVehicle.model}</span>
-              </div>
-            </div>
-
-            {/* Hero mobile */}
-            <div className="space-y-3">
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm aspect-[4/3] max-h-[70vh]">
-                <button
-                  type="button"
-                  onClick={() => setLightboxOpen(true)}
-                  className="absolute inset-0 z-[2]"
-                  aria-label="Ouvrir la galerie"
-                />
-                <img
-                  src={images[activeIndex] || FALLBACK_IMAGES[0]}
-                  alt={displayVehicle.title || "Véhicule"}
-                  className="absolute inset-0 h-full w-full object-contain bg-black"
-                  loading={activeIndex === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-                {images.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
-                      }}
-                      className="absolute left-3 top-1/2 z-[3] -translate-y-1/2 rounded-full bg-white/80 px-3 py-2 text-sm font-semibold text-slate-800 shadow"
-                      aria-label="Image précédente"
-                    >
-                      ‹
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveIndex((prev) => (prev + 1) % images.length);
-                      }}
-                      className="absolute right-3 top-1/2 z-[3] -translate-y-1/2 rounded-full bg-white/80 px-3 py-2 text-sm font-semibold text-slate-800 shadow"
-                      aria-label="Image suivante"
-                    >
-                      ›
-                    </button>
-                  </>
-                )}
-                <div className="absolute right-3 top-3 z-[3] rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">
-                  {activeIndex + 1} / {images.length}
-                </div>
-              </div>
-
-              <div className="flex gap-2 overflow-x-auto pb-3 snap-x snap-mandatory">
-                <div className="w-2" aria-hidden />
-                {images.slice(0, 8).map((img, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setActiveIndex(idx)}
-                    className={`h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl border transition snap-center ${
-                      idx === activeIndex
-                        ? "border-[#DA1212] ring-2 ring-[#DA1212]"
-                        : "border-slate-200 hover:border-slate-400"
-                    }`}
-                    aria-label={`Voir la photo ${idx + 1}`}
-                  >
-                    <LazyImage src={img} alt={`Thumb ${idx + 1}`} className="h-full w-full object-cover" />
-                  </button>
-                ))}
-                {images.length > 8 && (
-                  <button
-                    type="button"
-                    onClick={() => setLightboxOpen(true)}
-                    className="h-20 w-16 flex-shrink-0 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:border-slate-400"
-                  >
-                    +{images.length - 8}
-                  </button>
-                )}
-                <div className="w-2" aria-hidden />
-              </div>
-            </div>
-
-            {/* Title + price */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-              <div className="flex items-start gap-3">
-                <BrandLogo brand={displayVehicle.brand} className="h-9 w-9 flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm text-slate-500">
-                    {displayVehicle.brand} · {displayVehicle.year ?? "—"}
-                  </p>
-                  <p className="text-lg font-semibold text-slate-900 leading-tight">
-                    {displayVehicle.title || `${displayVehicle.brand} ${displayVehicle.model}`}
-                  </p>
-                  <p className="text-sm text-slate-600">{displayVehicle.city ?? "France / Livraison"}</p>
-                </div>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-600">Prix TTC</p>
-                  <p className="text-2xl font-semibold text-[#DA1212]">{priceLabel}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-600">Mensualité estimée</p>
-                  <p className="text-lg font-semibold text-slate-900">
-                    {simulated.value !== null ? simulated.label : monthlyLabel}
-                  </p>
-                </div>
-                <p className="mt-1 text-xs text-slate-500 flex items-center gap-2">
-                  <MapPin size={14} />
-                  Livrable rapidement
-                </p>
-              </div>
-            </div>
-
-            {/* Specs */}
-            <div className="grid grid-cols-2 gap-3">
-              {specPills.map((pill, idx) => (
-                <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 flex items-center gap-2">
-                  <pill.icon className="h-4 w-4 text-slate-700" />
-                  <p className="text-sm font-semibold text-slate-900 truncate">{pill.label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Financing mobile */}
-            <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
-              <div className="flex items-baseline justify-between">
-                <p className="text-sm text-slate-500">Loyer mensuel estimé</p>
-                <p className="text-xl font-bold" style={{ color: ACCENT }}>
+                <p className="text-xs text-slate-500 truncate">
                   {simulated.value !== null ? simulated.label : monthlyLabel}
                 </p>
               </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-slate-600">
-                  <span>Durée de financement</span>
-                  <span className="font-semibold">{financeDuration} mois</span>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <input
-                    type="range"
-                    min={24}
-                    max={72}
-                    step={6}
-                    value={financeDuration}
-                    onChange={(e) => setFinanceDuration(Number(e.target.value))}
-                    className="w-full accent-[#DA1212]"
-                  />
-                  <input
-                    type="number"
-                    min={24}
-                    max={72}
-                    step={6}
-                    value={financeDuration}
-                    onChange={(e) =>
-                      setFinanceDuration(Math.min(72, Math.max(24, Number(e.target.value) || DEFAULT_FINANCE_DURATION_MONTHS)))
-                    }
-                    className="w-full rounded-md border border-slate-200 px-2 py-1 text-right text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex flex-col gap-2 text-sm text-slate-600">
-                  <span>Première mensualité</span>
-                  <input
-                    type="number"
-                    value={firstPayment ?? ""}
-                    onChange={(e) => setFirstPayment(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full rounded-md border border-slate-200 px-2 py-1 text-right text-sm"
-                    placeholder="0 €"
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-xl text-white p-4 space-y-3" style={{ backgroundColor: ACCENT_DARK }}>
-                <p className="text-xs uppercase tracking-wide text-white/60">Mensualité estimée</p>
-                <p className="text-2xl font-bold">{simulated.value !== null ? simulated.label : monthlyLabel}</p>
-                <a
-                  href="tel:0184218393"
-                  className="flex items-center justify-center w-full h-11 rounded-lg bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] transition-colors text-sm"
-                >
-                  Appeler pour un devis
-                </a>
-              </div>
-            </aside>
-
-            {/* Guarantees */}
-            <div className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
-                <div>
-                  <p className="font-semibold">Garantie 12 mois</p>
-                  <p className="text-xs text-slate-500">Roulez tranquille</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
-                <div>
-                  <p className="font-semibold">Véhicule expertisé</p>
-                  <p className="text-xs text-slate-500">Contrôles complets</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5" style={{ color: ACCENT }} />
-                <div>
-                  <p className="font-semibold">Prépa esthétique</p>
-                  <p className="text-xs text-slate-500">Finition showroom</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Description & delivery */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3" data-contact-anchor>
-              <div className="flex items-center gap-2 text-slate-500 text-sm">
-                <Shield className="h-4 w-4" />
-                Fiche certifiée Lease Auto
-              </div>
-              <p className="text-lg font-semibold text-slate-900">
-                {displayVehicle.title || `${displayVehicle.brand} ${displayVehicle.model}`}
-              </p>
-              <div className="space-y-2">
-                {descriptionItems.length >= 4 ? (
-                  <div className="space-y-3">
-                    <ul className="grid gap-2 text-sm text-slate-700 leading-relaxed md:grid-cols-2">
-                      {(descOpen ? descriptionItems : descriptionItems.slice(0, 8)).map((item, idx) => {
-                        const { Icon, className } = pickIcon(item);
-                        return (
-                          <li key={idx} className="flex items-start gap-2">
-                            <Icon className={`h-4 w-4 mt-0.5 ${className}`} />
-                            <span>{item}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    {descriptionItems.length > 8 && (
-                      <button
-                        type="button"
-                        onClick={() => setDescOpen((v) => !v)}
-                        className="text-sm font-semibold text-[#DA1212]"
-                      >
-                        {descOpen ? "Réduire" : `Voir les ${descriptionItems.length - 8} lignes suivantes`}
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-slate-700 leading-relaxed">{descOpen ? descriptionFull : descriptionShort}</p>
-                )}
-              </div>
-
-              {(optionsList.length > 0 || equipmentList.length > 0) && (
-                <div className="border-t border-slate-200 pt-3 grid gap-3">
-                  {optionsList.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-wide text-slate-500">Points forts</p>
-                      <ul className="space-y-1.5 text-sm text-slate-800">
-                        {optionsList.slice(0, 6).map((opt, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="h-4 w-4 mt-0.5" style={{ color: ACCENT }} />
-                            <span>{opt}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {equipmentList.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-wide text-slate-500">Équipements</p>
-                      <ul className="space-y-1.5 text-sm text-slate-800">
-                        {equipmentList.slice(0, 6).map((opt, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="h-4 w-4 mt-0.5" style={{ color: ACCENT }} />
-                            <span>{opt}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-              <h3 className="text-base font-semibold text-slate-900">Livraison & garanties</h3>
-              <ul className="space-y-2 text-sm text-slate-700">
-                <li className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-slate-900" />
-                  Garantie 12 mois incluse
-                </li>
-                <li className="flex items-center gap-2">
-                  <MoveRight className="h-4 w-4 text-slate-900" />
-                  Dossier financé en 48h
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-slate-900" />
-                  Livraison France métropolitaine
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Sticky mobile CTA */}
-          <div className="fixed inset-x-0 bottom-0 z-30 bg-white/95 backdrop-blur border-t border-slate-200 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] md:hidden">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-slate-500">À partir de</p>
-                <p className="text-lg font-bold text-[#DA1212] leading-tight">{priceLabel}</p>
-                <p className="text-xs text-slate-600 truncate">
-                  Mensualité estimée {simulated.value !== null ? simulated.label : monthlyLabel}
-                </p>
-              </div>
-              <Button
-                className="h-12 px-5 rounded-full bg-[#DA1212] text-white hover:bg-[#b80f0f] flex-shrink-0"
-                onClick={() => {
-                  const el = document.querySelector("[data-contact-anchor]");
-                  if (el instanceof HTMLElement) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
+              <a
+                href="tel:0184218393"
+                className="flex items-center gap-2 h-11 px-5 rounded-full bg-[#DA1212] text-white font-semibold text-sm flex-shrink-0 shadow-[0_4px_16px_rgba(218,18,18,0.4)]"
               >
-                Demander une offre
-              </Button>
+                <Phone size={14} />
+                Appeler
+              </a>
             </div>
           </div>
         </main>
       )}
 
-      {/* =======================
-          LIGHTBOX FULL SCREEN MOBILE
-          ======================= */}
+      {/* Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="w-screen max-w-none h-[100dvh] md:h-auto md:max-w-6xl bg-black p-0 overflow-hidden border-none rounded-none md:rounded-2xl">
-          <div className="relative bg-black h-full md:h-auto">
-            <LazyImage
+        <DialogContent className="w-screen max-w-none h-[100dvh] md:h-auto md:max-w-5xl bg-black p-0 overflow-hidden border-none rounded-none md:rounded-2xl">
+          <div className="relative h-[100dvh] md:h-auto bg-black flex items-center justify-center">
+            <img
               src={images[activeIndex] || FALLBACK_IMAGES[0]}
-              alt={`Aperçu véhicule ${activeIndex + 1}/${images.length}`}
-              className="w-full h-[100dvh] md:h-full md:max-h-[80vh] object-contain bg-black"
+              alt={`${vehicleName} — Photo ${activeIndex + 1}`}
+              className="w-full h-full md:max-h-[85vh] object-contain"
             />
-
             {images.length > 1 && (
               <>
                 <button
                   type="button"
-                  onClick={() => setActiveIndex((prev) => (prev - 1 + images.length) % images.length)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 px-3 py-2 text-lg font-semibold text-white hover:bg-white/30"
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
                   aria-label="Image précédente"
                 >
-                  ‹
+                  <ChevronLeft size={20} className="text-white" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveIndex((prev) => (prev + 1) % images.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 px-3 py-2 text-lg font-semibold text-white hover:bg-white/30"
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
                   aria-label="Image suivante"
                 >
-                  ›
+                  <ChevronRight size={20} className="text-white" />
                 </button>
               </>
             )}
-
-            <div className="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+            <div className="absolute top-4 right-14 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
               {activeIndex + 1} / {images.length}
             </div>
-
-            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
-              {images.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveIndex(idx)}
-                  className={`h-2 w-2 rounded-full transition ${idx === activeIndex ? "bg-white" : "bg-white/40"}`}
-                  aria-label={`Aller à l'image ${idx + 1}`}
-                />
-              ))}
-            </div>
+            {images.length <= 14 && (
+              <div className="absolute bottom-5 left-0 right-0 flex justify-center gap-1.5">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      idx === activeIndex ? "bg-white w-4" : "bg-white/35 w-1.5"
+                    }`}
+                    aria-label={`Image ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

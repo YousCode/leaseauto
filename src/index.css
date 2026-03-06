@@ -258,6 +258,55 @@ html, body {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
+/* Finance range */
+.finance-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.finance-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.finance-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #da1212;
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 10px rgba(218, 18, 18, 0.35);
+  margin-top: -5px;
+}
+
+.finance-range::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+
+.finance-range::-moz-range-progress {
+  height: 8px;
+  border-radius: 9999px;
+  background: #da1212;
+}
+
+.finance-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #da1212;
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 10px rgba(218, 18, 18, 0.35);
+}
+
 /* Styles pour les boutons */
 .btn-primary {
   @apply bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200;
