@@ -97,6 +97,7 @@ const VehicleDetailPage = () => {
     "leaseauto:vehicle-simu:firstPayment",
     null,
   );
+  const [hasFinanceOverride, setHasFinanceOverride] = useState(false);
   const [descOpen, setDescOpen] = useState(false);
   const financeSteps = [24, 36, 48, 60, 72];
   const financeMin = 24;
@@ -120,6 +121,13 @@ const VehicleDetailPage = () => {
       setActiveIndex(0);
     }
   }, [displayVehicle?.images, activeIndex]);
+
+  useEffect(() => {
+    setFinanceDuration(DEFAULT_FINANCE_DURATION_MONTHS);
+    setFirstPayment(null);
+    setHasFinanceOverride(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   const sanitizedImages =
     Array.isArray(displayVehicle?.images) && (displayVehicle?.images?.length ?? 0) > 0
@@ -171,6 +179,8 @@ const VehicleDetailPage = () => {
     if (value === null) return { value: null, label: "Sur mesure" };
     return { value, label: `${Math.round(value).toLocaleString("fr-FR")} €/mois` };
   }, [displayVehicle?.monthly, displayVehicle?.price, financeDuration, firstPayment]);
+  const displayedMonthlyLabel =
+    hasFinanceOverride && simulated.value !== null ? simulated.label : monthlyLabel;
   const financeProgress = Math.min(
     100,
     Math.max(0, ((financeDuration - financeMin) / (financeMax - financeMin)) * 100),
@@ -258,7 +268,7 @@ const VehicleDetailPage = () => {
 
           {/* Main content */}
           <div className="mx-auto max-w-6xl px-4 md:px-6 py-6 md:py-8 overflow-hidden">
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-8 lg:items-start">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10 lg:items-start">
 
               {/* ====== LEFT COLUMN ====== */}
               <motion.div
@@ -360,13 +370,13 @@ const VehicleDetailPage = () => {
                     <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400">Prix du véhicule</p>
                     <p className="text-2xl font-black leading-tight mt-0.5" style={{ color: ACCENT }}>{priceLabel}</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      Loyer mensuel <span className="font-bold text-slate-800">{simulated.value !== null ? simulated.label : monthlyLabel}</span>
+                      Loyer mensuel <span className="font-bold text-slate-800">{displayedMonthlyLabel}</span>
                     </p>
                   </div>
                 </div>
 
                 {/* Trust strip */}
-                <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:auto-rows-fr md:items-stretch md:overflow-visible">
+                <div className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-3 md:overflow-visible">
                   {[
                     { Icon: Shield, label: "Garantie 12 mois", sub: "Incluse" },
                     { Icon: CheckCircle, label: "Véhicule contrôlé", sub: "Expertise complète" },
@@ -374,11 +384,11 @@ const VehicleDetailPage = () => {
                   ].map(({ Icon, label, sub }) => (
                     <div
                       key={label}
-                      className="flex h-full min-h-[88px] flex-shrink-0 w-[140px] md:w-auto flex-col items-center justify-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-center"
+                      className="flex flex-shrink-0 w-[140px] md:w-auto flex-col items-center justify-center rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-4 text-center"
                     >
-                      <Icon size={14} className="mx-auto mb-1" style={{ color: ACCENT }} />
-                      <p className="text-[10px] md:text-[11px] font-semibold text-slate-800 leading-tight">{label}</p>
-                      <p className="text-[9px] md:text-[10px] text-slate-400 mt-0.5">{sub}</p>
+                      <Icon size={16} className="mx-auto mb-1.5" style={{ color: ACCENT }} />
+                      <p className="text-[11px] font-semibold text-slate-700 leading-tight">{label}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>
                     </div>
                   ))}
                 </div>
@@ -468,7 +478,7 @@ const VehicleDetailPage = () => {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.08 }}
-                className="space-y-4 lg:self-start"
+                className="space-y-5 lg:self-start"
               >
                 <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-[0_10px_34px_rgba(15,23,42,0.08)] bg-white">
                   {/* Brand + model + specs (hidden on mobile, shown in mobile price card instead) */}
@@ -476,10 +486,10 @@ const VehicleDetailPage = () => {
                     <div className="flex items-center gap-3">
                       <BrandLogo brand={displayVehicle.brand} className="h-9 w-9 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">
                           {displayVehicle.brand}
                         </p>
-                        <h1 className="text-[15px] font-bold text-slate-900 leading-tight">
+                        <h1 className="font-heading text-[20px] font-bold text-slate-900 leading-tight tracking-tight">
                           {displayVehicle.model}
                           {displayVehicle.version ? ` ${displayVehicle.version}` : ""}
                         </h1>
@@ -500,23 +510,23 @@ const VehicleDetailPage = () => {
                   </div>
 
                   {/* Price */}
-                  <div className="px-5 py-4 lg:border-t border-b border-slate-100 bg-white space-y-1">
+                  <div className="px-5 py-5 lg:border-t border-b border-slate-100 bg-white space-y-1">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                       Prix du véhicule
                     </p>
-                    <p className="text-[2rem] font-black leading-none" style={{ color: ACCENT }}>
+                    <p className="font-heading text-[2.2rem] font-extrabold leading-none tracking-tight [font-variant-numeric:tabular-nums]" style={{ color: ACCENT }}>
                       {priceLabel}
                     </p>
                     <div className="flex items-baseline gap-2 pt-1.5">
                       <span className="text-xs text-slate-400 whitespace-nowrap">Loyer mensuel</span>
-                      <span className="text-lg font-bold text-slate-900 whitespace-nowrap">
-                        {simulated.value !== null ? simulated.label : monthlyLabel}
+                      <span className="font-heading text-2xl font-bold text-slate-900 whitespace-nowrap tracking-tight [font-variant-numeric:tabular-nums]">
+                        {displayedMonthlyLabel}
                       </span>
                     </div>
                   </div>
 
                   {/* Finance simulator */}
-                  <div className="px-5 py-4 space-y-4 border-b border-slate-100 bg-white">
+                  <div className="px-5 py-5 space-y-4 border-b border-slate-100 bg-white">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-slate-500">Durée de financement</p>
@@ -530,7 +540,10 @@ const VehicleDetailPage = () => {
                         max={financeMax}
                         step={6}
                         value={financeDuration}
-                        onChange={(e) => setFinanceDuration(Number(e.target.value))}
+                        onChange={(e) => {
+                          setHasFinanceOverride(true);
+                          setFinanceDuration(Number(e.target.value));
+                        }}
                         className="finance-range w-full"
                         style={{
                           background: `linear-gradient(to right, #DA1212 0%, #DA1212 ${financeProgress}%, #e2e8f0 ${financeProgress}%, #e2e8f0 100%)`,
@@ -544,7 +557,10 @@ const VehicleDetailPage = () => {
                             <button
                               key={month}
                               type="button"
-                              onClick={() => setFinanceDuration(month)}
+                              onClick={() => {
+                                setHasFinanceOverride(true);
+                                setFinanceDuration(month);
+                              }}
                               className={`rounded-md border px-1.5 py-1 text-[10px] font-semibold transition-colors ${
                                 active
                                   ? "border-[#DA1212] bg-[#DA1212]/10 text-[#DA1212]"
@@ -569,9 +585,10 @@ const VehicleDetailPage = () => {
                           <input
                             type="number"
                             value={firstPayment ?? ""}
-                            onChange={(e) =>
-                              setFirstPayment(e.target.value ? Number(e.target.value) : null)
-                            }
+                            onChange={(e) => {
+                              setHasFinanceOverride(true);
+                              setFirstPayment(e.target.value ? Number(e.target.value) : null);
+                            }}
                             className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-right text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:border-[#DA1212]"
                             placeholder="0"
                           />
@@ -581,14 +598,14 @@ const VehicleDetailPage = () => {
                     </div>
                   </div>
 
-                  {/* CTA section */}
-                  <div className="bg-white px-5 py-5 space-y-3.5 border-t border-slate-100">
+                  {/* CTA section — dark */}
+                  <div className="bg-slate-900 px-5 py-5 space-y-3.5 rounded-b-2xl">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/80 mb-1">
                         Votre mensualité estimée
                       </p>
-                      <p className="text-[2rem] font-black text-slate-900 leading-none">
-                        {simulated.value !== null ? simulated.label : monthlyLabel}
+                      <p className="font-heading text-[2.35rem] font-extrabold text-white leading-none tracking-tight [font-variant-numeric:tabular-nums]">
+                        {displayedMonthlyLabel}
                       </p>
                     </div>
                     <a
@@ -602,13 +619,13 @@ const VehicleDetailPage = () => {
                       href={`https://wa.me/${WHATSAPP_PHONE}?text=${whatsappMsg}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-emerald-200 text-emerald-700 bg-emerald-50/60 font-semibold hover:bg-emerald-100/60 transition-colors text-sm"
+                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-slate-700 text-white bg-slate-800 font-semibold hover:bg-slate-700 transition-colors text-sm"
                     >
                       <MessageCircle size={15} />
                       WhatsApp
                     </a>
-                    <p className="text-[11px] text-slate-400 text-center">
-                      WhatsApp direct: +33 7 67 79 31 06
+                    <p className="text-[11px] text-slate-500 text-center">
+                      +33 7 67 79 31 06
                     </p>
                   </div>
                 </div>
@@ -642,7 +659,7 @@ const VehicleDetailPage = () => {
                   {priceLabel}
                 </p>
                 <p className="text-xs text-slate-500 truncate">
-                  {simulated.value !== null ? simulated.label : monthlyLabel}
+                  {displayedMonthlyLabel}
                 </p>
               </div>
               <a

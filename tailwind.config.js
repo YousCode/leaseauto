@@ -18,11 +18,11 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        montserrat: ["Montserrat", "sans-serif"],
-        inter: ["Inter", "sans-serif"],
-        premium: ["Montserrat", "Helvetica Neue", "Arial", "sans-serif"],
-        heading: ["Montserrat", "sans-serif"],
-        sans: ["Inter", "sans-serif"],
+        montserrat: ["Poppins", "sans-serif"],
+        inter: ["Nunito Sans", "sans-serif"],
+        premium: ["Poppins", "Nunito Sans", "Helvetica Neue", "Arial", "sans-serif"],
+        heading: ["Poppins", "sans-serif"],
+        sans: ["Nunito Sans", "sans-serif"],
       },
       colors: {
         brand: {

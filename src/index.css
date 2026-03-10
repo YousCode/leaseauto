@@ -27,6 +27,7 @@ html, body {
   width: 100% !important;
   height: 100% !important;
   overflow-x: hidden;
+  font-family: "Nunito Sans", "Helvetica Neue", "Arial", sans-serif;
   background-color: var(--brand-surface);
   color: var(--brand-text);
   scroll-behavior: smooth;
@@ -57,10 +58,10 @@ html, body {
 }
 
 .brand-title {
-  font-family: "Montserrat", "Helvetica Neue", "Arial", sans-serif;
-  font-weight: 600;
+  font-family: "Poppins", "Nunito Sans", "Helvetica Neue", "Arial", sans-serif;
+  font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   color: var(--brand-text);
 }
 
@@ -69,9 +70,9 @@ html, body {
 }
 
 .brand-subtitle {
-  font-family: "Inter", "Helvetica Neue", "Arial", sans-serif;
+  font-family: "Nunito Sans", "Helvetica Neue", "Arial", sans-serif;
   font-size: 1rem;
-  line-height: 1.75;
+  line-height: 1.7;
   color: var(--brand-text-muted);
 }
 

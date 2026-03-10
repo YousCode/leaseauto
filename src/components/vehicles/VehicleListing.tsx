@@ -164,15 +164,15 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
     switch (sort) {
       case "price-asc":
         list.sort((a, b) => {
-          const av = (a as any).monthly_price ?? (a as any).monthly ?? (a as any).price_loa ?? 0;
-          const bv = (b as any).monthly_price ?? (b as any).monthly ?? (b as any).price_loa ?? 0;
+          const av = (a as any).monthly ?? (a as any).monthly_price ?? (a as any).price_loa ?? 0;
+          const bv = (b as any).monthly ?? (b as any).monthly_price ?? (b as any).price_loa ?? 0;
           return av - bv;
         });
         break;
       case "price-desc":
         list.sort((a, b) => {
-          const av = (a as any).monthly_price ?? (a as any).monthly ?? (a as any).price_loa ?? 0;
-          const bv = (b as any).monthly_price ?? (b as any).monthly ?? (b as any).price_loa ?? 0;
+          const av = (a as any).monthly ?? (a as any).monthly_price ?? (a as any).price_loa ?? 0;
+          const bv = (b as any).monthly ?? (b as any).monthly_price ?? (b as any).price_loa ?? 0;
           return bv - av;
         });
         break;
@@ -300,7 +300,7 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
             <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((v: any, index: number) => {
                 const monthlyRaw =
-                  v.monthly_price ?? v.monthly ?? v.price_loa ?? v.price ?? null;
+                  v.monthly ?? v.monthly_price ?? v.price_loa ?? v.price ?? null;
                 const monthlyPrice = typeof monthlyRaw === "number" ? monthlyRaw : null;
 
                 const primaryImage =
