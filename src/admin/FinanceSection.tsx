@@ -45,7 +45,7 @@ export function FinanceSection({
               min={0}
               max={10000}
               step={500}
-              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E50914] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E50914] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
+              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E52127] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E52127] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
             />
           </div>
         </div>
@@ -62,7 +62,7 @@ export function FinanceSection({
               min={12}
               max={72}
               step={6}
-              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E50914] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E50914] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
+              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E52127] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E52127] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
             />
           </div>
         </div>
@@ -80,7 +80,7 @@ export function FinanceSection({
                 min={0}
                 max={12000}
                 step={100}
-                className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E50914] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E50914] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
+                className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E52127] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E52127] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
               />
             </div>
           </div>

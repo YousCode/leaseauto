@@ -16,9 +16,8 @@ const HERO_IMAGES = [
   "https://images.pexels.com/photos/1149831/pexels-photo-1149831.jpeg?auto=compress&cs=tinysrgb&w=1920",
 ];
 
-// Liste des marques (Triplée pour assurer le flux continu)
-const BRANDS_LIST = ["Porsche", "Ferrari", "Aston Martin", "BMW", "Lamborghini", "Volvo", "Mercedes", "Audi", "Land Rover", "Maserati", "Bentley"];
-const BRANDS = [...BRANDS_LIST, ...BRANDS_LIST, ...BRANDS_LIST]; 
+// Bandeau de marques : uniquement celles réellement présentes dans le parc publié
+const MIN_BRANDS_FOR_MARQUEE = 3;
 
 export function HeroSection() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -36,6 +35,16 @@ export function HeroSection() {
 
   const goPrev = () => setActiveIndex((prev) => (prev === 0 ? HERO_IMAGES.length - 1 : prev - 1));
   const goNext = () => setActiveIndex((prev) => (prev === HERO_IMAGES.length - 1 ? 0 : prev + 1));
+
+  const brands = useMemo(() => {
+    const names = new Set<string>();
+    (vehicles as any[]).forEach((v) => {
+      const b = typeof v.brand === "string" ? v.brand.trim() : "";
+      if (b) names.add(b);
+    });
+    const list = [...names];
+    return list.length >= MIN_BRANDS_FOR_MARQUEE ? [...list, ...list, ...list] : [];
+  }, [vehicles]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const suggestions = useMemo(() => {
@@ -77,7 +86,9 @@ export function HeroSection() {
             className="absolute inset-0 w-full h-full object-cover opacity-60"
             loading={activeIndex === 0 ? "eager" : "lazy"}
             decoding="async"
-            fetchPriority={activeIndex === 0 ? "high" : "auto"}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
           />
         </AnimatePresence>
         
@@ -127,7 +138,7 @@ export function HeroSection() {
           className="relative w-full max-w-2xl mb-8 group"
         >
           <form onSubmit={handleSubmit}>
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#E60000] transition-colors">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#E52127] transition-colors">
               <Search size={22} />
             </div>
             <input
@@ -135,7 +146,7 @@ export function HeroSection() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher le véhicule de mes rêves (ex: Audi RS3)"
-              className="w-full py-4 pl-14 pr-4 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-[#E60000]/30 transition-all shadow-2xl"
+              className="w-full py-4 pl-14 pr-4 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-[#E52127]/30 transition-all shadow-2xl"
             />
             <input type="submit" className="hidden" />
           </form>
@@ -181,14 +192,15 @@ export function HeroSection() {
           </Link>
           
           <Link to="/contact">
-            <button className="px-8 py-3.5 rounded-full bg-[#E60000] text-white font-bold tracking-wide hover:bg-[#cc0000] hover:scale-105 transition-all shadow-[0_0_25px_rgba(230,0,0,0.5)]">
+            <button className="px-8 py-3.5 rounded-full bg-[#E52127] text-white font-bold tracking-wide hover:bg-[#c91c22] transition-colors shadow-lg">
               Parler à un conseiller
             </button>
           </Link>
         </motion.div>
       </div>
 
-      {/* --- BANDEAU MARQUES (INFINITE MARQUEE RAPIDE) --- */}
+      {/* --- BANDEAU MARQUES (marques du parc, masqué si trop peu) --- */}
+      {brands.length > 0 && (
       <div className="absolute bottom-10 left-0 right-0 z-20 overflow-hidden select-none pointer-events-none py-2">
         <motion.div 
           className="flex whitespace-nowrap gap-16 md:gap-24"
@@ -199,7 +211,7 @@ export function HeroSection() {
             repeat: Infinity 
           }}
         >
-          {BRANDS.map((brand, i) => (
+          {brands.map((brand, i) => (
             <span 
               key={i} 
               className="text-white/40 text-sm md:text-lg font-bold italic tracking-wider uppercase shrink-0"
@@ -213,6 +225,7 @@ export function HeroSection() {
         <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black via-black/90 to-transparent" />
         <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black via-black/90 to-transparent" />
       </div>
+      )}
 
     </div>
   );

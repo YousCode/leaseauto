@@ -2,12 +2,10 @@ import {
   HeroSection,
   VehicleListingsSection,
   ProcessSection,
-  ContactSection,
+  CtaBandSection,
   FooterSection,
   SignatureHighlightsSection,
- 
- FinancingSection,
-
+  FinancingSection,
 } from "@/components/sections";
 
 export default function Home() {
@@ -15,12 +13,11 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <main>
         <HeroSection />
-    
         <VehicleListingsSection />
         <FinancingSection />
         <ProcessSection />
         <SignatureHighlightsSection />
-        <ContactSection />
+        <CtaBandSection />
       </main>
       <FooterSection />
     </div>

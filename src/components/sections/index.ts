@@ -7,6 +7,7 @@ export { default as ProcessSection } from './ProcessSection';
 export { ContactSection } from "./ContactSection";
 export { FooterSection } from "./FooterSection";
 export { SignatureHighlightsSection } from "./SignatureHighlightsSection";
+export { CtaBandSection } from "./CtaBandSection";
 export { CollectionsShowcaseSection } from "./CollectionsShowcaseSection";
 export { default as FinancingSection } from "./FinancingSection";
 

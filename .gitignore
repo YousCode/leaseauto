@@ -80,3 +80,10 @@ image.png
 # Accidental duplicated local folders/files
 node_modules 2/
 package-lock 2.json
+
+# Env files (all variants) except the example
+.env*
+!.env.example
+
+# macOS "copy" duplicates
+* 2.*

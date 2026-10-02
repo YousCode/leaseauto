@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --brand-primary: #e50914;
-  --brand-primary-dark: #b50f0f;
+  --brand-primary: #e52127;
+  --brand-primary-dark: #c3161c;
   --brand-secondary: #0d0d0f;
   --brand-secondary-alt: #151823;
   --brand-surface: #ffffff;
@@ -25,7 +25,7 @@ html, body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
-  height: 100% !important;
+  min-height: 100%;
   overflow-x: hidden;
   font-family: "Nunito Sans", "Helvetica Neue", "Arial", sans-serif;
   background-color: var(--brand-surface);
@@ -87,16 +87,16 @@ html, body {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  background: linear-gradient(135deg, var(--brand-primary), #ff3e48);
+  background: var(--brand-primary);
   color: #ffffff;
-  box-shadow: 0 12px 32px rgba(229, 9, 20, 0.35);
+  box-shadow: 0 6px 16px rgba(229, 33, 39, 0.22);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .brand-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(229, 9, 20, 0.45);
-  background: linear-gradient(135deg, var(--brand-primary-dark), #ff2434);
+  box-shadow: 0 8px 20px rgba(229, 33, 39, 0.28);
+  background: var(--brand-primary-dark);
 }
 
 .brand-button:focus-visible {

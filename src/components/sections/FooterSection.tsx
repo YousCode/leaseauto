@@ -6,12 +6,13 @@ import { Link } from "react-router-dom";
 const navItems = [
   { label: "Catalogue", href: "/vehicules" },
   { label: "Financement", href: "/financement" },
+  { label: "Déposer un dossier", href: "/dossier" },
   { label: "Contact", href: "/contact" },
 ];
 
 const serviceLinks = [
   { label: "LOA / LLD", href: "/financement" },
-  { label: "Reprise / Estimation", href: "/estimer-mon-vehicule" },
+  { label: "Reprise / Estimation", href: "/contact" },
   { label: "Accompagnement pro", href: "/services" },
 ];
 
@@ -20,7 +21,6 @@ const legalLinks = [
   { label: "Politique de confidentialité", href: "/politique-de-confidentialite" },
   { label: "Conditions générales", href: "/conditions-generales" },
   { label: "Cookies", href: "/cookies" },
-  { label: "Plan du site", href: "/plan-du-site" },
 ];
 
 const FooterSection = () => {

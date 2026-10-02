@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
@@ -6,6 +6,16 @@ import { Toaster } from "@/components/ui/toaster";
 import ComingSoon from "@/pages/ComingSoon";
 import { AuthProvider } from "@/providers/AuthProvider";
 import HeaderSection from "@/components/sections/HeaderSection";
+import ProtectedRoute from "@/admin/ProtectedRoute";
+
+/** Remet le scroll en haut à chaque changement de page */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
+  return null;
+}
 
 /** Wrapper pour rediriger /vehicles/:slug -> /vehicules/:slug */
 function RedirectVehicleSlug() {
@@ -23,7 +33,6 @@ const AdminDashboard = lazy(() => import("@/admin/AdminDashboard"));
 const AdminVehicleManager = lazy(() => import("@/admin/AdminVehicleManager"));
 const AdminVehicleFormPage = lazy(() => import("@/admin/VehicleFormPage"));
 const AdminLogin = lazy(() => import("@/admin/AdminLogin"));
-const TempoBooking = lazy(() => import("@/components/booking/TempoBooking"));
 const ContactPage = lazy(() => import("@/pages/Contact"));
 const ServicesPage = lazy(() => import("@/pages/Services"));
 const DossierPage = lazy(() => import("@/pages/Dossier"));
@@ -63,6 +72,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <ScrollToTop />
       <div className="min-h-screen bg-white">
       <Suspense
         fallback={
@@ -76,8 +86,6 @@ function App() {
           {/* Public avec header global */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/reservation" element={<TempoBooking />} />
-            <Route path="/booking" element={<TempoBooking />} />
             <Route path="/vehicules" element={<VehicleListing />} />
             <Route path="/vehicules/:slug" element={<VehicleDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
@@ -91,16 +99,21 @@ function App() {
             <Route path="/cookies" element={<CookiesPage />} />
           </Route>
 
+          {/* Anciennes URLs */}
+          <Route path="/devis" element={<Navigate to="/contact" replace />} />
+          <Route path="/reservation" element={<Navigate to="/contact" replace />} />
+          <Route path="/booking" element={<Navigate to="/contact" replace />} />
+
           {/* Redirections EN -> FR */}
           <Route path="/vehicles" element={<Navigate to="/vehicules" replace />} />
           <Route path="/vehicles/:slug" element={<RedirectVehicleSlug />} />
 
           {/* Admin */}
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/vehicles" element={<AdminVehicleManager />} />
-          <Route path="/admin/vehicles/new" element={<AdminVehicleFormPage />} />
-          <Route path="/admin/vehicles/:id/edit" element={<AdminVehicleFormPage />} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/vehicles" element={<ProtectedRoute><AdminVehicleManager /></ProtectedRoute>} />
+          <Route path="/admin/vehicles/new" element={<ProtectedRoute><AdminVehicleFormPage /></ProtectedRoute>} />
+          <Route path="/admin/vehicles/:id/edit" element={<ProtectedRoute><AdminVehicleFormPage /></ProtectedRoute>} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

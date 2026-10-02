@@ -236,7 +236,7 @@ const VehicleDetail = () => {
   if (loading || !vehicle) {
     return (
       <div className="w-full min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E50914]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E52127]"></div>
       </div>
     );
   }
@@ -301,7 +301,7 @@ const VehicleDetail = () => {
                     onClick={() => setCurrentImageIndex(index)}
                     className={`w-2 h-2 rounded-full transition-all duration-200 ${
                       index === currentImageIndex
-                        ? "bg-[#E50914]"
+                        ? "bg-[#E52127]"
                         : "bg-white/60"
                     }`}
                   />
@@ -323,7 +323,7 @@ const VehicleDetail = () => {
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                 <div className="flex items-center space-x-4">
-                  <span className="text-3xl font-light text-[#E50914] font-premium">
+                  <span className="text-3xl font-light text-[#E52127] font-premium">
                     {vehicle.price?.toLocaleString()}€
                   </span>
                   <span className="text-xl text-gray-600 font-inter">
@@ -334,11 +334,11 @@ const VehicleDetail = () => {
 
               <div className="space-y-3 mb-8">
                 <div className="flex items-center text-gray-600 font-inter">
-                  <MapPin size={18} className="mr-3 text-[#E50914]" />
+                  <MapPin size={18} className="mr-3 text-[#E52127]" />
                   <span>{vehicle.city}</span>
                 </div>
                 <div className="flex items-center text-gray-600 font-inter">
-                  <Calendar size={18} className="mr-3 text-[#E50914]" />
+                  <Calendar size={18} className="mr-3 text-[#E52127]" />
                   <span>Publié le {vehicle.publishDate}</span>
                 </div>
               </div>
@@ -408,7 +408,7 @@ const VehicleDetail = () => {
 
               {/* CTA Buttons */}
               <div className="space-y-3">
-                <Button className="w-full bg-[#E50914] hover:bg-[#E50914]/90 text-white font-inter font-medium py-3">
+                <Button className="w-full bg-[#E52127] hover:bg-[#E52127]/90 text-white font-inter font-medium py-3">
                   Demander un devis
                 </Button>
                 <Button
@@ -478,7 +478,7 @@ const VehicleDetail = () => {
               />
             </div>
 
-            <Button className="w-full bg-[#E50914] hover:bg-[#E50914]/90 text-white font-inter font-medium py-3">
+            <Button className="w-full bg-[#E52127] hover:bg-[#E52127]/90 text-white font-inter font-medium py-3">
               Envoyer ma demande
             </Button>
           </form>

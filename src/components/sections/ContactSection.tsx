@@ -30,7 +30,10 @@ const MAPS_URL =
 const FieldError = ({ msg }: { msg?: string }) =>
   msg ? <p className="text-red-500 text-xs mt-1 font-medium">{msg}</p> : null;
 
-export const ContactSection = () => {
+type ContactSectionProps = { headingTag?: "h1" | "h2" };
+
+export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
+  const Heading = headingTag;
   const {
     register,
     handleSubmit,
@@ -81,9 +84,9 @@ export const ContactSection = () => {
           viewport={{ once: true }}
           className="text-center mb-10 md:mb-14"
         >
-          <h2 className="text-3xl md:text-5xl font-light text-transparent bg-gradient-to-r from-[#0f172a] to-[#334155] bg-clip-text mb-4 md:mb-6 font-premium tracking-wide">
+          <Heading className="text-3xl md:text-5xl font-light text-transparent bg-gradient-to-r from-[#0f172a] to-[#334155] bg-clip-text mb-4 md:mb-6 font-premium tracking-wide">
             Louer ou acheter votre prochain véhicule ?
-          </h2>
+          </Heading>
           <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto font-inter leading-relaxed">
             Nos experts Lease Auto vous accompagnent du choix jusqu’à la clé en main.
             <span className="font-semibold text-[#1f3a8a]"> Financement 100% sur-mesure.</span>
@@ -196,7 +199,7 @@ export const ContactSection = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 md:h-14 bg-gradient-to-r from-[#e84b3c] to-[#f0655b] hover:from-[#d84032] hover:to-[#e9584c] text-white rounded-xl font-inter font-medium text-base md:text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
+                className="w-full h-12 md:h-14 bg-[#E52127] hover:bg-[#c91c22] text-white rounded-xl font-inter font-medium text-base md:text-lg shadow-lg transition-colors duration-300"
               >
                 <span className="inline-flex items-center gap-2">
                   {isSubmitting ? (
@@ -252,7 +255,7 @@ export const ContactSection = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 <a
                   href="tel:0184218393"
-                  className="h-12 rounded-xl bg-gradient-to-r from-[#e84b3c] to-[#f0655b] text-white font-semibold flex items-center justify-center gap-2 shadow-lg hover:opacity-95 transition"
+                  className="h-12 rounded-xl bg-[#E52127] hover:bg-[#c91c22] text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   Appeler

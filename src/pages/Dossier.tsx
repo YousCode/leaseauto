@@ -450,7 +450,7 @@ export default function DossierPage() {
             <div className="flex flex-col gap-3 rounded-2xl bg-[#FFF3F2] p-4 text-sm md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-2 font-medium text-[#E10600]">
                 <HelpCircle size={18} />
-                Besoin d’aide ? 01 84 21 83 93 • WhatsApp • contact@lease-auto.fr
+                Besoin d’aide ? 01 84 21 83 93 • WhatsApp • contact@leaseauto.fr
               </div>
               <div className="text-xs text-[#5A5E66]">
                 Formats acceptés : PDF, JPG, PNG, HEIC — jusqu’à 20 Mo / fichier

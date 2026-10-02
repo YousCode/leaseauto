@@ -109,6 +109,7 @@ const FinancingSection = () => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.8 }}
           className="text-center max-w-3xl mx-auto mb-16 lg:mb-24 space-y-5 md:space-y-6"
         >
@@ -161,6 +162,7 @@ const FinancingSection = () => {
                     key={item}
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
                     transition={{ delay: idx * 0.1 }}
                     className={`flex items-start gap-4 px-5 py-4 hover:bg-white/80 hover:translate-x-2 transition-all duration-300 ${
                       idx === 0 ? "rounded-t-2xl" : idx === 2 ? "rounded-b-2xl" : ""

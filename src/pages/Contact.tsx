@@ -4,7 +4,7 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <main>
-        <ContactSection />
+        <ContactSection headingTag="h1" />
       </main>
       <FooterSection />
     </div>

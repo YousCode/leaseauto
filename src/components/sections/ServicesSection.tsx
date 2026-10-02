@@ -27,7 +27,7 @@ const SERVICES: Service[] = [
     description: "Solutions flexibles de 12 à 60 mois avec maintenance planifiée et coûts maîtrisés.",
     image: "https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=1600",
     bullets: ["Maintenance préventive", "Suivi digitalisé", "Option assistance 24/7"],
-    to: "/services/leasing-longue-duree",
+    to: "/contact",
   },
   {
     icon: Users,
@@ -35,7 +35,7 @@ const SERVICES: Service[] = [
     description: "Fiscalité optimisée, TCO réduit et outils de gestion de flotte.",
     image: "https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=1600",
     bullets: ["Avantages fiscaux", "Gestion de flotte", "Facturation simplifiée"],
-    to: "/services/leasing-professionnel",
+    to: "/contact",
   },
   {
     icon: Zap,
@@ -43,7 +43,7 @@ const SERVICES: Service[] = [
     description: "EV & hybrides: autonomie optimisée et écosystème de recharge.",
     image: "https://images.pexels.com/photos/1719648/pexels-photo-1719648.jpeg?auto=compress&cs=tinysrgb&w=1600",
     bullets: ["Bonus écologique", "Bornes de recharge", "Autonomie optimisée"],
-    to: "/services/vehicules-electriques",
+    to: "/contact",
   },
   {
     icon: Award,
@@ -51,7 +51,7 @@ const SERVICES: Service[] = [
     description: "Sélection haut de gamme: finitions, équipements, service VIP.",
     image: "https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=1600",
     bullets: ["Marques premium", "Équipements haut de gamme", "Service VIP"],
-    to: "/services/vehicules-premium",
+    to: "/contact",
   },
   {
     icon: Truck,
@@ -59,7 +59,7 @@ const SERVICES: Service[] = [
     description: "Fourgons, châssis cabine et transformations pour les pros exigeants.",
     image: "/images/services/utlitaires.png",
     bullets: ["Volumes adaptés à vos métiers", "Aménagements atelier ou frigorifique", "Disponibilité rapide"],
-    to: "/services/utilitaires",
+    to: "/contact",
   },
   {
     icon: CarFront,
@@ -67,7 +67,7 @@ const SERVICES: Service[] = [
     description: "Berlines confort et hybrides pour vos prestations haut de gamme en leasing longue durée.",
     image:  "/images/services/vtc.png",
     bullets: ["Contrats de leasing dédiés VTC", "Toyota C-HR & hybrides premium", "Assistance chauffeur 24/7"],
-    to: "/services/leasing-vtc",
+    to: "/contact",
   },
 ];
 
@@ -147,7 +147,7 @@ function ServiceCardVFX({ s }: { s: Service }) {
 
         {/* badge icône */}
         <div
-          className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#E50914] text-white shadow-lg"
+          className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#E52127] text-white shadow-lg"
           style={{ transform: "translateZ(40px)" }}
         >
           <Icon className="h-5 w-5" />
@@ -162,7 +162,7 @@ function ServiceCardVFX({ s }: { s: Service }) {
         <ul className="mt-4 space-y-2">
           {s.bullets.map((b) => (
             <li key={b} className="flex items-center gap-2 text-sm text-gray-700">
-              <Check className="h-4 w-4 text-[#E50914]" />
+              <Check className="h-4 w-4 text-[#E52127]" />
               <span>{b}</span>
             </li>
           ))}
@@ -174,7 +174,7 @@ function ServiceCardVFX({ s }: { s: Service }) {
             className="brand-button flex w-full justify-center"
             style={{ transform: "translateZ(8px)" }}
           >
-            En savoir plus <ArrowRight className="h-5 w-5" />
+            Demander un devis <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </div>
@@ -207,9 +207,9 @@ export function ServicesSection() {
         {/* header */}
         <header className="mx-auto mb-12 max-w-3xl text-center">
           <span className="brand-eyebrow">Services signature</span>
-          <h2 className="brand-title mt-6 text-4xl md:text-5xl">
-            Une gamme complète de <span className="text-[#E50914]">services</span>
-          </h2>
+          <h1 className="brand-title mt-6 text-4xl md:text-5xl">
+            Une gamme complète de <span className="text-[#E52127]">services</span>
+          </h1>
           <p className="brand-subtitle mt-4 text-lg">
             Performance, maîtrise du coût total de possession, confort — sans compromis.
           </p>
@@ -231,8 +231,8 @@ export function ServicesSection() {
             Nos experts construisent une solution sur mesure pour vos usages et votre budget.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/services" className="brand-button">
-              VOIR TOUS LES SERVICES <ArrowRight className="h-5 w-5" />
+            <Link to="/vehicules" className="brand-button">
+              VOIR LES VÉHICULES <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               to="/contact"

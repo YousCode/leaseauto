@@ -69,8 +69,30 @@ const VehicleListingsSection = () => {
             ))}
           </div>
         ) : featured.length === 0 ? (
-          <div className="text-center py-16 text-slate-400 text-sm">
-            Aucun véhicule disponible pour le moment.
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="max-w-xl">
+              <h3 className="text-xl md:text-2xl font-heading font-semibold text-brand-navy">
+                Vous cherchez un modèle précis ? On le trouve pour vous.
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Notre sélection se renouvelle en continu. Décrivez le véhicule, le budget et la durée : on sourçe, on contrôle et on monte le financement.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#E52127] px-6 py-3 text-sm font-semibold text-white hover:bg-[#c91c22] transition-colors"
+              >
+                Décrire mon projet
+                <ArrowRight size={15} />
+              </Link>
+              <Link
+                to="/financement"
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
+              >
+                Simuler mon financement
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

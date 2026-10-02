@@ -11,6 +11,7 @@ const navItems = [
   { name: "Accueil", href: "/" },
   { name: "Véhicules", href: "/vehicules" },
   { name: "Financement", href: "/financement" },
+  { name: "Services", href: "/services" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -43,7 +44,7 @@ const HeaderSection = () => {
               <motion.img
                 src={logoSrc}
                 alt="Lease Auto"
-                className="h-12 md:h-14 w-auto transition-all duration-300"
+                className="h-8 md:h-10 w-auto transition-all duration-300"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 onError={(e) => {
@@ -81,8 +82,8 @@ const HeaderSection = () => {
             <div className="hidden md:flex items-center gap-4">
               
               <Link
-                to="/devis"
-                className="rounded-full bg-[#E52127] text-white text-xs md:text-sm font-bold px-6 py-2.5 hover:bg-[#c91c22] transition-all shadow-[0_4px_14px_rgba(229,33,39,0.3)] hover:scale-105"
+                to="/contact"
+                className="rounded-full bg-[#E52127] text-white text-xs md:text-sm font-bold px-6 py-2.5 hover:bg-[#c91c22] transition-colors shadow-md"
               >
                 Demander une offre
               </Link>
@@ -126,9 +127,9 @@ const HeaderSection = () => {
               
               <div className="mt-8 flex flex-col items-center gap-4">
                 <Link
-                  to="/devis"
+                  to="/contact"
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full max-w-xs rounded-full bg-[#E52127] text-white font-bold px-6 py-4 text-lg shadow-[0_0_20px_rgba(229,33,39,0.4)]"
+                  className="w-full max-w-xs rounded-full bg-[#E52127] text-white font-bold px-6 py-4 text-lg shadow-lg"
                 >
                   Demander une offre
                 </Link>

@@ -1,4 +1,4 @@
-import { ServicesSection, ProcessSection, ContactSection, FooterSection } from "@/components/sections";
+import { ServicesSection, ProcessSection, CtaBandSection, FooterSection } from "@/components/sections";
 
 const ServicesPage = () => {
   return (
@@ -6,7 +6,7 @@ const ServicesPage = () => {
       <main>
         <ServicesSection />
         <ProcessSection />
-        <ContactSection />
+        <CtaBandSection />
       </main>
       <FooterSection />
     </div>

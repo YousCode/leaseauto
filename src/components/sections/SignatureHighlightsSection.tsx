@@ -7,7 +7,6 @@ type Review = { author: string; timing: string; body: string };
 const REVIEWS: Review[] = [
   { author: "léa clément", timing: "il y a 3 mois", body: "Je tiens à remercier sincèrement Youssouph et Belha pour leur écoute, leurs conseils et leur soutien. Grâce à eux, j’ai pu faire les bons choix pour mon avenir. Leur bienveillance et leur professionnalisme m’ont beaucoup aidée à y voir plus clair. Merci encore pour tout !" },
   { author: "yass Chafik", timing: "il y a 4 mois", body: "Service impeccable ! Belha et Youssouph sont très professionnels, accueillants et arrangeants. La voiture était en parfait état et tout s’est déroulé sans aucun souci. Je recommande cette agence les yeux fermés." },
-  { author: "darren du17", timing: "il y a 4 mois", body: "Service impeccable ! Belha et Youssouph sont très professionnels, accueillants et arrangeants. La voiture était en parfait état et tout s’est déroulé sans aucun souci. Je recommande cette agence les yeux fermés." },
   { author: "aissata carneva", timing: "il y a 3 mois", body: "Très satisfait de la prise en charge et du véhicule. Très attentif à la demande du client et répond très rapidement aux questions. Un grand merci et je vous recommande 100%." },
   { author: "mujtaba syed", timing: "il y a un mois", body: "Changement de pneus en moins de 15 minutes, prix très attractif et personnel agréable. Je recommande !" },
   { author: "christ mendome", timing: "il y a un an", body: "Personnel très professionnel et accueillant. Réponse rapide à l’achat de mon véhicule, service efficace et excellent rapport qualité-prix. Je recommande vivement ce garage à tous ceux qui cherchent un service fiable et de qualité." },
@@ -76,8 +75,8 @@ export function SignatureHighlightsSection() {
         {/* header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <p className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-[0.25em] text-[#E60000]">
-              <span className="h-2 w-2 rounded-full bg-[#E60000]" />
+            <p className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-[0.25em] text-[#E52127]">
+              <span className="h-2 w-2 rounded-full bg-[#E52127]" />
               avis clients
             </p>
             <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
@@ -96,7 +95,7 @@ export function SignatureHighlightsSection() {
               href={REVIEWS_URL}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#E60000] hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#E52127] hover:underline"
             >
               Voir tous les avis Google <span aria-hidden>↗</span>
             </a>
@@ -140,13 +139,13 @@ export function SignatureHighlightsSection() {
                   className="group relative min-w-[280px] md:min-w-[340px] max-w-[360px] rounded-2xl bg-white shadow-[0_14px_28px_rgba(2,6,23,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(230,0,0,0.14)]"
                 >
                     {/* barre rouge */}
-                    <span className="absolute left-0 top-6 h-12 w-[3px] rounded-full bg-[#E60000] transition-all duration-300 group-hover:h-16" />
+                    <span className="absolute left-0 top-6 h-12 w-[3px] rounded-full bg-[#E52127] transition-all duration-300 group-hover:h-16" />
 
                     <div className="flex h-full flex-col px-6 py-7">
                       {/* header fixe */}
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#E60000]/10 text-[#E60000] font-semibold">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#E52127]/10 text-[#E52127] font-semibold">
                             {initials}
                           </div>
                           <div className="min-w-0">
@@ -157,7 +156,7 @@ export function SignatureHighlightsSection() {
                           </div>
                         </div>
 
-                        <span className="flex-shrink-0 rounded-full bg-[#E60000]/10 px-2 py-1 text-[11px] font-semibold text-[#E60000]">
+                        <span className="flex-shrink-0 rounded-full bg-[#E52127]/10 px-2 py-1 text-[11px] font-semibold text-[#E52127]">
                           ★ 4,9
                         </span>
                       </div>
@@ -170,7 +169,7 @@ export function SignatureHighlightsSection() {
                       {/* footer fixe */}
                       <div className="mt-auto pt-5">
                         <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                          Avis Google <span className="text-[#E60000]">↗</span>
+                          Avis Google <span className="text-[#E52127]">↗</span>
                         </span>
                       </div>
                     </div>
