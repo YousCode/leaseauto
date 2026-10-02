@@ -8,6 +8,7 @@ export { ContactSection } from "./ContactSection";
 export { FooterSection } from "./FooterSection";
 export { SignatureHighlightsSection } from "./SignatureHighlightsSection";
 export { CtaBandSection } from "./CtaBandSection";
+export { ScrollStorySection } from "./ScrollStorySection";
 export { CollectionsShowcaseSection } from "./CollectionsShowcaseSection";
 export { default as FinancingSection } from "./FinancingSection";
 

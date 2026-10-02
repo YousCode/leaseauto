@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { getLenis } from "@/lib/lenis";
 import { clampNumber, simulateLinearLoa } from "@/lib/finance";
 
 type Solution = {
@@ -102,7 +103,9 @@ const emphasize = (text: string, keys: string[], highlightClass: string) => {
 const scrollToId = (id: string) => {
   const el = document.getElementById(id);
   if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const lenis = getLenis();
+  if (lenis) lenis.scrollTo(el, { offset: -96 });
+  else el.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
 function cn(...classes: Array<string | false | null | undefined>) {

@@ -8,12 +8,14 @@ import ComingSoon from "@/pages/ComingSoon";
 import { AuthProvider } from "@/providers/AuthProvider";
 import HeaderSection from "@/components/sections/HeaderSection";
 import ProtectedRoute from "@/admin/ProtectedRoute";
+import { SmoothScroll } from "@/providers/SmoothScroll";
+import { scrollToTop } from "@/lib/lenis";
 
 /** Remet le scroll en haut à chaque changement de page */
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    scrollToTop(true);
   }, [pathname]);
   return null;
 }
@@ -74,6 +76,7 @@ function App() {
   return (
     <AuthProvider>
       <MotionConfig reducedMotion="user">
+      <SmoothScroll>
       <ScrollToTop />
       <div className="min-h-screen bg-white">
       <Suspense
@@ -125,6 +128,7 @@ function App() {
         <Toaster />
       </Suspense>
       </div>
+      </SmoothScroll>
       </MotionConfig>
     </AuthProvider>
   );

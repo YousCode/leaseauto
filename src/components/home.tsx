@@ -1,7 +1,7 @@
 import {
   HeroSection,
+  ScrollStorySection,
   VehicleListingsSection,
-  ProcessSection,
   CtaBandSection,
   FooterSection,
   SignatureHighlightsSection,
@@ -13,9 +13,9 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <main>
         <HeroSection />
+        <ScrollStorySection />
         <VehicleListingsSection />
         <FinancingSection />
-        <ProcessSection />
         <SignatureHighlightsSection />
         <CtaBandSection />
       </main>

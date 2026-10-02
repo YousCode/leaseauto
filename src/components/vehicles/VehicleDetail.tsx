@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { DURATION, EASE, DISTANCE } from "@/lib/motion";
+import { getLenis } from "@/lib/lenis";
 import {
   ArrowLeft,
   MapPin,
@@ -230,7 +231,9 @@ const VehicleDetail = () => {
   const scrollToContact = () => {
     const contactElement = document.getElementById("contact");
     if (contactElement) {
-      contactElement.scrollIntoView({ behavior: "smooth" });
+      const lenis = getLenis();
+      if (lenis) lenis.scrollTo(contactElement, { offset: -96 });
+      else contactElement.scrollIntoView({ behavior: "smooth" });
     }
   };
 

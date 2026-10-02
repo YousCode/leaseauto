@@ -21,20 +21,22 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
+/* body sans overflow : sinon position: sticky ne fonctionne plus dans la page */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
   min-height: 100%;
-  overflow-x: hidden;
   font-family: "Nunito Sans", "Helvetica Neue", "Arial", sans-serif;
   background-color: var(--brand-surface);
   color: var(--brand-text);
-  scroll-behavior: smooth;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html, body { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
@@ -685,3 +687,9 @@ html, body {
     @apply border-2 border-black;
   }
 }
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
