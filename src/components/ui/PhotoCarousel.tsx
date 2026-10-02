@@ -37,8 +37,8 @@ export default function PhotoCarousel({
   if (!imgs || imgs.length === 0) {
     return (
       <div className="w-full aspect-video bg-surface-card rounded-2xl flex items-center justify-center">
-        <Car className="w-16 h-16 text-gray-400" />
-        <span className="text-gray-500 ml-2">Aucune image</span>
+        <Car className="w-16 h-16 text-slate-400" />
+        <span className="text-slate-500 ml-2">Aucune image</span>
       </div>
     );
   }

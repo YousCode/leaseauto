@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -26,7 +27,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BrandLogo } from "@/lib/BrandLogo";
 import { estimateVehicleMonthly } from "@/lib/finance";
 
-const ACCENT = "#DA1212";
+const ACCENT = "#C41E20";
 const DEFAULT_FINANCE_DURATION_MONTHS = 60;
 const WHATSAPP_PHONE = "33767793106";
 
@@ -272,9 +273,9 @@ const VehicleDetailPage = () => {
 
               {/* ====== LEFT COLUMN ====== */}
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: DISTANCE }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: DURATION, ease: EASE}}
                 className="space-y-5 min-w-0"
               >
                 {/* Gallery */}
@@ -330,7 +331,7 @@ const VehicleDetailPage = () => {
                         onClick={() => setActiveIndex(idx)}
                         className={`flex-shrink-0 h-16 w-24 overflow-hidden rounded-xl border-2 transition-all snap-start ${
                           idx === activeIndex
-                            ? "border-[#DA1212] opacity-100"
+                            ? "border-brand-primary opacity-100"
                             : "border-transparent opacity-60 hover:opacity-90 hover:border-slate-200"
                         }`}
                         aria-label={`Photo ${idx + 1}`}
@@ -475,9 +476,9 @@ const VehicleDetailPage = () => {
 
               {/* ====== RIGHT COLUMN: Sticky Finance Card ====== */}
               <motion.aside
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: DISTANCE }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.08 }}
+                transition={{ duration: DURATION, ease: EASE, delay: 0.08 }}
                 className="space-y-5 lg:self-start"
               >
                 <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-[0_10px_34px_rgba(15,23,42,0.08)] bg-white">
@@ -546,7 +547,7 @@ const VehicleDetailPage = () => {
                         }}
                         className="finance-range w-full"
                         style={{
-                          background: `linear-gradient(to right, #DA1212 0%, #DA1212 ${financeProgress}%, #e2e8f0 ${financeProgress}%, #e2e8f0 100%)`,
+                          background: `linear-gradient(to right, #C41E20 0%, #C41E20 ${financeProgress}%, #e2e8f0 ${financeProgress}%, #e2e8f0 100%)`,
                         }}
                         aria-label="Durée de financement"
                       />
@@ -563,7 +564,7 @@ const VehicleDetailPage = () => {
                               }}
                               className={`rounded-md border px-1.5 py-1 text-[10px] font-semibold transition-colors ${
                                 active
-                                  ? "border-[#DA1212] bg-[#DA1212]/10 text-[#DA1212]"
+                                  ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
                                   : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
                               }`}
                             >
@@ -589,7 +590,7 @@ const VehicleDetailPage = () => {
                               setHasFinanceOverride(true);
                               setFirstPayment(e.target.value ? Number(e.target.value) : null);
                             }}
-                            className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-right text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:border-[#DA1212]"
+                            className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-right text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:border-brand-primary"
                             placeholder="0"
                           />
                           <span className="text-xs text-slate-400">€</span>
@@ -610,7 +611,7 @@ const VehicleDetailPage = () => {
                     </div>
                     <a
                       href="tel:0184218393"
-                      className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-[#DA1212] text-white font-semibold hover:bg-[#b80f0f] active:scale-[0.98] transition-all text-sm shadow-[0_4px_20px_rgba(218,18,18,0.45)]"
+                      className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-brand-primary text-white font-semibold hover:bg-[#b80f0f] active:scale-[0.98] transition-all text-sm shadow-[0_4px_20px_rgba(218,18,18,0.45)]"
                     >
                       <Phone size={15} />
                       Appeler pour un devis
@@ -664,7 +665,7 @@ const VehicleDetailPage = () => {
               </div>
               <a
                 href="tel:0184218393"
-                className="flex items-center gap-2 h-11 px-5 rounded-full bg-[#DA1212] text-white font-semibold text-sm flex-shrink-0 shadow-[0_4px_16px_rgba(218,18,18,0.4)]"
+                className="flex items-center gap-2 h-11 px-5 rounded-full bg-brand-primary text-white font-semibold text-sm flex-shrink-0 shadow-[0_4px_16px_rgba(218,18,18,0.4)]"
               >
                 <Phone size={14} />
                 Appeler

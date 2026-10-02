@@ -3,6 +3,7 @@ import { Menu, X, User } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { DISTANCE } from "@/lib/motion";
 
 const logoSrc = `${import.meta.env.BASE_URL}assets/brand-logos/logo-lease-auto.png`;
 const logoFallback = `${import.meta.env.BASE_URL}logo-lease-auto.png`;
@@ -59,8 +60,8 @@ const HeaderSection = () => {
             <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
               {navItems.map((item) => {
                 const active = location.pathname === item.href;
-                const textColor = "text-slate-700 hover:text-[#E52127]";
-                const activeColor = "text-[#E52127]";
+                const textColor = "text-slate-700 hover:text-brand-primary";
+                const activeColor = "text-brand-primary";
 
                 return (
                   <Link
@@ -72,7 +73,7 @@ const HeaderSection = () => {
                   >
                     {item.name}
                     {/* Soulignement rouge animé */}
-                    <span className={`absolute -bottom-2 left-0 h-0.5 bg-[#E52127] transition-all duration-300 ${active ? "w-full" : "w-0 group-hover:w-full"}`} />
+                    <span className={`absolute -bottom-2 left-0 h-0.5 bg-brand-primary transition-all duration-300 ${active ? "w-full" : "w-0 group-hover:w-full"}`} />
                   </Link>
                 );
               })}
@@ -83,7 +84,7 @@ const HeaderSection = () => {
               
               <Link
                 to="/contact"
-                className="rounded-full bg-[#E52127] text-white text-xs md:text-sm font-bold px-6 py-2.5 hover:bg-[#c91c22] transition-colors shadow-md"
+                className="rounded-full bg-brand-primary text-white text-xs md:text-sm font-bold px-6 py-2.5 hover:bg-brand-primary-dark transition-colors shadow-md"
               >
                 Demander une offre
               </Link>
@@ -108,7 +109,7 @@ const HeaderSection = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl pt-32 px-6 md:hidden"
@@ -119,7 +120,7 @@ const HeaderSection = () => {
                   key={item.name}
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-2xl font-bold text-white hover:text-[#E52127] transition-colors"
+                  className="text-2xl font-bold text-white hover:text-brand-primary transition-colors"
                 >
                   {item.name}
                 </Link>
@@ -129,7 +130,7 @@ const HeaderSection = () => {
                 <Link
                   to="/contact"
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full max-w-xs rounded-full bg-[#E52127] text-white font-bold px-6 py-4 text-lg shadow-lg"
+                  className="w-full max-w-xs rounded-full bg-brand-primary text-white font-bold px-6 py-4 text-lg shadow-lg"
                 >
                   Demander une offre
                 </Link>

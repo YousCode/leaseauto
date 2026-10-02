@@ -301,13 +301,13 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
   const leaseDuration = Number(vehicleData.durationMonths ?? vehicleData.duration ?? 60) || 60;
 
   const inputClass =
-    "bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#DA1212] focus:ring-[#DA1212]/30 rounded-lg";
+    "bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-brand-primary focus:ring-brand-primary/30 rounded-lg";
   const selectTriggerClass =
-    "bg-white border border-slate-200 text-slate-900 font-semibold rounded-lg focus:border-[#DA1212] focus:ring-[#DA1212]/20";
+    "bg-white border border-slate-200 text-slate-900 font-semibold rounded-lg focus:border-brand-primary focus:ring-brand-primary/20";
   const selectContentClass =
     "bg-white border border-slate-200 text-slate-900 rounded-lg shadow-xl";
   const selectItemClass =
-    "text-slate-900 font-semibold focus:bg-[#DA1212] focus:text-white data-[highlighted]:bg-[#DA1212]/90 data-[highlighted]:text-white";
+    "text-slate-900 font-semibold focus:bg-brand-primary focus:text-white data-[highlighted]:bg-brand-primary/90 data-[highlighted]:text-white";
 
   return (
     <form
@@ -333,25 +333,25 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
         <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-6 bg-slate-100 border border-slate-200 rounded-xl p-1 h-auto">
           <TabsTrigger
             value="general"
-            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-brand-primary data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
             Infos générales
           </TabsTrigger>
           <TabsTrigger
             value="technical"
-            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-brand-primary data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
             Caractéristiques
           </TabsTrigger>
           <TabsTrigger
             value="media"
-            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-brand-primary data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
             Médias
           </TabsTrigger>
           <TabsTrigger
             value="documents"
-            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-[#DA1212] data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
+            className="rounded-lg text-xs sm:text-sm text-slate-700 font-semibold py-2 px-2 leading-tight data-[state=active]:bg-brand-primary data-[state=active]:text-white data-[state=active]:shadow-lg whitespace-normal text-center"
           >
             Documents
           </TabsTrigger>
@@ -365,7 +365,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="brand" className="text-sm text-slate-600">
-                Marque <span className="text-[#DA1212]">*</span>
+                Marque <span className="text-brand-primary">*</span>
               </Label>
               <Select
                 name="brand"
@@ -387,7 +387,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="model" className="text-sm text-slate-600">
-                Modèle <span className="text-[#DA1212]">*</span>
+                Modèle <span className="text-brand-primary">*</span>
               </Label>
               <Input
                 id="model"
@@ -406,7 +406,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                   Type de véhicule
                 </Label>
                 {vehicleData.category ? (
-                  <span className="text-xs text-[#DA1212] font-medium">{vehicleData.category} sélectionné</span>
+                  <span className="text-xs text-brand-primary font-medium">{vehicleData.category} sélectionné</span>
                 ) : (
                   <span className="text-xs text-slate-400">Aucun type sélectionné</span>
                 )}
@@ -426,18 +426,18 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                       onClick={() => handleSelectChange("category", isSelected ? "" : type)}
                       className={`relative flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-xl border-2 text-xs font-semibold transition-all duration-150 focus:outline-none ${
                         isSelected
-                          ? "border-[#DA1212] bg-[#DA1212]/5 text-[#DA1212] shadow-sm"
+                          ? "border-brand-primary bg-brand-primary/5 text-brand-primary shadow-sm"
                           : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
                       {isSelected && (
-                        <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[#DA1212] flex items-center justify-center">
+                        <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-brand-primary flex items-center justify-center">
                           <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
                             <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </span>
                       )}
-                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isSelected ? "bg-[#DA1212]" : cfg.dot}`} />
+                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isSelected ? "bg-brand-primary" : cfg.dot}`} />
                       <span className="leading-tight text-center">{type}</span>
                     </button>
                   );
@@ -475,7 +475,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="year" className="text-sm text-slate-600">
-                Année modèle <span className="text-[#DA1212]">*</span>
+                Année modèle <span className="text-brand-primary">*</span>
               </Label>
               <Input
                 id="year"
@@ -522,7 +522,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm text-slate-600">
-                Prix du véhicule (€) <span className="text-[#DA1212]">*</span>
+                Prix du véhicule (€) <span className="text-brand-primary">*</span>
               </Label>
               <Input
                 id="price"
@@ -538,7 +538,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="monthly" className="text-sm text-slate-600">
-                Loyer mensuel (€/mois) <span className="text-[#DA1212]">*</span>
+                Loyer mensuel (€/mois) <span className="text-brand-primary">*</span>
               </Label>
               <Input
                 id="monthly"
@@ -585,7 +585,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="title" className="text-sm text-slate-600">
-                Titre de l'annonce <span className="text-[#DA1212]">*</span>
+                Titre de l'annonce <span className="text-brand-primary">*</span>
               </Label>
               <Input
                 id="title"
@@ -622,7 +622,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="mileage" className="text-sm text-slate-600">
-                Kilométrage <span className="text-[#DA1212]">*</span>
+                Kilométrage <span className="text-brand-primary">*</span>
               </Label>
               <Input
                 id="mileage"
@@ -698,7 +698,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="transmission" className="text-sm text-slate-600">
-                Boîte de vitesses <span className="text-[#DA1212]">*</span>
+                Boîte de vitesses <span className="text-brand-primary">*</span>
               </Label>
               <Select
                 name="transmission"
@@ -722,7 +722,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="fuelType" className="text-sm text-slate-600">
-                Type de carburant <span className="text-[#DA1212]">*</span>
+                Type de carburant <span className="text-brand-primary">*</span>
               </Label>
               <Select
                 name="fuelType"
@@ -848,8 +848,8 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
                 onDrop={handleDrop}
                 className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-6 text-sm transition ${
                   isDragging
-                    ? "border-[#DA1212] bg-[#DA1212]/10 text-[#DA1212]"
-                    : "border-slate-200 bg-slate-50 text-slate-500 hover:border-[#DA1212]"
+                    ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
+                    : "border-slate-200 bg-slate-50 text-slate-500 hover:border-brand-primary"
                 }`}
               >
                 <Upload size={20} className="mb-2" />
@@ -1043,7 +1043,7 @@ const VehicleForm = ({ vehicle, onSubmit, onCancel }: VehicleFormProps) => {
           <Button type="button" variant="outline" onClick={onCancel}>
             Annuler
           </Button>
-          <Button type="submit" className="bg-[#DA1212] hover:bg-[#B50F0F]">
+          <Button type="submit" className="bg-brand-primary hover:bg-brand-primary-dark">
             {vehicle ? "Mettre à jour" : "Ajouter le véhicule"}
           </Button>
         </div>

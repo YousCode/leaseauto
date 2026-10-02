@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { VehicleCard } from "./VehicleCard";
 import type { Vehicle } from "@/types/vehicle";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -326,9 +327,9 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                 return (
                   <motion.div
                     key={v.slug || v.id || `${v.brand}-${v.model}`}
-                    initial={{ opacity: 0, y: 18 }}
+                    initial={{ opacity: 0, y: DISTANCE }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut", delay: Math.min(index * 0.06, 0.4) }}
+                    transition={{ duration: DURATION, ease: EASE, delay: Math.min(index * 0.06, 0.4) }}
                   >
                     <VehicleCard
                       slug={v.slug || String(v.id)}

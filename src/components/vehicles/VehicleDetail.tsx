@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import {
   ArrowLeft,
   MapPin,
@@ -236,7 +237,7 @@ const VehicleDetail = () => {
   if (loading || !vehicle) {
     return (
       <div className="w-full min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E52127]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
       </div>
     );
   }
@@ -258,7 +259,7 @@ const VehicleDetail = () => {
       <div className="container mx-auto max-w-6xl">
         <Button
           variant="ghost"
-          className="mb-8 text-gray-600 hover:text-gray-900 font-inter"
+          className="mb-8 text-slate-600 hover:text-slate-900 font-inter"
           onClick={() => navigate("/vehicules")}
         >
           <ArrowLeft size={18} className="mr-2" /> Retour au catalogue
@@ -268,10 +269,10 @@ const VehicleDetail = () => {
           {/* Image Carousel */}
           <div>
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, y: DISTANCE }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="relative aspect-[4/3] rounded-lg overflow-hidden mb-6 bg-gray-100"
+              transition={{ duration: DURATION, ease: EASE}}
+              className="relative aspect-[4/3] rounded-lg overflow-hidden mb-6 bg-slate-100"
             >
               <img
                 src={vehicleImages[currentImageIndex]}
@@ -282,13 +283,13 @@ const VehicleDetail = () => {
               {/* Navigation buttons */}
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 transition-all duration-200"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-slate-800 rounded-full p-2 transition-all duration-200"
               >
                 <ArrowLeft size={20} />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 transition-all duration-200 rotate-180"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-slate-800 rounded-full p-2 transition-all duration-200 rotate-180"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -301,7 +302,7 @@ const VehicleDetail = () => {
                     onClick={() => setCurrentImageIndex(index)}
                     className={`w-2 h-2 rounded-full transition-all duration-200 ${
                       index === currentImageIndex
-                        ? "bg-[#E52127]"
+                        ? "bg-brand-primary"
                         : "bg-white/60"
                     }`}
                   />
@@ -313,42 +314,42 @@ const VehicleDetail = () => {
           {/* Vehicle Details */}
           <div>
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, y: DISTANCE }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: DURATION, ease: EASE}}
             >
-              <h1 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 font-premium leading-tight">
+              <h1 className="text-2xl md:text-3xl font-medium text-slate-900 mb-4 font-premium leading-tight">
                 {vehicle.name}
               </h1>
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                 <div className="flex items-center space-x-4">
-                  <span className="text-3xl font-light text-[#E52127] font-premium">
+                  <span className="text-3xl font-light text-brand-primary font-premium">
                     {vehicle.price?.toLocaleString()}€
                   </span>
-                  <span className="text-xl text-gray-600 font-inter">
+                  <span className="text-xl text-slate-600 font-inter">
                     {vehicle.monthlyRent}€/mois
                   </span>
                 </div>
               </div>
 
               <div className="space-y-3 mb-8">
-                <div className="flex items-center text-gray-600 font-inter">
-                  <MapPin size={18} className="mr-3 text-[#E52127]" />
+                <div className="flex items-center text-slate-600 font-inter">
+                  <MapPin size={18} className="mr-3 text-brand-primary" />
                   <span>{vehicle.city}</span>
                 </div>
-                <div className="flex items-center text-gray-600 font-inter">
-                  <Calendar size={18} className="mr-3 text-[#E52127]" />
+                <div className="flex items-center text-slate-600 font-inter">
+                  <Calendar size={18} className="mr-3 text-brand-primary" />
                   <span>Publié le {vehicle.publishDate}</span>
                 </div>
               </div>
 
               {/* Description */}
               <div className="mb-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-3 font-premium">
+                <h3 className="text-lg font-medium text-slate-900 mb-3 font-premium">
                   Description
                 </h3>
-                <p className="text-gray-600 font-inter leading-relaxed">
+                <p className="text-slate-600 font-inter leading-relaxed">
                   {vehicle.description}
                 </p>
               </div>
@@ -356,14 +357,14 @@ const VehicleDetail = () => {
               {/* Equipment */}
               {vehicle.equipment && vehicle.equipment.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3 font-premium">
+                  <h3 className="text-lg font-medium text-slate-900 mb-3 font-premium">
                     Équipements
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {vehicle.equipment.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center text-gray-600 font-inter"
+                        className="flex items-center text-slate-600 font-inter"
                       >
                         <CheckCircle
                           size={16}
@@ -379,14 +380,14 @@ const VehicleDetail = () => {
               {/* Options */}
               {vehicle.options && vehicle.options.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3 font-premium">
+                  <h3 className="text-lg font-medium text-slate-900 mb-3 font-premium">
                     Options
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {vehicle.options.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center text-gray-600 font-inter"
+                        className="flex items-center text-slate-600 font-inter"
                       >
                         <CheckCircle size={16} className="mr-2 text-blue-500" />
                         <span className="text-sm">{item}</span>
@@ -399,21 +400,21 @@ const VehicleDetail = () => {
               {/* Warranty */}
               {vehicle.warranty && (
                 <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3 font-premium">
+                  <h3 className="text-lg font-medium text-slate-900 mb-3 font-premium">
                     Garantie
                   </h3>
-                  <p className="text-gray-600 font-inter">{vehicle.warranty}</p>
+                  <p className="text-slate-600 font-inter">{vehicle.warranty}</p>
                 </div>
               )}
 
               {/* CTA Buttons */}
               <div className="space-y-3">
-                <Button className="w-full bg-[#E52127] hover:bg-[#E52127]/90 text-white font-inter font-medium py-3">
+                <Button className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-inter font-medium py-3">
                   Demander un devis
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full border-gray-300 text-gray-900 hover:bg-gray-50 font-inter font-medium py-3"
+                  className="w-full border-slate-300 text-slate-900 hover:bg-slate-50 font-inter font-medium py-3"
                   onClick={scrollToContact}
                 >
                   Nous contacter
@@ -425,13 +426,13 @@ const VehicleDetail = () => {
 
         {/* Contact Form */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: DISTANCE }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: DURATION, ease: EASE}}
           viewport={{ once: true }}
-          className="mt-16 bg-gray-50 rounded-lg p-8"
+          className="mt-16 bg-slate-50 rounded-lg p-8"
         >
-          <h3 className="text-xl font-medium text-gray-900 mb-6 font-premium text-center">
+          <h3 className="text-xl font-medium text-slate-900 mb-6 font-premium text-center">
             Intéressé par ce véhicule ?
           </h3>
 
@@ -439,46 +440,46 @@ const VehicleDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
                 <User
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
                   size={18}
                 />
                 <Input
                   placeholder="Votre nom"
-                  className="pl-10 bg-white border-gray-300 text-gray-900 font-inter"
+                  className="pl-10 bg-white border-slate-300 text-slate-900 font-inter"
                 />
               </div>
               <div className="relative">
                 <Mail
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
                   size={18}
                 />
                 <Input
                   type="email"
                   placeholder="Votre email"
-                  className="pl-10 bg-white border-gray-300 text-gray-900 font-inter"
+                  className="pl-10 bg-white border-slate-300 text-slate-900 font-inter"
                 />
               </div>
             </div>
 
             <div className="relative">
               <Phone
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
                 size={18}
               />
               <Input
                 placeholder="Votre téléphone"
-                className="pl-10 bg-white border-gray-300 text-gray-900 font-inter"
+                className="pl-10 bg-white border-slate-300 text-slate-900 font-inter"
               />
             </div>
 
             <div>
               <Textarea
                 placeholder="Votre message (optionnel)"
-                className="bg-white border-gray-300 text-gray-900 min-h-[100px] font-inter"
+                className="bg-white border-slate-300 text-slate-900 min-h-[100px] font-inter"
               />
             </div>
 
-            <Button className="w-full bg-[#E52127] hover:bg-[#E52127]/90 text-white font-inter font-medium py-3">
+            <Button className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-inter font-medium py-3">
               Envoyer ma demande
             </Button>
           </form>

@@ -1,23 +1,23 @@
-// src/components/home/HeroSection.tsx
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  Search, 
-  ChevronRight, 
-  ChevronLeft 
-} from "lucide-react";
+import { Search, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useVehicles } from "@/hooks/useVehicles";
+import { EASE } from "@/lib/motion";
 
-// Images haute qualité style "Dark/Premium"
+/** Visuels du site (véhicules floqués Lease Auto), servis en WebP depuis /public */
 const HERO_IMAGES = [
-  "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1920",
-  "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&cs=tinysrgb&w=1920",
-  "https://images.pexels.com/photos/1149831/pexels-photo-1149831.jpeg?auto=compress&cs=tinysrgb&w=1920",
+  { src: "/images/hero/hero-vtc.webp", alt: "Berlines Lease Auto devant La Défense" },
+  { src: "/images/hero/hero-utilitaires.webp", alt: "Gamme d’utilitaires Lease Auto" },
 ];
-
-// Bandeau de marques : uniquement celles réellement présentes dans le parc publié
+const SLIDE_MS = 8000;
 const MIN_BRANDS_FOR_MARQUEE = 3;
+
+const enter = (i: number) => ({
+  initial: { opacity: 0, y: 18 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: EASE, delay: 0.15 + i * 0.09 },
+});
 
 export function HeroSection() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -25,16 +25,11 @@ export function HeroSection() {
   const navigate = useNavigate();
   const { data: vehicles = [] } = useVehicles("published");
 
-  // Changement automatique d'image toutes les 5 secondes
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev === HERO_IMAGES.length - 1 ? 0 : prev + 1));
-    }, 5000);
+    if (HERO_IMAGES.length < 2) return;
+    const timer = setInterval(() => setActiveIndex((i) => (i + 1) % HERO_IMAGES.length), SLIDE_MS);
     return () => clearInterval(timer);
   }, []);
-
-  const goPrev = () => setActiveIndex((prev) => (prev === 0 ? HERO_IMAGES.length - 1 : prev - 1));
-  const goNext = () => setActiveIndex((prev) => (prev === HERO_IMAGES.length - 1 ? 0 : prev + 1));
 
   const brands = useMemo(() => {
     const names = new Set<string>();
@@ -49,8 +44,8 @@ export function HeroSection() {
   const normalizedQuery = query.trim().toLowerCase();
   const suggestions = useMemo(() => {
     if (!normalizedQuery) return [];
-    return vehicles
-      .filter((v: any) => {
+    return (vehicles as any[])
+      .filter((v) => {
         const brand = (v.brand || "").toLowerCase();
         const model = (v.model || v.title || "").toLowerCase();
         return brand.includes(normalizedQuery) || model.includes(normalizedQuery);
@@ -65,80 +60,50 @@ export function HeroSection() {
   };
 
   const handleSelect = (slug?: string | null) => {
-    if (!slug) return;
-    navigate(`/vehicules/${slug}`);
+    if (slug) navigate(`/vehicules/${slug}`);
   };
 
   return (
-    <div className="relative w-full min-h-[85vh] md:h-screen overflow-hidden bg-black text-white font-sans">
-      
-      {/* --- BACKGROUND CARROUSEL --- */}
+    <section className="relative w-full min-h-[85vh] md:h-screen overflow-hidden bg-brand-ink-deep text-white">
+      {/* Fond : crossfade lent entre les visuels du site */}
       <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           <motion.img
-            key={activeIndex}
-            src={HERO_IMAGES[activeIndex]}
-            initial={{ opacity: 0, scale: 1.1 }}
+            key={HERO_IMAGES[activeIndex].src}
+            src={HERO_IMAGES[activeIndex].src}
+            alt={HERO_IMAGES[activeIndex].alt}
+            initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
-            alt="Luxury Car Background"
-            className="absolute inset-0 w-full h-full object-cover opacity-60"
+            transition={{ duration: 1.4, ease: EASE }}
+            className="absolute inset-0 h-full w-full object-cover"
             loading={activeIndex === 0 ? "eager" : "lazy"}
             decoding="async"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
           />
         </AnimatePresence>
-        
-        {/* Overlays : Dégradés pour lisibilité du texte */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/50" />
-        <div className="absolute inset-0 bg-black/20" /> 
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-ink-deep/95 via-brand-ink-deep/40 to-brand-ink-deep/30" />
       </div>
 
-      {/* --- CONTENU PRINCIPAL CENTRÉ --- */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center mt-8">
-        
-        {/* Titre Principal */}
-        <motion.h1 
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight uppercase leading-none mb-6 max-w-5xl drop-shadow-2xl"
+      {/* Contenu */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 pt-10 text-center">
+        <motion.h1
+          {...enter(0)}
+          className="mb-6 max-w-5xl text-4xl font-extrabold uppercase leading-none tracking-tight drop-shadow-xl md:text-6xl lg:text-7xl"
         >
           Une offre claire.<br className="hidden md:block" /> Sans surprise.
         </motion.h1>
 
-        {/* Sous-titre */}
-        <motion.p 
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          className="text-lg md:text-xl text-gray-200 font-medium mb-2 max-w-3xl"
-        >
+        <motion.p {...enter(1)} className="mb-2 max-w-3xl text-lg font-medium text-white/90 md:text-xl">
           Vous définissez le véhicule, la durée et le budget. Nous gérons le reste.
         </motion.p>
 
-        {/* Stats / Info rassurante */}
-        <motion.p 
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-sm text-gray-400 mb-10 max-w-2xl"
-        >
+        <motion.p {...enter(2)} className="mb-10 max-w-2xl text-sm text-white/65">
           Plus de <span className="font-bold text-white">1 200</span> contrats sécurisés, livraisons rapides et suivi 100% en ligne.
         </motion.p>
 
-        {/* BARRE DE RECHERCHE */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="relative w-full max-w-2xl mb-8 group"
-        >
+        <motion.div {...enter(3)} className="group relative mb-8 w-full max-w-2xl">
           <form onSubmit={handleSubmit}>
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#E52127] transition-colors">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-brand-primary">
               <Search size={22} />
             </div>
             <input
@@ -146,27 +111,27 @@ export function HeroSection() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher le véhicule de mes rêves (ex: Audi RS3)"
-              className="w-full py-4 pl-14 pr-4 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-[#E52127]/30 transition-all shadow-2xl"
+              className="w-full rounded-xl bg-white py-4 pl-14 pr-4 text-slate-900 placeholder-slate-500 shadow-2xl transition-shadow focus:outline-none focus:ring-4 focus:ring-brand-primary/30"
             />
             <input type="submit" className="hidden" />
           </form>
 
           {normalizedQuery ? (
-            <div className="absolute top-full mt-3 w-full rounded-xl bg-white/95 text-black shadow-2xl border border-gray-200 overflow-hidden backdrop-blur-sm">
+            <div className="absolute top-full mt-3 w-full overflow-hidden rounded-xl border border-slate-200 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-sm">
               {suggestions.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-gray-600">Aucun véhicule trouvé pour “{query}”.</p>
+                <p className="px-4 py-3 text-sm text-slate-600">Aucun véhicule trouvé pour “{query}”.</p>
               ) : (
                 suggestions.map((v: any) => (
                   <button
                     key={v.slug || v.id}
                     type="button"
                     onClick={() => handleSelect(v.slug || v.id)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center justify-between"
+                    className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-100"
                   >
-                    <span className="text-sm font-semibold text-gray-900">
-                      {(v.brand || "Marque")} {(v.model || v.title || "")}
+                    <span className="text-sm font-semibold text-slate-900">
+                      {v.brand || "Marque"} {v.model || v.title || ""}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-slate-500">
                       {v.city ? `${v.city} • ` : ""}
                       {typeof v.price === "number" ? `${v.price.toLocaleString("fr-FR")} €` : "Voir le détail"}
                     </span>
@@ -177,57 +142,42 @@ export function HeroSection() {
           ) : null}
         </motion.div>
 
-        {/* BOUTONS D'ACTION */}
-        <motion.div 
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="flex flex-col md:flex-row items-center gap-4"
-        >
-          <Link to="/vehicules">
-            <button className="px-8 py-3.5 rounded-full border border-white text-white hover:bg-white hover:text-black transition-all flex items-center gap-2 group font-semibold tracking-wide backdrop-blur-sm bg-black/20">
-              <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              Voir toutes les offres
-            </button>
+        <motion.div {...enter(4)} className="flex flex-col items-center gap-4 md:flex-row">
+          <Link
+            to="/vehicules"
+            className="group inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/10 px-8 py-3.5 font-semibold tracking-wide backdrop-blur-sm transition-colors hover:bg-white hover:text-brand-ink"
+          >
+            <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
+            Voir toutes les offres
           </Link>
-          
-          <Link to="/contact">
-            <button className="px-8 py-3.5 rounded-full bg-[#E52127] text-white font-bold tracking-wide hover:bg-[#c91c22] transition-colors shadow-lg">
-              Parler à un conseiller
-            </button>
+          <Link
+            to="/contact"
+            className="inline-flex items-center rounded-full bg-brand-primary px-8 py-3.5 font-bold tracking-wide shadow-lg transition-colors hover:bg-brand-primary-dark"
+          >
+            Parler à un conseiller
           </Link>
         </motion.div>
       </div>
 
-      {/* --- BANDEAU MARQUES (marques du parc, masqué si trop peu) --- */}
+      {/* Marques du parc (masqué sous 3 marques) */}
       {brands.length > 0 && (
-      <div className="absolute bottom-10 left-0 right-0 z-20 overflow-hidden select-none pointer-events-none py-2">
-        <motion.div 
-          className="flex whitespace-nowrap gap-16 md:gap-24"
-          animate={{ x: [0, -1000] }} 
-          transition={{ 
-            ease: "linear", 
-            duration: 15, // VITESSE MODIFIÉE ICI (plus petit = plus rapide)
-            repeat: Infinity 
-          }}
-        >
-          {brands.map((brand, i) => (
-            <span 
-              key={i} 
-              className="text-white/40 text-sm md:text-lg font-bold italic tracking-wider uppercase shrink-0"
-            >
-              {brand}
-            </span>
-          ))}
-        </motion.div>
-        
-        {/* Dégradés latéraux */}
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black via-black/90 to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black via-black/90 to-transparent" />
-      </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-10 z-20 select-none overflow-hidden py-2">
+          <motion.div
+            className="flex gap-16 whitespace-nowrap md:gap-24"
+            animate={{ x: [0, -1000] }}
+            transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+          >
+            {brands.map((brand, i) => (
+              <span key={i} className="shrink-0 text-sm font-bold uppercase italic tracking-wider text-white/40 md:text-lg">
+                {brand}
+              </span>
+            ))}
+          </motion.div>
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-brand-ink-deep via-brand-ink-deep/90 to-transparent" />
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-brand-ink-deep via-brand-ink-deep/90 to-transparent" />
+        </div>
       )}
-
-    </div>
+    </section>
   );
 }
 

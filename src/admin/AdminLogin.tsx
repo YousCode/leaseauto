@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,20 +45,20 @@ const AdminLogin = () => {
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: DURATION, ease: EASE}}
         className="w-full max-w-md"
       >
-        <Card className="bg-gray-900 border-gray-800 shadow-2xl">
+        <Card className="bg-slate-900 border-slate-800 shadow-2xl">
           <CardHeader className="space-y-1 pb-6">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: DISTANCE }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.15 }}
+              transition={{ duration: DURATION, ease: EASE, delay: 0.15 }}
             >
               <CardTitle className="text-2xl font-bold text-center text-white">
-                Lease<span className="text-[#DA1212]">Auto</span> Admin
+                Lease<span className="text-brand-primary">Auto</span> Admin
               </CardTitle>
-              <CardDescription className="text-center text-gray-400 mt-1">
+              <CardDescription className="text-center text-slate-400 mt-1">
                 Connectez-vous pour accéder au panneau d'administration
               </CardDescription>
             </motion.div>
@@ -69,7 +70,7 @@ const AdminLogin = () => {
                   initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                   animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                  transition={{ duration: 0.22 }}
+                  transition={{ duration: DURATION, ease: EASE}}
                   className="bg-red-900/30 border border-red-800 text-red-300 px-4 py-2 rounded overflow-hidden"
                 >
                   {error}
@@ -79,29 +80,29 @@ const AdminLogin = () => {
             <form onSubmit={handleLogin} className="space-y-4">
               <motion.div
                 className="space-y-3"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: DISTANCE }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.22 }}
+                transition={{ duration: DURATION, ease: EASE, delay: 0.22 }}
               >
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <Input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-[#DA1212] transition-colors h-11"
+                    className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-brand-primary transition-colors h-11"
                     required
                   />
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <Input
                     type="password"
                     placeholder="Mot de passe"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-[#DA1212] transition-colors h-11"
+                    className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-brand-primary transition-colors h-11"
                     required
                   />
                 </div>
@@ -109,11 +110,11 @@ const AdminLogin = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.32 }}
+                transition={{ duration: DURATION, ease: EASE, delay: 0.32 }}
               >
                 <Button
                   type="submit"
-                  className="w-full bg-[#DA1212] hover:bg-[#B50F0F] text-white h-11 transition-all duration-200"
+                  className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white h-11 transition-all duration-200"
                   disabled={isLoading}
                 >
                   {isLoading ? (

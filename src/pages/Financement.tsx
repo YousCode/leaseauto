@@ -49,9 +49,9 @@ const SOLUTIONS: Solution[] = [
     subtitle: "Idéal pour rouler maintenant, décider ensuite",
     accent: "Flexibilité + option d’achat",
     icon: CarFront,
-    titleClass: "text-[#E52127]",
-    dotClass: "bg-[#E52127]",
-    highlightClass: "text-[#E52127] font-semibold",
+    titleClass: "text-brand-primary",
+    dotClass: "bg-brand-primary",
+    highlightClass: "text-brand-primary font-semibold",
     items: [
       "Louez avec option d'achat",
       "Sans apport possible selon profil",
@@ -159,11 +159,11 @@ const Pill = ({
     className={cn(
       "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.14em] ring-1",
       tone === "accent"
-        ? "bg-[#E52127]/10 text-[#b01014] ring-[#E52127]/20"
+        ? "bg-brand-primary/10 text-brand-primary-dark ring-brand-primary/20"
         : "bg-white/70 text-slate-700 ring-slate-200",
     )}
   >
-    <Icon className={cn("h-4 w-4", tone === "accent" ? "text-[#E52127]" : "text-slate-500")} />
+    <Icon className={cn("h-4 w-4", tone === "accent" ? "text-brand-primary" : "text-slate-500")} />
     {label}
   </div>
 );
@@ -182,14 +182,14 @@ const Stat = ({
   <div
     className={cn(
       "rounded-2xl border p-4 shadow-[0_14px_34px_rgba(15,23,42,0.06)]",
-      tone === "accent" ? "bg-[#E52127]/10 border-[#E52127]/15" : "bg-slate-50 border-slate-100",
+      tone === "accent" ? "bg-brand-primary/10 border-brand-primary/15" : "bg-slate-50 border-slate-100",
     )}
   >
     <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">{label}</p>
-    <p className={cn("mt-1 text-2xl font-black", tone === "accent" ? "text-[#b01014]" : "text-slate-900")}>
+    <p className={cn("mt-1 text-2xl font-black", tone === "accent" ? "text-brand-primary-dark" : "text-slate-900")}>
       {value}
     </p>
-    <p className={cn("mt-1 text-xs", tone === "accent" ? "text-[#b01014]/90" : "text-slate-500")}>{helper}</p>
+    <p className={cn("mt-1 text-xs", tone === "accent" ? "text-brand-primary-dark/90" : "text-slate-500")}>{helper}</p>
   </div>
 );
 
@@ -258,7 +258,7 @@ const FinancementPage = () => {
         aria-hidden
         style={{
           backgroundImage:
-            "radial-gradient(circle at 10% 0%, rgba(229,33,39,0.12), transparent 38%), radial-gradient(circle at 90% 10%, rgba(15,23,42,0.08), transparent 40%), radial-gradient(circle at 30% 100%, rgba(229,33,39,0.10), transparent 42%)",
+            "radial-gradient(circle at 10% 0%, rgba(196,30,32,0.12), transparent 38%), radial-gradient(circle at 90% 10%, rgba(15,23,42,0.08), transparent 40%), radial-gradient(circle at 30% 100%, rgba(196,30,32,0.10), transparent 42%)",
         }}
       />
 
@@ -278,7 +278,7 @@ const FinancementPage = () => {
 
               <div className="space-y-4">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.02] text-slate-900">
-                  Trouvez votre <span className="text-[#E52127]">financement</span> auto
+                  Trouvez votre <span className="text-brand-primary">financement</span> auto
                 </h1>
                 <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-inter">
                   Particulier, <span className="font-semibold text-slate-800">VTC</span> ou société : LOA ou crédit
@@ -298,11 +298,11 @@ const FinancementPage = () => {
                       type="text"
                       autoComplete="off"
                       placeholder="Rechercher un véhicule (ex : Audi RS3, GLC, Model 3)"
-                      className="h-12 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-[#E52127] focus:ring-2 focus:ring-[#E52127]/20 outline-none"
+                      className="h-12 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none"
                     />
                     <Button
                       type="submit"
-                      className="h-12 rounded-xl bg-[#E52127] px-4 text-white hover:bg-[#c3161c]"
+                      className="h-12 rounded-xl bg-brand-primary px-4 text-white hover:bg-brand-primary-dark"
                     >
                       Rechercher
                     </Button>
@@ -345,7 +345,7 @@ const FinancementPage = () => {
               <div className="flex flex-wrap gap-3 pt-1">
                 <Button
                   onClick={() => scrollToId("simulation")}
-                  className="h-11 rounded-full bg-[#E52127] px-6 text-white hover:bg-[#c3161c]"
+                  className="h-11 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary-dark"
                 >
                   Lancer la simulation <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -376,8 +376,8 @@ const FinancementPage = () => {
 
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50 p-4">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#E52127]/10">
-                      <BadgeCheck className="h-5 w-5 text-[#E52127]" />
+                    <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-primary/10">
+                      <BadgeCheck className="h-5 w-5 text-brand-primary" />
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-semibold text-slate-900">Montage optimisé VTC / Pro</p>
@@ -406,7 +406,7 @@ const FinancementPage = () => {
               eyebrow="Choisir la bonne formule"
               title={
                 <>
-                  Deux options, <span className="text-[#E52127]">très claires</span>
+                  Deux options, <span className="text-brand-primary">très claires</span>
                 </>
               }
               description={
@@ -422,7 +422,7 @@ const FinancementPage = () => {
                 >
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#E52127]/[0.07] blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-brand-primary/[0.07] blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                   />
 
                   <div className="flex items-start justify-between gap-4">
@@ -465,8 +465,8 @@ const FinancementPage = () => {
 
           {/* SIMULATION CTA */}
           <div className="mt-10 sm:mt-12" id="simulation">
-            <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-[#E52127] to-[#c3161c] p-[1px] shadow-[0_22px_54px_rgba(229,33,39,0.28)]">
-              <div className="relative rounded-3xl bg-gradient-to-r from-[#ff2d34] to-[#c3161c] px-6 py-10 sm:px-10 sm:py-12 text-center text-white">
+            <div className="overflow-hidden rounded-3xl bg-brand-primary p-[1px] shadow-[0_22px_54px_rgba(196,30,32,0.28)]">
+              <div className="relative rounded-3xl bg-brand-primary px-6 py-10 sm:px-10 sm:py-12 text-center text-white">
                 <div
                   aria-hidden
                   className="absolute inset-0 opacity-[0.25]"
@@ -483,7 +483,7 @@ const FinancementPage = () => {
                   <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                     <Button
                       onClick={() => setDialogOpen(true)}
-                      className="h-11 rounded-full bg-white px-6 text-[#E52127] hover:bg-white/90"
+                      className="h-11 rounded-full bg-white px-6 text-brand-primary hover:bg-white/90"
                     >
                       Faire une simulation <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -520,7 +520,7 @@ const FinancementPage = () => {
                 className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.10)]"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E52127]/10 text-[#b01014] text-sm font-black">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary-dark text-sm font-black">
                     {idx + 1}
                   </span>
                   <p className="text-sm font-bold text-slate-900">{step.title}</p>
@@ -547,7 +547,7 @@ const FinancementPage = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 border border-slate-200">
-                  <span className="rounded-full bg-[#E52127]/10 px-3 py-1 text-[#E52127]">LOA</span>
+                  <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-brand-primary">LOA</span>
                   <span className="rounded-full bg-slate-200/60 px-3 py-1 text-slate-800">Crédit auto</span>
                   <span className="rounded-full bg-slate-200/60 px-3 py-1 text-slate-800">Pro / VTC</span>
                   <span className="rounded-full bg-slate-200/60 px-3 py-1 text-slate-800">Réponse rapide</span>
@@ -602,8 +602,8 @@ const FinancementPage = () => {
                     "Partenaires finance : on propose la solution LOA ou crédit la plus cohérente.",
                   ].map((t) => (
                     <li key={t} className="flex items-start gap-3">
-                      <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#E52127]/10">
-                        <Check className="h-4 w-4 text-[#E52127]" />
+                      <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-brand-primary/10">
+                        <Check className="h-4 w-4 text-brand-primary" />
                       </span>
                       <span className="leading-relaxed">{t}</span>
                     </li>
@@ -660,7 +660,7 @@ const FinancementPage = () => {
 
                 <div className="flex flex-wrap gap-3">
                   <Link to="/contact">
-                    <Button className="h-11 rounded-full bg-[#E52127] px-5 text-white hover:bg-[#c3161c]">
+                    <Button className="h-11 rounded-full bg-brand-primary px-5 text-white hover:bg-brand-primary-dark">
                       Contact rapide
                     </Button>
                   </Link>
@@ -683,7 +683,7 @@ const FinancementPage = () => {
         <DialogContent className="max-w-2xl border border-slate-200 bg-white shadow-2xl shadow-black/15 max-h-[90vh] overflow-y-auto">
           <DialogHeader className="px-8 pt-10 pb-6 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#E52127] to-[#c3161c] rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center shadow-lg">
                 <Calculator className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -704,7 +704,7 @@ const FinancementPage = () => {
                   value={price}
                   min={0}
                   onChange={(e) => setPrice(Math.max(0, toNumber(e.target.value, 0)))}
-                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127] focus:ring-2 focus:ring-[#E52127]/20"
+                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
                   placeholder="32000"
                 />
               </div>
@@ -717,7 +717,7 @@ const FinancementPage = () => {
                   onChange={(e) =>
                     setDuration(clampNumber(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))
                   }
-                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
+                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-brand-primary"
                   placeholder="60"
                 />
               </div>
@@ -730,7 +730,7 @@ const FinancementPage = () => {
                   min={0}
                   max={100}
                   onChange={(e) => setDepositPercent(clampNumber(toNumber(e.target.value, 20), 0, 100))}
-                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-[#E52127]"
+                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-brand-primary"
                   placeholder="20"
                 />
                 <input
@@ -739,7 +739,7 @@ const FinancementPage = () => {
                   max={50}
                   value={depositPercent}
                   onChange={(e) => setDepositPercent(clampNumber(Number(e.target.value), 0, 100))}
-                  className="w-full accent-[#E52127]"
+                  className="w-full accent-[#C41E20]"
                 />
                 <div className="flex flex-wrap gap-2 pt-1">
                   {[0, 10, 20, 30].map((p) => (
@@ -749,7 +749,7 @@ const FinancementPage = () => {
                       onClick={() => setDepositPercent(p)}
                       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                         depositPercent === p
-                          ? "border-[#E52127] bg-[#E52127]/10 text-[#E52127]"
+                          ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
                           : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
                       }`}
                     >
@@ -760,27 +760,27 @@ const FinancementPage = () => {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-[#E52127]/6 to-[#E52127]/12 rounded-3xl p-8 border border-[#E52127]/20 shadow-xl">
+            <div className="bg-gradient-to-r from-[#C41E20]/6 to-[#C41E20]/12 rounded-3xl p-8 border border-brand-primary/20 shadow-xl">
               <div className="flex items-center justify-between gap-6 mb-4">
                 <div className="space-y-1">
                   <p className="text-sm uppercase tracking-wider font-bold text-slate-600">
                     LOA · apport {depositPercent}% · VR {residualPercent}%
                   </p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-[#E52127]">{simulation.monthly.toLocaleString("fr-FR")}</span>
-                    <span className="text-xl font-semibold text-[#E52127]">€ / mois</span>
+                    <span className="text-4xl font-black text-brand-primary">{simulation.monthly.toLocaleString("fr-FR")}</span>
+                    <span className="text-xl font-semibold text-brand-primary">€ / mois</span>
                   </div>
                 </div>
                 <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-                  <CarFront className="w-10 h-10 text-[#E52127]" />
+                  <CarFront className="w-10 h-10 text-brand-primary" />
                 </div>
               </div>
 
               <p className="text-sm text-slate-600 leading-relaxed">
                 Apport :{" "}
-                <span className="font-bold text-[#E52127]">{simulation.depositAmount.toLocaleString("fr-FR")}€</span>{" "}
+                <span className="font-bold text-brand-primary">{simulation.depositAmount.toLocaleString("fr-FR")}€</span>{" "}
                 · VR estimée :{" "}
-                <span className="font-bold text-[#E52127]">{simulation.residual.toLocaleString("fr-FR")}€</span>. Simulation
+                <span className="font-bold text-brand-primary">{simulation.residual.toLocaleString("fr-FR")}€</span>. Simulation
                 indicative hors frais.
               </p>
             </div>
@@ -809,7 +809,7 @@ const FinancementPage = () => {
                 Fermer
               </Button>
               <Button
-                className="h-12 px-8 text-sm sm:text-base bg-gradient-to-r from-[#E52127] to-[#c3161c] hover:from-[#c3161c] hover:to-[#a11217]"
+                className="h-12 px-8 text-sm sm:text-base bg-brand-primary hover:bg-brand-primary-dark"
                 onClick={() => scrollToId("demande-financement")}
               >
                 Déposer mon dossier <ArrowRight className="ml-2 h-4 w-4" />

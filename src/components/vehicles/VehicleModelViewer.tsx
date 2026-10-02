@@ -54,7 +54,7 @@ export const VehicleModelViewer = ({
     return (
       <div
         className={cn(
-          "flex h-64 w-full items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-5 text-center text-sm text-neutral-500",
+          "flex h-64 w-full items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 text-center text-sm text-slate-500",
           className,
         )}
       >
@@ -66,12 +66,12 @@ export const VehicleModelViewer = ({
   return (
     <div
       className={cn(
-        "relative isolate h-64 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-[#04060b]",
+        "relative isolate h-64 w-full overflow-hidden rounded-2xl border border-slate-200 bg-brand-ink-deep",
         className,
       )}
     >
       <Canvas camera={{ position: [3.1, 1.5, 2.6], fov: 42 }}>
-        <color attach="background" args={["#04060b"]} />
+        <color attach="background" args={["#031F3C"]} />
         <Suspense fallback={<CanvasLoader />}>
           <Stage intensity={0.8} environment="city" preset="rembrandt">
             <Model url={src} />

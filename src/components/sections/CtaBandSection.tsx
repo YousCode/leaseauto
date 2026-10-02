@@ -27,7 +27,7 @@ export function CtaBandSection() {
           </a>
           <Link
             to="/contact"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#E52127] px-7 py-3.5 text-sm font-bold hover:bg-[#c91c22] transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-7 py-3.5 text-sm font-bold hover:bg-brand-primary-dark transition-colors"
           >
             Demander une offre
             <ArrowRight className="h-4 w-4" />

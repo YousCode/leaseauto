@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -68,7 +69,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
   };
 
   return (
-    <section className="w-full bg-gradient-to-b from-[#F9F9F9] to-white py-16 md:py-24 px-4 relative overflow-hidden">
+    <section className="w-full bg-gradient-to-b from-[#F8FAFC] to-white py-16 md:py-24 px-4 relative overflow-hidden">
       {/* halos */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-40 top-10 h-72 w-72 rounded-full bg-[#c7d2fe]/40 blur-[110px]" />
@@ -78,35 +79,35 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
       <div className="container mx-auto max-w-6xl xl:max-w-7xl relative z-10">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: DISTANCE }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }}
+          transition={{ duration: DURATION, ease: EASE}}
           viewport={{ once: true }}
           className="text-center mb-10 md:mb-14"
         >
-          <Heading className="text-3xl md:text-5xl font-light text-transparent bg-gradient-to-r from-[#0f172a] to-[#334155] bg-clip-text mb-4 md:mb-6 font-premium tracking-wide">
+          <Heading className="text-3xl md:text-5xl font-light text-transparent bg-gradient-to-r from-[#06325E] to-[#06325E] bg-clip-text mb-4 md:mb-6 font-premium tracking-wide">
             Louer ou acheter votre prochain véhicule ?
           </Heading>
-          <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto font-inter leading-relaxed">
+          <p className="text-base md:text-xl text-slate-600 max-w-3xl mx-auto font-inter leading-relaxed">
             Nos experts Lease Auto vous accompagnent du choix jusqu’à la clé en main.
-            <span className="font-semibold text-[#1f3a8a]"> Financement 100% sur-mesure.</span>
+            <span className="font-semibold text-brand-ink"> Financement 100% sur-mesure.</span>
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 lg:gap-8 items-start lg:items-stretch">
           {/* Form */}
           <motion.div
-            initial={{ opacity: 0, x: -22 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.55 }}
+            initial={{ opacity: 0, y: DISTANCE }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: DURATION, ease: EASE}}
             viewport={{ once: true }}
             className="bg-white/90 backdrop-blur-sm p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-500 h-full flex flex-col"
           >
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <p className="text-sm font-semibold text-[#1f2937]">Formulaire</p>
+                <p className="text-sm font-semibold text-brand-ink">Formulaire</p>
                 <h3 className="mt-1 text-2xl font-semibold text-[#111]">Demande rapide</h3>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-slate-600">
                   Réponse rapide • Financement • Livraison possible
                 </p>
               </div>
@@ -125,25 +126,25 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
                     {...register("nom")}
                     placeholder="Votre nom *"
-                    className={`h-12 pl-10 bg-white/60 border-gray-200 transition-all focus-visible:ring-[#1f3a8a]/20 ${
-                      errors.nom ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-[#1f3a8a]/30 focus-visible:border-[#1f3a8a]"
+                    className={`h-12 pl-10 bg-white/60 border-slate-200 transition-all focus-visible:ring-brand-ink/20 ${
+                      errors.nom ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-brand-ink/30 focus-visible:border-brand-ink"
                     }`}
                   />
                   <FieldError msg={errors.nom?.message} />
                 </div>
 
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
                     type="email"
                     {...register("email")}
                     placeholder="Votre e-mail *"
-                    className={`h-12 pl-10 bg-white/60 border-gray-200 transition-all focus-visible:ring-[#1f3a8a]/20 ${
-                      errors.email ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-[#1f3a8a]/30 focus-visible:border-[#1f3a8a]"
+                    className={`h-12 pl-10 bg-white/60 border-slate-200 transition-all focus-visible:ring-brand-ink/20 ${
+                      errors.email ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-brand-ink/30 focus-visible:border-brand-ink"
                     }`}
                   />
                   <FieldError msg={errors.email?.message} />
@@ -152,13 +153,13 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
                     type="tel"
                     {...register("tel")}
                     placeholder="Votre téléphone *"
-                    className={`h-12 pl-10 bg-white/60 border-gray-200 transition-all focus-visible:ring-[#1f3a8a]/20 ${
-                      errors.tel ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-[#1f3a8a]/30 focus-visible:border-[#1f3a8a]"
+                    className={`h-12 pl-10 bg-white/60 border-slate-200 transition-all focus-visible:ring-brand-ink/20 ${
+                      errors.tel ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-brand-ink/30 focus-visible:border-brand-ink"
                     }`}
                   />
                   <FieldError msg={errors.tel?.message} />
@@ -166,10 +167,10 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
 
                 <div className="relative">
                   <input type="hidden" {...register("projet")} />
-                  <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none z-10" />
+                  <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none z-10" />
                   <Select onValueChange={(value) => setValue("projet", value, { shouldValidate: true })}>
                     <SelectTrigger
-                      className={`h-12 pl-10 bg-white/60 border-gray-200 hover:border-[#1f3a8a]/30 data-[state=open]:border-[#1f3a8a] ${
+                      className={`h-12 pl-10 bg-white/60 border-slate-200 hover:border-brand-ink/30 data-[state=open]:border-brand-ink ${
                         errors.projet ? "border-red-500" : ""
                       }`}
                     >
@@ -185,12 +186,12 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
               </div>
 
               <div className="relative">
-                <MessageCircle className="absolute left-3 top-4 text-gray-400 w-5 h-5" />
+                <MessageCircle className="absolute left-3 top-4 text-slate-400 w-5 h-5" />
                 <Textarea
                   {...register("message")}
                   placeholder="Ex : BMW Série 3, budget 400€/mois, livraison mars…"
-                  className={`pl-12 pt-10 bg-white/60 border-gray-200 hover:border-[#1f3a8a]/30 focus-visible:ring-2 focus-visible:ring-[#1f3a8a]/20 min-h-[150px] ${
-                    errors.message ? "border-red-500" : "focus-visible:border-[#1f3a8a]"
+                  className={`pl-12 pt-10 bg-white/60 border-slate-200 hover:border-brand-ink/30 focus-visible:ring-2 focus-visible:ring-brand-ink/20 min-h-[150px] ${
+                    errors.message ? "border-red-500" : "focus-visible:border-brand-ink"
                   }`}
                 />
                 <FieldError msg={errors.message?.message} />
@@ -199,7 +200,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 md:h-14 bg-[#E52127] hover:bg-[#c91c22] text-white rounded-xl font-inter font-medium text-base md:text-lg shadow-lg transition-colors duration-300"
+                className="w-full h-12 md:h-14 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl font-inter font-medium text-base md:text-lg shadow-lg transition-colors duration-300"
               >
                 <span className="inline-flex items-center gap-2">
                   {isSubmitting ? (
@@ -213,7 +214,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                 </span>
               </Button>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500">
                 En cliquant, vous ouvrez un email prérempli. Vos informations ne sont pas stockées.
               </p>
             </form>
@@ -221,16 +222,16 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
 
           {/* Contacts */}
           <motion.div
-            initial={{ opacity: 0, x: 22 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.55 }}
+            initial={{ opacity: 0, y: DISTANCE }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: DURATION, ease: EASE}}
             viewport={{ once: true }}
             className="lg:sticky lg:top-24 space-y-6 h-full"
           >
             <div className="bg-white/90 backdrop-blur-sm p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
-              <div className="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
+              <div className="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-r from-[#0f172a] to-[#1f2937] rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-14 h-14 bg-gradient-to-r from-[#06325E] to-[#06325E] rounded-2xl flex items-center justify-center shadow-lg">
                     <Phone className="w-7 h-7 text-white" />
                   </div>
                   <div>
@@ -239,7 +240,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                       href={REVIEWS_URL}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-1 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[#1f3a8a]"
+                      className="mt-1 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-brand-ink"
                     >
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -255,14 +256,14 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 <a
                   href="tel:0184218393"
-                  className="h-12 rounded-xl bg-[#E52127] hover:bg-[#c91c22] text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-colors"
+                  className="h-12 rounded-xl bg-brand-primary hover:bg-brand-primary-dark text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   Appeler
                 </a>
                 <a 
                   href="mailto:leaseauto.epinay@gmail.com"
-                  className="h-12 rounded-xl border border-[#f3b8b0] bg-white font-semibold flex items-center justify-center gap-2 text-[#b33527] hover:border-[#e84b3c] hover:text-[#9f2b20] hover:bg-[#fff7f5] transition"
+                  className="h-12 rounded-xl border border-[#f3b8b0] bg-white font-semibold flex items-center justify-center gap-2 text-[#b33527] hover:border-brand-primary hover:text-[#9f2b20] hover:bg-brand-primary-soft transition"
                 >
                   <Mail className="w-4 h-4" />
                   Email
@@ -274,7 +275,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                   <h5 className="text-sm font-semibold text-[#111] mb-1">Téléphone</h5>
                   <a
                     href="tel:0184218393"
-                    className="text-2xl font-bold text-[#0f172a] hover:underline block"
+                    className="text-2xl font-bold text-brand-ink hover:underline block"
                   >
                     01 84 21 83 93
                   </a>
@@ -284,7 +285,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                   <h5 className="text-sm font-semibold text-[#111] mb-1">Email</h5>
                   <a
                     href="mailto:leaseauto.epinay@gmail.com"
-                    className="text-[#0f172a] font-semibold hover:underline break-all block"
+                    className="text-brand-ink font-semibold hover:underline break-all block"
                   >
                     leaseauto.epinay@gmail.com
                   </a>
@@ -298,12 +299,12 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                     href={MAPS_URL}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-xl border border-gray-200 bg-gray-50 p-4 hover:border-[#1f3a8a]/25 transition"
+                    className="block rounded-xl border border-slate-200 bg-slate-50 p-4 hover:border-brand-ink/25 transition"
                   >
-                    <p className="font-semibold text-gray-900">Lease Auto</p>
-                    <p className="text-gray-700">42 Bd Foch</p>
-                    <p className="text-gray-700">93800 Épinay-sur-Seine</p>
-                    <p className="mt-2 text-sm font-semibold text-[#e84b3c] inline-flex items-center gap-2">
+                    <p className="font-semibold text-slate-900">Lease Auto</p>
+                    <p className="text-slate-700">42 Bd Foch</p>
+                    <p className="text-slate-700">93800 Épinay-sur-Seine</p>
+                    <p className="mt-2 text-sm font-semibold text-brand-primary inline-flex items-center gap-2">
                       Ouvrir sur Google Maps <ExternalLink className="w-4 h-4" />
                     </p>
                   </a>
@@ -313,7 +314,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                   <h5 className="text-sm font-semibold text-[#111] mb-2 flex items-center">
                     <Clock className="w-5 h-5 mr-2" /> Horaires
                   </h5>
-                  <p className="text-xl font-semibold text-gray-800">Lun–Sam 9h–19h</p>
+                  <p className="text-xl font-semibold text-slate-800">Lun–Sam 9h–19h</p>
                 </div>
 
                 <div>
@@ -326,7 +327,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                       className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
                       aria-label="Instagram"
                     >
-                      <Instagram className="w-6 h-6 text-[#1f3a8a]" />
+                      <Instagram className="w-6 h-6 text-brand-ink" />
                     </a>
                     <a
                       href="https://tiktok.com/@leaseauto.epinay"
@@ -335,7 +336,7 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
                       className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
                       aria-label="TikTok"
                     >
-                      <span className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-[#1f3a8a]">
+                      <span className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-brand-ink">
                         TikTok
                       </span>
                     </a>

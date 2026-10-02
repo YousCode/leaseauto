@@ -15,10 +15,10 @@ const CookiesPage = () => {
   );
 
   return (
-    <main className="bg-[#f7f9fb] min-h-screen pt-16 pb-20">
+    <main className="bg-[#F5F7FB] min-h-screen pt-16 pb-20">
       <div className="max-w-5xl mx-auto px-4 space-y-8">
         <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-[#DA1212]">Cookies & traceurs</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-brand-primary">Cookies & traceurs</p>
           <h1 className="text-3xl font-bold text-slate-900">Politique Cookies</h1>
           <p className="text-sm text-slate-600">
             Information sur l’usage des cookies et la gestion du consentement conformément au RGPD et à la directive ePrivacy.

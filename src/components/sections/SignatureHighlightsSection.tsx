@@ -75,8 +75,8 @@ export function SignatureHighlightsSection() {
         {/* header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <p className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-[0.25em] text-[#E52127]">
-              <span className="h-2 w-2 rounded-full bg-[#E52127]" />
+            <p className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-[0.25em] text-brand-primary">
+              <span className="h-2 w-2 rounded-full bg-brand-primary" />
               avis clients
             </p>
             <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
@@ -95,7 +95,7 @@ export function SignatureHighlightsSection() {
               href={REVIEWS_URL}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#E52127] hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
             >
               Voir tous les avis Google <span aria-hidden>↗</span>
             </a>
@@ -107,7 +107,7 @@ export function SignatureHighlightsSection() {
           <div className="pointer-events-none absolute inset-0" style={gradientMask} />
           {/* halos */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-24 top-10 h-52 w-52 rounded-full bg-[#e60000]/10 blur-[120px]" />
+            <div className="absolute -left-24 top-10 h-52 w-52 rounded-full bg-brand-primary/10 blur-[120px]" />
             <div className="absolute right-0 bottom-0 h-56 w-56 rounded-full bg-[#2563eb]/10 blur-[130px]" />
           </div>
 
@@ -136,16 +136,16 @@ export function SignatureHighlightsSection() {
                   href={REVIEWS_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative min-w-[280px] md:min-w-[340px] max-w-[360px] rounded-2xl bg-white shadow-[0_14px_28px_rgba(2,6,23,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(230,0,0,0.14)]"
+                  className="group relative min-w-[280px] md:min-w-[340px] max-w-[360px] rounded-2xl bg-white shadow-[0_14px_28px_rgba(2,6,23,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(196,30,32,0.14)]"
                 >
                     {/* barre rouge */}
-                    <span className="absolute left-0 top-6 h-12 w-[3px] rounded-full bg-[#E52127] transition-all duration-300 group-hover:h-16" />
+                    <span className="absolute left-0 top-6 h-12 w-[3px] rounded-full bg-brand-primary transition-all duration-300 group-hover:h-16" />
 
                     <div className="flex h-full flex-col px-6 py-7">
                       {/* header fixe */}
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#E52127]/10 text-[#E52127] font-semibold">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
                             {initials}
                           </div>
                           <div className="min-w-0">
@@ -156,7 +156,7 @@ export function SignatureHighlightsSection() {
                           </div>
                         </div>
 
-                        <span className="flex-shrink-0 rounded-full bg-[#E52127]/10 px-2 py-1 text-[11px] font-semibold text-[#E52127]">
+                        <span className="flex-shrink-0 rounded-full bg-brand-primary/10 px-2 py-1 text-[11px] font-semibold text-brand-primary">
                           ★ 4,9
                         </span>
                       </div>
@@ -169,7 +169,7 @@ export function SignatureHighlightsSection() {
                       {/* footer fixe */}
                       <div className="mt-auto pt-5">
                         <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                          Avis Google <span className="text-[#E52127]">↗</span>
+                          Avis Google <span className="text-brand-primary">↗</span>
                         </span>
                       </div>
                     </div>

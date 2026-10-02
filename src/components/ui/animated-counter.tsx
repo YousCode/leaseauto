@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { DURATION, EASE } from "@/lib/motion";
 import { useRef } from "react";
 
 interface AnimatedCounterProps {
@@ -53,7 +54,7 @@ const AnimatedCounter = ({
       className={className}
       initial={{ opacity: 0, scale: 0.5 }}
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: DURATION, ease: EASE}}
     >
       {count}
       {suffix}

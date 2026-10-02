@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { Search, FileText, CheckCircle2, Car } from "lucide-react";
 
 const STEPS = [
@@ -29,10 +30,10 @@ export default function ProcessSection() {
     <section className="relative bg-white py-20 md:py-24">
       <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: DISTANCE }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: DURATION, ease: EASE}}
           className="mb-12 text-center"
         >
           <p className="text-[11px] tracking-[0.28em] uppercase text-slate-400 font-medium">Comment ça marche</p>
@@ -50,14 +51,14 @@ export default function ProcessSection() {
             return (
               <motion.li
                 key={step.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: DISTANCE }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.35, delay: index * 0.08 }}
+                transition={{ duration: DURATION, ease: EASE, delay: index * 0.08 }}
                 className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
               >
                 <div className="mb-5 flex items-center justify-between">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#E52127]/10 text-[#E52127]">
+                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary">
                     <Icon className="h-5 w-5" />
                   </span>
                   <span className="text-[11px] font-semibold tracking-[0.18em] text-slate-400">

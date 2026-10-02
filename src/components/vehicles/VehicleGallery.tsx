@@ -5,7 +5,7 @@ export default function VehicleGallery({ imgs }: { imgs: string[] }) {
   const [idx, setIdx] = useState(0);
   return (
     <div className="w-full">
-      <figure className="relative pb-[56.25%] bg-gray-100 rounded-lg overflow-hidden">
+      <figure className="relative pb-[56.25%] bg-slate-100 rounded-lg overflow-hidden">
         <img
           src={imgs[idx]}
           alt=""
@@ -20,7 +20,7 @@ export default function VehicleGallery({ imgs }: { imgs: string[] }) {
             onClick={() => setIdx(i)}
             className={clsx(
               "h-16 rounded overflow-hidden border-2",
-              i === idx ? "border-red-600" : "border-transparent",
+              i === idx ? "border-brand-primary" : "border-transparent",
             )}
           >
             <img src={url} alt="" className="w-full h-full object-cover" />

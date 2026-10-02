@@ -56,7 +56,7 @@ const PRO_OFFERS: ProOffer[] = [
 
 export function CollectionsShowcaseSection() {
   return (
-    <section className="relative border-t border-gray-100 bg-gradient-to-b from-white via-[#f7f9fc] to-white cv-auto">
+    <section className="relative border-t border-slate-100 bg-gradient-to-b from-white via-[#f7f9fc] to-white cv-auto">
       <div
         className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-slate-100/60 to-transparent"
         aria-hidden
@@ -93,7 +93,7 @@ export function CollectionsShowcaseSection() {
                   <img
                     src={offer.image}
                     alt={offer.title}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    className="h-full w-full object-cover transition duration-500"
                     loading="lazy"
                     decoding="async"
                     sizes="(max-width:768px) 100vw, (max-width:1024px) 60vw, 25vw"
@@ -132,7 +132,7 @@ export function CollectionsShowcaseSection() {
                 </div>
 
                 {/* CTA */}
-                <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition group-hover:border-[#E52127] group-hover:text-[#E52127] md:self-auto">
+                <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition group-hover:border-brand-primary group-hover:text-brand-primary md:self-auto">
                   Voir l’offre
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                 </div>

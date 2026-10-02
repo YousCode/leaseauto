@@ -18,10 +18,10 @@ const MentionsLegalesPage = () => {
   );
 
   return (
-    <main className="bg-[#f7f9fb] min-h-screen pt-16 pb-20">
+    <main className="bg-[#F5F7FB] min-h-screen pt-16 pb-20">
       <div className="max-w-5xl mx-auto px-4 space-y-8">
         <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-[#DA1212]">Informations légales</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-brand-primary">Informations légales</p>
           <h1 className="text-3xl font-bold text-slate-900">Mentions légales</h1>
           <p className="text-sm text-slate-600">
             Conformément aux articles 6-III et 19 de la loi n°2004-575 du 21 juin 2004 pour la confiance dans

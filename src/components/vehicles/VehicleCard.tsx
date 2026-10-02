@@ -38,14 +38,14 @@ export function VehicleCard({
   return (
     <Link
       to={`/vehicules/${slug}`}
-      className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-[0_4px_24px_rgba(11,17,32,0.07)] hover:shadow-[0_20px_50px_rgba(229,33,39,0.18),0_6px_20px_rgba(11,17,32,0.1)] hover:-translate-y-1.5 hover:border-red-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2"
+      className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-[0_4px_24px_rgba(11,17,32,0.07)] hover:shadow-[0_20px_50px_rgba(196,30,32,0.18),0_6px_20px_rgba(11,17,32,0.1)] hover:-translate-y-1.5 hover:border-red-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2"
     >
       {/* Image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <img
           src={imageUrl || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80&auto=format&fit=crop"}
           alt={`${brand || "Marque"} ${model || "Modèle"}`}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500"
           loading="lazy"
           decoding="async"
           sizes="(max-width:768px) 100vw, (max-width:1280px) 50vw, 33vw"
@@ -123,7 +123,7 @@ export function VehicleCard({
             </p>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-semibold px-3.5 py-2 rounded-full group-hover:bg-[#b50f0f] transition-colors duration-200 flex-shrink-0">
+          <span className="inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-semibold px-3.5 py-2 rounded-full group-hover:bg-brand-primary-dark transition-colors duration-200 flex-shrink-0">
             Voir
             <ArrowRight size={11} className="transition-transform duration-200 group-hover:translate-x-0.5" />
           </span>

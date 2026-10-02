@@ -27,7 +27,7 @@ export function FinanceSection({
 }: FinanceSectionProps) {
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex items-center">
+      <h3 className="text-lg font-semibold text-slate-900 border-b pb-2 flex items-center">
         <Euro className="mr-2" size={20} />
         Financement
       </h3>
@@ -35,7 +35,7 @@ export function FinanceSection({
       <div className="space-y-8">
         {/* Apport */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-slate-700">
             Apport — {apport.toLocaleString()} €
           </label>
           <div className="px-2">
@@ -45,14 +45,14 @@ export function FinanceSection({
               min={0}
               max={10000}
               step={500}
-              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E52127] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E52127] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
+              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-slate-200 [&_.slider-range]:bg-brand-primary [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-brand-primary [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
             />
           </div>
         </div>
 
         {/* Durée */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-slate-700">
             Durée — {duree} mois
           </label>
           <div className="px-2">
@@ -62,7 +62,7 @@ export function FinanceSection({
               min={12}
               max={72}
               step={6}
-              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E52127] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E52127] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
+              className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-slate-200 [&_.slider-range]:bg-brand-primary [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-brand-primary [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
             />
           </div>
         </div>
@@ -70,7 +70,7 @@ export function FinanceSection({
         {/* Valeur résiduelle - s'affiche seulement si LOA/LLD */}
         {showVR && (
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-slate-700">
               Valeur résiduelle — {valeurRes.toLocaleString()} €
             </label>
             <div className="px-2">
@@ -80,7 +80,7 @@ export function FinanceSection({
                 min={0}
                 max={12000}
                 step={100}
-                className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-[#E52127] [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-[#E52127] [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
+                className="w-full [&_.slider-track]:h-1.5 [&_.slider-track]:bg-slate-200 [&_.slider-range]:bg-brand-primary [&_.slider-thumb]:h-4 [&_.slider-thumb]:w-4 [&_.slider-thumb]:bg-brand-primary [&_.slider-thumb]:border-2 [&_.slider-thumb]:border-white [&_.slider-thumb]:shadow-md"
               />
             </div>
           </div>
@@ -88,7 +88,7 @@ export function FinanceSection({
 
         {/* Extension de garantie - reste en input texte */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Extension de garantie
           </label>
           <Input

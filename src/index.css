@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --brand-primary: #e52127;
-  --brand-primary-dark: #c3161c;
-  --brand-secondary: #0d0d0f;
-  --brand-secondary-alt: #151823;
+  --brand-primary: #C41E20;
+  --brand-primary-dark: #A3181A;
+  --brand-secondary: #06325E;
+  --brand-secondary-alt: #031F3C;
   --brand-surface: #ffffff;
   --brand-surface-muted: #f5f7fb;
   --brand-border: rgba(15, 23, 42, 0.08);
@@ -31,6 +31,11 @@ html, body {
   background-color: var(--brand-surface);
   color: var(--brand-text);
   scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html, body { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
 #root {
@@ -89,18 +94,18 @@ html, body {
   letter-spacing: 0.1em;
   background: var(--brand-primary);
   color: #ffffff;
-  box-shadow: 0 6px 16px rgba(229, 33, 39, 0.22);
+  box-shadow: 0 6px 16px rgba(196,30,32, 0.22);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .brand-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(229, 33, 39, 0.28);
+  box-shadow: 0 8px 20px rgba(196,30,32, 0.28);
   background: var(--brand-primary-dark);
 }
 
 .brand-button:focus-visible {
-  outline: 2px solid rgba(229, 9, 20, 0.6);
+  outline: 2px solid rgba(196,30,32, 0.6);
   outline-offset: 3px;
 }
 
@@ -201,7 +206,7 @@ html, body {
   border-radius: 1.25rem;
   background: rgba(12, 18, 28, 0.94);
   border: 1px solid rgba(231, 74, 85, 0.2);
-  box-shadow: 0 24px 60px rgba(229, 9, 20, 0.18);
+  box-shadow: 0 24px 60px rgba(196,30,32, 0.18);
 }
 
 .cv-auto {
@@ -212,7 +217,7 @@ html, body {
 .gradient-radial {
   position: absolute;
   inset: -30%;
-  background: radial-gradient(circle at center, rgba(229, 9, 20, 0.22), rgba(12, 18, 28, 0.08), transparent 65%);
+  background: radial-gradient(circle at center, rgba(196,30,32, 0.22), rgba(12, 18, 28, 0.08), transparent 65%);
   filter: blur(40px);
   pointer-events: none;
 }
@@ -281,7 +286,7 @@ html, body {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: #da1212;
+  background: #C41E20;
   border: 2px solid #ffffff;
   box-shadow: 0 3px 10px rgba(218, 18, 18, 0.35);
   margin-top: -5px;
@@ -296,14 +301,14 @@ html, body {
 .finance-range::-moz-range-progress {
   height: 8px;
   border-radius: 9999px;
-  background: #da1212;
+  background: #C41E20;
 }
 
 .finance-range::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: #da1212;
+  background: #C41E20;
   border: 2px solid #ffffff;
   box-shadow: 0 3px 10px rgba(218, 18, 18, 0.35);
 }

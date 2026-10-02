@@ -431,39 +431,39 @@ export default function DossierPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-[#444444]">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#334155]">
       <main className="px-4 pt-8 pb-16 md:px-8">
         <div className="mx-auto w-full max-w-6xl space-y-10">
-          <header className="space-y-5 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#ECECEC] md:p-10">
-            <p className="text-xs uppercase tracking-[0.4em] text-[#9FA3AE]">
+          <header className="space-y-5 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#E2E8F0] md:p-10">
+            <p className="text-xs uppercase tracking-[0.4em] text-[#94A3B8]">
               Dossier • Dépôt & Envoi de documents
             </p>
             <div>
               <h1 className="text-3xl font-semibold leading-tight md:text-4xl">
                 Créez votre dossier en 3 étapes
               </h1>
-              <p className="mt-3 max-w-3xl text-base text-[#5A5E66] md:text-lg">
+              <p className="mt-3 max-w-3xl text-base text-[#64748B] md:text-lg">
                 Uploadez vos documents en toute sécurité et obtenez une réponse sous 48h.
                 Les conseillers Lease Auto à Épinay-sur-Seine vous accompagnent à chaque étape.
               </p>
             </div>
-            <div className="flex flex-col gap-3 rounded-2xl bg-[#FFF3F2] p-4 text-sm md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2 font-medium text-[#E10600]">
+            <div className="flex flex-col gap-3 rounded-2xl bg-brand-primary-soft p-4 text-sm md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2 font-medium text-brand-primary">
                 <HelpCircle size={18} />
                 Besoin d’aide ? 01 84 21 83 93 • WhatsApp • contact@leaseauto.fr
               </div>
-              <div className="text-xs text-[#5A5E66]">
+              <div className="text-xs text-[#64748B]">
                 Formats acceptés : PDF, JPG, PNG, HEIC — jusqu’à 20 Mo / fichier
               </div>
             </div>
           </header>
 
-          <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#ECECEC] md:p-10">
+          <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#E2E8F0] md:p-10">
             <Stepper steps={STEPS} current={currentStep} />
 
             {currentStep === 0 && (
               <div className="space-y-6">
-                <p className="text-sm text-[#5A5E66]">
+                <p className="text-sm text-[#64748B]">
                   Choisissez votre profil pour afficher la check-list adaptée. Vous pourrez modifier ce choix plus tard.
                 </p>
                 <div className="grid gap-4 md:grid-cols-3">
@@ -472,28 +472,28 @@ export default function DossierPage() {
                       key={profile.id}
                       onClick={() => handleProfileSelect(profile.id)}
                       className={clsx(
-                        "rounded-2xl border p-5 text-left transition hover:border-[#E10600] hover:shadow-md",
-                        selectedProfile === profile.id ? "border-[#E10600] bg-[#FFF5F4]" : "border-[#ECECEC] bg-white",
+                        "rounded-2xl border p-5 text-left transition hover:border-brand-primary hover:shadow-md",
+                        selectedProfile === profile.id ? "border-brand-primary bg-brand-primary-soft" : "border-[#E2E8F0] bg-white",
                       )}
                     >
                       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#A1A6B4]">
                         {profile.label}
                       </p>
-                      <h3 className="mt-2 text-xl font-semibold text-[#262A32]">{profile.description}</h3>
-                      <p className="mt-2 text-sm text-[#5A5E66]">{profile.helper}</p>
+                      <h3 className="mt-2 text-xl font-semibold text-[#1E293B]">{profile.description}</h3>
+                      <p className="mt-2 text-sm text-[#64748B]">{profile.helper}</p>
                     </button>
                   ))}
                 </div>
                 {selectedProfile && (
-                  <div className="flex flex-col gap-3 rounded-2xl border border-[#ECECEC] bg-[#FDFDFD] p-4 text-sm md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] p-4 text-sm md:flex-row md:items-center md:justify-between">
                     <p>
                       Profil sélectionné :{" "}
-                      <span className="font-semibold text-[#E10600]">
+                      <span className="font-semibold text-brand-primary">
                         {PROFILE_OPTIONS.find((p) => p.id === selectedProfile)?.label}
                       </span>
                     </p>
                     <button
-                      className="rounded-full bg-[#E10600] px-5 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-white"
+                      className="rounded-full bg-brand-primary px-5 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-white"
                       onClick={() => goToStep(1)}
                     >
                       Continuer
@@ -523,14 +523,14 @@ export default function DossierPage() {
                     ] as { label: string; field: keyof FormData }[]
                   ).map(({ label, field }) => (
                     <label key={field} className="text-sm">
-                      <span className="text-[#5A5E66]">{label}</span>
+                      <span className="text-[#64748B]">{label}</span>
                       <input
                         type={field === "email" ? "email" : field === "budget" ? "number" : "text"}
                         value={formData[field]}
                         onChange={(e) => handleFormChange(field, e.target.value)}
                         className={clsx(
-                          "mt-2 w-full rounded-2xl border px-4 py-3 text-base text-[#262A32] outline-none transition focus:border-[#E10600] focus:ring-1 focus:ring-[#E10600]",
-                          formErrors[field] ? "border-red-400" : "border-[#E1E1E1]",
+                          "mt-2 w-full rounded-2xl border px-4 py-3 text-base text-[#1E293B] outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary",
+                          formErrors[field] ? "border-red-400" : "border-[#E2E8F0]",
                         )}
                         required
                       />
@@ -539,13 +539,13 @@ export default function DossierPage() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="text-sm">
-                    <span className="text-[#5A5E66]">Type de contrat souhaité</span>
+                    <span className="text-[#64748B]">Type de contrat souhaité</span>
                     <select
                       value={formData.contractType}
                       onChange={(e) => handleFormChange("contractType", e.target.value)}
                       className={clsx(
-                        "mt-2 w-full rounded-2xl border px-4 py-3 text-base text-[#262A32] outline-none focus:border-[#E10600] focus:ring-1 focus:ring-[#E10600]",
-                        formErrors.contractType ? "border-red-400" : "border-[#E1E1E1]",
+                        "mt-2 w-full rounded-2xl border px-4 py-3 text-base text-[#1E293B] outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary",
+                        formErrors.contractType ? "border-red-400" : "border-[#E2E8F0]",
                       )}
                       required
                     >
@@ -555,26 +555,26 @@ export default function DossierPage() {
                       <option value="rent-to-buy">Rent to Buy</option>
                     </select>
                   </label>
-                  <div className="rounded-2xl border border-[#ECECEC] bg-[#FDFDFD] p-4 text-sm">
-                    <p className="font-semibold text-[#E10600]">Rappel</p>
-                    <p className="mt-2 text-[#5A5E66]">
+                  <div className="rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] p-4 text-sm">
+                    <p className="font-semibold text-brand-primary">Rappel</p>
+                    <p className="mt-2 text-[#64748B]">
                       Toutes vos informations restent confidentielles. Vous recevez un lien magique pour suivre votre dossier.
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col gap-3 rounded-2xl border border-[#ECECEC] bg-[#FDFDFD] p-4 text-sm md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] p-4 text-sm md:flex-row md:items-center md:justify-between">
                   <span>Votre dossier est pré-rempli avec ces informations.</span>
                   <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={() => setCurrentStep(0)}
-                      className="rounded-full border border-[#E1E1E1] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#444444]"
+                      className="rounded-full border border-[#E2E8F0] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#334155]"
                     >
                       Retour
                     </button>
                     <button
                       type="submit"
-                      className="rounded-full bg-[#E10600] px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white"
+                      className="rounded-full bg-brand-primary px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white"
                     >
                       Créer mon dossier
                     </button>
@@ -585,21 +585,21 @@ export default function DossierPage() {
 
             {currentStep === 2 && selectedProfile && (
               <div className="space-y-8">
-                <div className="rounded-2xl border border-[#ECECEC] bg-[#FDFDFD] p-4 text-sm md:flex md:items-center md:justify-between">
+                <div className="rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] p-4 text-sm md:flex md:items-center md:justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.4em] text-[#9FA3AE]">Progression</p>
-                    <p className="mt-2 text-lg font-semibold text-[#262A32]">
+                    <p className="text-xs uppercase tracking-[0.4em] text-[#94A3B8]">Progression</p>
+                    <p className="mt-2 text-lg font-semibold text-[#1E293B]">
                       {progressPercent}% complet
                     </p>
-                    <p className="text-[#5A5E66]">
+                    <p className="text-[#64748B]">
                       {uploadedCount} / {currentDocuments.length} pièces ajoutées
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-[#E10600]">{dossierStatusLabel}</p>
-                    <p className="text-xs text-[#9FA3AE]">{dossierStatusHelper}</p>
+                    <p className="mt-1 text-sm font-semibold text-brand-primary">{dossierStatusLabel}</p>
+                    <p className="text-xs text-[#94A3B8]">{dossierStatusHelper}</p>
                   </div>
-                  <div className="mt-4 h-3 w-full rounded-full bg-[#ECECEC] md:mt-0 md:w-64">
+                  <div className="mt-4 h-3 w-full rounded-full bg-[#E2E8F0] md:mt-0 md:w-64">
                     <div
-                      className="h-full rounded-full bg-[#E10600] transition-all"
+                      className="h-full rounded-full bg-brand-primary transition-all"
                       style={{ width: `${progressPercent}%` }}
                     />
                   </div>
@@ -622,15 +622,15 @@ export default function DossierPage() {
                       {...getRootProps()}
                       className={clsx(
                         "flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-6 text-center transition",
-                        isDragActive ? "border-[#E10600] bg-[#FFF5F4]" : "border-[#D9DBE1] bg-white",
+                        isDragActive ? "border-brand-primary bg-brand-primary-soft" : "border-[#D9DBE1] bg-white",
                       )}
                     >
                       <input {...getInputProps()} />
-                      <Upload className="h-10 w-10 text-[#E10600]" />
+                      <Upload className="h-10 w-10 text-brand-primary" />
                       <p className="mt-3 text-lg font-semibold">Glissez-déposez vos fichiers</p>
-                      <p className="text-sm text-[#5A5E66]">
+                      <p className="text-sm text-[#64748B]">
                         Actuellement :{" "}
-                        <span className="font-semibold text-[#E10600]">
+                        <span className="font-semibold text-brand-primary">
                           {currentDocuments.find((d) => d.id === targetDocId)?.label ?? "Sélectionnez une pièce"}
                         </span>
                       </p>
@@ -641,14 +641,14 @@ export default function DossierPage() {
                             event.stopPropagation();
                             openFileDialog();
                           }}
-                          className="rounded-full bg-[#E10600] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white"
+                          className="rounded-full bg-brand-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white"
                         >
                           Ajouter un document
                         </button>
                         <button
                           type="button"
                           onClick={handleCameraCapture}
-                          className="rounded-full border border-[#E10600] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#E10600]"
+                          className="rounded-full border border-brand-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-primary"
                         >
                           Prendre une photo
                         </button>
@@ -664,12 +664,12 @@ export default function DossierPage() {
                       onChange={handleCameraChange}
                     />
 
-                    <div className="space-y-3 rounded-3xl border border-[#ECECEC] bg-white p-5 text-sm">
-                      <div className="flex items-center gap-2 text-[#E10600]">
+                    <div className="space-y-3 rounded-3xl border border-[#E2E8F0] bg-white p-5 text-sm">
+                      <div className="flex items-center gap-2 text-brand-primary">
                         <Info size={16} />
                         Règles de dépôt
                       </div>
-                      <ul className="list-disc pl-5 text-[#5A5E66]">
+                      <ul className="list-disc pl-5 text-[#64748B]">
                         <li>Formats acceptés : PDF, JPG, PNG, HEIC</li>
                         <li>20 Mo maximum par fichier, nombre illimité</li>
                         <li>Nommage auto : NOM_PRENOM_TYPEPIECE_DATE.pdf</li>
@@ -677,36 +677,36 @@ export default function DossierPage() {
                       </ul>
                     </div>
 
-                    <div className="space-y-3 rounded-3xl border border-[#ECECEC] bg-white p-5 text-sm">
-                      <div className="flex items-center gap-2 text-[#5A5E66]">
+                    <div className="space-y-3 rounded-3xl border border-[#E2E8F0] bg-white p-5 text-sm">
+                      <div className="flex items-center gap-2 text-[#64748B]">
                         <FileText size={16} />
                         Validation & envoi
                       </div>
-                      <label className="flex items-start gap-3 text-sm text-[#5A5E66]">
+                      <label className="flex items-start gap-3 text-sm text-[#64748B]">
                         <input
                           type="checkbox"
                           checked={attestationChecked}
                           onChange={(e) => setAttestationChecked(e.target.checked)}
-                          className="mt-1 h-4 w-4 accent-[#E10600]"
+                          className="mt-1 h-4 w-4 accent-[#C41E20]"
                         />
                         J’atteste que mes informations sont exactes et autorise Lease Auto à les vérifier.
                       </label>
                       <button
                         type="button"
                         onClick={handleSubmitDossier}
-                        className="w-full rounded-full bg-[#E10600] px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white disabled:opacity-50"
+                        className="w-full rounded-full bg-brand-primary px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white disabled:opacity-50"
                         disabled={!documentsComplete || !attestationChecked}
                       >
                         Envoyer mon dossier
                       </button>
-                      <p className="text-xs text-[#5A5E66]">
+                      <p className="text-xs text-[#64748B]">
                         Vous recevez un email + SMS de confirmation avec un lien “Mon dossier”.
                       </p>
                     </div>
 
                     <Link
                       to="/dossier/mon-dossier"
-                      className="block rounded-3xl border border-[#ECECEC] bg-[#FDFDFD] p-5 text-center text-xs font-semibold uppercase tracking-[0.3em] text-[#E10600] hover:bg-white"
+                      className="block rounded-3xl border border-[#E2E8F0] bg-[#FFFFFF] p-5 text-center text-xs font-semibold uppercase tracking-[0.3em] text-brand-primary hover:bg-white"
                     >
                       Accéder à mon dossier
                     </Link>
@@ -741,12 +741,12 @@ function DocumentCard({
   > = {
     missing: {
       label: "🔴 Manquant",
-      className: "bg-[#FEF2F2] text-[#B42318]",
+      className: "bg-brand-primary-soft text-brand-primary-dark",
       icon: <AlertCircle size={14} />,
     },
     pending: {
       label: "🟡 À vérifier",
-      className: "bg-[#FFF7E6] text-[#B76E00]",
+      className: "bg-brand-primary-soft text-brand-primary-dark",
       icon: <Clock size={14} />,
     },
     validated: {
@@ -760,7 +760,7 @@ function DocumentCard({
     <div
       className={clsx(
         "flex flex-col gap-4 rounded-3xl border p-5 transition hover:shadow-sm md:flex-row md:items-center md:justify-between",
-        isActive ? "border-[#E10600] bg-[#FFF5F4]" : "border-[#ECECEC] bg-white",
+        isActive ? "border-brand-primary bg-brand-primary-soft" : "border-[#E2E8F0] bg-white",
       )}
       onClick={onSelect}
       role="button"
@@ -775,20 +775,20 @@ function DocumentCard({
         </span>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-xs uppercase tracking-[0.4em] text-[#9FA3AE]">{doc.label}</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-[#94A3B8]">{doc.label}</p>
             <button
               type="button"
               onClick={(event) => event.stopPropagation()}
-              className="rounded-full border border-[#ECECEC] p-1 text-[#9FA3AE] transition hover:border-[#E10600] hover:text-[#E10600]"
+              className="rounded-full border border-[#E2E8F0] p-1 text-[#94A3B8] transition hover:border-brand-primary hover:text-brand-primary"
               title={doc.tooltip}
               aria-label={`En savoir plus sur ${doc.label}`}
             >
               <Info size={14} />
             </button>
           </div>
-          <p className="mt-1 text-sm text-[#5A5E66]">{doc.description}</p>
+          <p className="mt-1 text-sm text-[#64748B]">{doc.description}</p>
           {doc.files.length > 0 && (
-            <ul className="mt-2 space-y-1 text-xs text-[#5A5E66]">
+            <ul className="mt-2 space-y-1 text-xs text-[#64748B]">
               {doc.files.map((file) => (
                 <li key={file.id}>
                   {file.name} – {formatSize(file.size)}
@@ -813,7 +813,7 @@ function DocumentCard({
         <div className="flex gap-2">
           <button
             type="button"
-            className="rounded-full border border-[#E10600] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#E10600]"
+            className="rounded-full border border-brand-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-primary"
             onClick={(event) => {
               event.stopPropagation();
               inputRef.current?.click();

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import slugify from "slugify";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -225,13 +226,13 @@ const AdminVehicleManager = () => {
 
           {/* Header */}
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: DURATION, ease: EASE}}
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
           >
             <div>
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[#DA1212] font-medium">Admin</p>
+              <p className="text-[11px] uppercase tracking-[0.28em] text-brand-primary font-medium">Admin</p>
               <h1 className="text-2xl font-bold mt-0.5 text-slate-900">Parc véhicules</h1>
             </div>
             <div className="flex gap-2">
@@ -246,7 +247,7 @@ const AdminVehicleManager = () => {
               </Button>
               <Button
                 size="sm"
-                className="bg-[#DA1212] hover:bg-[#b50f0f] shadow-sm shadow-[#da1212]/30 text-sm"
+                className="bg-brand-primary hover:bg-brand-primary-dark shadow-sm shadow-[#C41E20]/30 text-sm"
                 onClick={handleAddVehicle}
               >
                 <Plus size={15} className="mr-1.5" /> Nouveau
@@ -256,9 +257,9 @@ const AdminVehicleManager = () => {
 
           {/* Stats */}
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, delay: 0.05 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.05 }}
             className="grid grid-cols-3 gap-3"
           >
             {[
@@ -277,7 +278,7 @@ const AdminVehicleManager = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.2, delay: 0.1 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.1 }}
             className="flex flex-col sm:flex-row gap-2"
           >
             <div className="relative flex-1">
@@ -328,7 +329,7 @@ const AdminVehicleManager = () => {
                 {search ? "Aucun résultat pour cette recherche" : "Aucun véhicule"}
               </p>
               {!search && (
-                <Button className="mt-4 bg-[#DA1212] hover:bg-[#b50f0f]" size="sm" onClick={handleAddVehicle}>
+                <Button className="mt-4 bg-brand-primary hover:bg-brand-primary-dark" size="sm" onClick={handleAddVehicle}>
                   <Plus size={14} className="mr-1.5" /> Ajouter un véhicule
                 </Button>
               )}
@@ -352,10 +353,10 @@ const AdminVehicleManager = () => {
                   return (
                     <motion.div
                       key={key}
-                      initial={{ opacity: 0, y: 6 }}
+                      initial={{ opacity: 0, y: DISTANCE }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.2, ease: "easeOut", delay: Math.min(index * 0.03, 0.25) }}
+                      transition={{ duration: DURATION, ease: EASE, delay: Math.min(index * 0.03, 0.25) }}
                       className={`group relative bg-white rounded-xl border border-slate-200 p-3 transition-shadow hover:shadow-md hover:border-slate-300 ${isDeleting ? "opacity-50" : ""}`}
                     >
                       {isDeleting && (

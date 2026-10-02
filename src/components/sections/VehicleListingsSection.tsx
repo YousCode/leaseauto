@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { ArrowRight } from "lucide-react";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -27,10 +28,10 @@ const VehicleListingsSection = () => {
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: DISTANCE }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
+          transition={{ duration: DURATION, ease: EASE}}
           className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4"
         >
           <div>
@@ -81,7 +82,7 @@ const VehicleListingsSection = () => {
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#E52127] px-6 py-3 text-sm font-semibold text-white hover:bg-[#c91c22] transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white hover:bg-brand-primary-dark transition-colors"
               >
                 Décrire mon projet
                 <ArrowRight size={15} />
@@ -127,10 +128,10 @@ const VehicleListingsSection = () => {
               return (
                 <motion.div
                   key={v.slug || v.id || index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: DISTANCE }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.15 }}
-                  transition={{ duration: 0.35, ease: "easeOut", delay: Math.min(index * 0.07, 0.35) }}
+                  transition={{ duration: DURATION, ease: EASE, delay: Math.min(index * 0.07, 0.35) }}
                 >
                   <VehicleCard
                     slug={v.slug || String(v.id)}
@@ -153,15 +154,15 @@ const VehicleListingsSection = () => {
         {/* Bottom CTA */}
         {!isLoading && featured.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.2 }}
             className="mt-12 text-center"
           >
             <Link
               to="/vehicules"
-              className="inline-flex items-center gap-2.5 bg-brand-navy text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0d1929] transition-colors duration-200 shadow-[0_8px_24px_rgba(11,17,32,0.2)] hover:shadow-[0_12px_32px_rgba(11,17,32,0.28)]"
+              className="inline-flex items-center gap-2.5 bg-brand-navy text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-brand-ink transition-colors duration-200 shadow-[0_8px_24px_rgba(11,17,32,0.2)] hover:shadow-[0_12px_32px_rgba(11,17,32,0.28)]"
             >
               Voir les {(publishedVehicles as any[]).length} véhicules disponibles
               <ArrowRight size={15} />

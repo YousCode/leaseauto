@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { useScrollRaf } from "@/hooks/useScrollRaf";
 
 const Navbar = () => {
@@ -37,15 +38,15 @@ const Navbar = () => {
   return (
     <nav className={`w-full h-16 fixed top-0 z-50 transition-all duration-300 ${
       isScrolled 
-        ? "bg-gray-900/95 backdrop-blur-md shadow-lg" 
-        : "bg-gray-900/90 backdrop-blur-sm"
+        ? "bg-slate-900/95 backdrop-blur-md shadow-lg" 
+        : "bg-slate-900/90 backdrop-blur-sm"
     }`}>
       {/* Content */}
       <div className="flex items-center justify-between px-6 md:px-12 h-full max-w-7xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, y: DISTANCE }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: DURATION, ease: EASE}}
           className="flex items-center"
         >
           <button
@@ -53,7 +54,7 @@ const Navbar = () => {
               navigate("/");
               setTimeout(() => scrollToSection("hero"), 100);
             }}
-            className="text-2xl font-bold text-white tracking-tight hover:scale-105 transition-transform duration-300"
+            className="text-2xl font-bold text-white tracking-tight transition-transform duration-300"
           >
             Lease<span className="text-red-500">Auto</span>
           </button>
@@ -61,9 +62,9 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center space-x-8">
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.1 }}
           >
             <button
               onClick={() => {
@@ -78,9 +79,9 @@ const Navbar = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.2 }}
           >
             <Link
               to="/vehicules"
@@ -92,9 +93,9 @@ const Navbar = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.3 }}
           >
             <button
               onClick={() => scrollToSection("services")}
@@ -106,9 +107,9 @@ const Navbar = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.4 }}
           >
             <button
               onClick={() => scrollToSection("about")}
@@ -120,9 +121,9 @@ const Navbar = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.5 }}
           >
             <button
               onClick={() => scrollToSection("contact")}
@@ -138,12 +139,12 @@ const Navbar = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.6 }}
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={() => scrollToSection("contact")}
-                className="bg-red-600 hover:bg-red-700 text-white font-medium hidden md:inline-flex transition-all duration-300 px-6 py-2 rounded-lg shadow-md hover:shadow-lg"
+                className="bg-brand-primary hover:bg-brand-primary-dark text-white font-medium hidden md:inline-flex transition-all duration-300 px-6 py-2 rounded-lg shadow-md hover:shadow-lg"
               >
                 Demander un Devis
               </Button>
@@ -163,13 +164,13 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            transition={{ duration: DURATION, ease: EASE}}
             className="md:hidden fixed inset-0 top-16 z-40"
           >
-            <div className="bg-gray-900/97 backdrop-blur-md h-full">
+            <div className="bg-slate-900/97 backdrop-blur-md h-full">
               <div className="p-6">
                 <div className="flex flex-col space-y-1">
                   {[
@@ -180,9 +181,9 @@ const Navbar = () => {
                   ].map(({ label, action }, i) => (
                     <motion.button
                       key={label}
-                      initial={{ opacity: 0, x: -16 }}
+                      initial={{ opacity: 0, y: DISTANCE }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.18, delay: i * 0.05 }}
+                      transition={{ duration: DURATION, ease: EASE, delay: i * 0.05 }}
                       onClick={() => { action(); setIsMobileMenuOpen(false); }}
                       className="text-white/90 hover:text-white transition-colors font-medium py-4 border-b border-white/10 text-left text-lg"
                     >
@@ -190,9 +191,9 @@ const Navbar = () => {
                     </motion.button>
                   ))}
                   <motion.div
-                    initial={{ opacity: 0, x: -16 }}
+                    initial={{ opacity: 0, y: DISTANCE }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.18, delay: 0.2 }}
+                    transition={{ duration: DURATION, ease: EASE, delay: 0.2 }}
                   >
                     <Link
                       to="/vehicules"
@@ -204,13 +205,13 @@ const Navbar = () => {
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: DISTANCE }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: 0.28 }}
+                    transition={{ duration: DURATION, ease: EASE, delay: 0.28 }}
                     className="pt-6"
                   >
                     <Button
-                      className="bg-red-600 hover:bg-red-700 text-white font-medium w-full rounded-xl shadow-md h-12 text-base"
+                      className="bg-brand-primary hover:bg-brand-primary-dark text-white font-medium w-full rounded-xl shadow-md h-12 text-base"
                       onClick={() => { scrollToSection("contact"); setIsMobileMenuOpen(false); }}
                     >
                       Demander un Devis

@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 import { Toaster } from "@/components/ui/toaster";
 import ComingSoon from "@/pages/ComingSoon";
@@ -52,10 +53,10 @@ const PublicLayout = () => {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: DISTANCE }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            transition={{ duration: DURATION, ease: EASE}}
           >
             <Outlet />
           </motion.div>
@@ -72,12 +73,13 @@ function App() {
 
   return (
     <AuthProvider>
+      <MotionConfig reducedMotion="user">
       <ScrollToTop />
       <div className="min-h-screen bg-white">
       <Suspense
         fallback={
           <div className="w-screen h-screen flex flex-col items-center justify-center bg-white gap-4">
-            <div className="w-8 h-8 rounded-full border-2 border-slate-100 border-t-red-600 animate-spin" />
+            <div className="w-8 h-8 rounded-full border-2 border-slate-100 border-t-brand-primary animate-spin" />
             <p className="text-sm text-slate-400 tracking-widest uppercase">Chargement</p>
           </div>
         }
@@ -123,6 +125,7 @@ function App() {
         <Toaster />
       </Suspense>
       </div>
+      </MotionConfig>
     </AuthProvider>
   );
 }

@@ -47,7 +47,7 @@ const FooterSection = () => {
             {/* Colonne 1 : marque + contact + horaires */}
             <div>
               <h3 className="text-2xl font-semibold mb-3">
-                <span className="text-[#E52127]">Lease</span>
+                <span className="text-brand-primary">Lease</span>
                 <span className="text-slate-100">Auto</span>
               </h3>
               <p className="text-sm text-slate-200 leading-relaxed mb-6 max-w-xs">
@@ -57,7 +57,7 @@ const FooterSection = () => {
 
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 text-[#E52127] mt-0.5" />
+                  <MapPin className="h-4 w-4 text-brand-primary mt-0.5" />
                   <span className="text-slate-200">
                     Lease Auto, 42 Bd Foch
                     <br />
@@ -65,13 +65,13 @@ const FooterSection = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-[#E52127]" />
+                  <Phone className="h-4 w-4 text-brand-primary" />
                   <a href="tel:0184218393" className="text-slate-200 hover:text-white">
                     01&nbsp;84&nbsp;21&nbsp;83&nbsp;93
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-[#E52127]" />
+                  <Mail className="h-4 w-4 text-brand-primary" />
                   <a
                     href="mailto:leaseauto.epinay@gmail.com"
                     className="text-slate-200 hover:text-white"
@@ -80,7 +80,7 @@ const FooterSection = () => {
                   </a>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Clock className="h-4 w-4 text-[#E52127] mt-0.5" />
+                  <Clock className="h-4 w-4 text-brand-primary mt-0.5" />
                   <div>
                     <p className="text-slate-100">Lundi – Samedi</p>
                     <p className="text-slate-300 text-xs">09:30 – 19:30</p>
@@ -99,7 +99,7 @@ const FooterSection = () => {
                   <li key={item.label}>
                     <Link
                       to={item.href}
-                      className="text-slate-300 hover:text-[#E52127] transition-colors"
+                      className="text-slate-300 hover:text-brand-primary transition-colors"
                     >
                       {item.label}
                     </Link>
@@ -118,7 +118,7 @@ const FooterSection = () => {
                   <li key={item.label}>
                     <Link
                       to={item.href}
-                      className="text-slate-300 hover:text-[#E52127] transition-colors"
+                      className="text-slate-300 hover:text-brand-primary transition-colors"
                     >
                       {item.label}
                     </Link>
@@ -137,7 +137,7 @@ const FooterSection = () => {
                   href="https://www.instagram.com/lease_auto/"
                   target="_blank"
                   rel="noreferrer"
-                  className="h-9 w-9 rounded-full bg-[#020618]/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-[#E52127] hover:border-[#E52127] hover:text-white transition-colors"
+                  className="h-9 w-9 rounded-full bg-brand-ink-deep/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-brand-primary hover:border-brand-primary hover:text-white transition-colors"
                 >
                   <Instagram className="h-4 w-4" />
                 </a>
@@ -146,7 +146,7 @@ const FooterSection = () => {
                   href="https://www.tiktok.com/@leaseauto?_r=1&_t=ZN-91kVouJaR2U"
                   target="_blank"
                   rel="noreferrer"
-                  className="h-9 w-9 rounded-full bg-[#020618]/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-[#E52127] hover:border-[#E52127] hover:text-white transition-colors"
+                  className="h-9 w-9 rounded-full bg-brand-ink-deep/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-brand-primary hover:border-brand-primary hover:text-white transition-colors"
                 >
                   <span className="text-[11px] font-semibold tracking-wide">Tik</span>
                 </a>

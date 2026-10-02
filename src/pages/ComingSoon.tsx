@@ -13,7 +13,7 @@ function ComingSoon() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-red-500/15 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-8rem] right-[-6rem] h-[28rem] w-[28rem] rounded-full bg-red-600/15 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-8rem] right-[-6rem] h-[28rem] w-[28rem] rounded-full bg-brand-primary/15 blur-3xl" />
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-14 text-center">

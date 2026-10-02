@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { DURATION, EASE, DISTANCE } from "@/lib/motion";
 import { useNavigate } from "react-router-dom";
 import slugify from "slugify";
 import type { VehicleCardProps } from "@/components/vehicles/VehicleCard";
@@ -76,8 +77,8 @@ const STATUS_CONFIG: Record<
   },
   draft: {
     label: "Brouillon",
-    badge: "bg-neutral-200 text-neutral-800",
-    dot: "bg-neutral-500",
+    badge: "bg-slate-200 text-slate-800",
+    dot: "bg-slate-500",
     cta: "Mettre en ligne",
   },
 };
@@ -373,11 +374,11 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f6f3] text-neutral-900">
-      <header className="border-b border-neutral-200 bg-white/90 backdrop-blur">
+    <div className="min-h-screen bg-[#f8f6f3] text-slate-900">
+      <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-neutral-400">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
               Espace marchand
             </p>
             <h1 className="mt-1 text-3xl font-semibold">
@@ -392,7 +393,7 @@ const AdminDashboard = () => {
               Retour au site
             </Button>
             <Button
-              className="bg-[#ff6e14] text-white hover:bg-[#e65d05]"
+              className="bg-brand-primary text-white hover:bg-brand-primary-dark"
               onClick={handleCreate}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -412,26 +413,26 @@ const AdminDashboard = () => {
           ].map(({ label, value, sub, icon: Icon, accent }, i) => (
             <motion.div
               key={label}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: DISTANCE }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut", delay: i * 0.07 }}
+              transition={{ duration: DURATION, ease: EASE, delay: i * 0.07 }}
             >
-              <Card className={`border-0 shadow-sm ${accent ? "bg-gradient-to-br from-white to-neutral-50" : "bg-white"}`}>
+              <Card className={`border-0 shadow-sm ${accent ? "bg-gradient-to-br from-white to-slate-50" : "bg-white"}`}>
                 <CardContent className="flex items-center justify-between p-5">
                   <div>
-                    <p className="text-sm text-neutral-500">{label}</p>
+                    <p className="text-sm text-slate-500">{label}</p>
                     <p className="text-3xl font-semibold">{value}</p>
-                    <span className="text-xs text-neutral-500">{sub}</span>
+                    <span className="text-xs text-slate-500">{sub}</span>
                   </div>
-                  <Icon className={`h-10 w-10 ${accent ? "text-[#ff6e14]" : "text-neutral-400"}`} />
+                  <Icon className={`h-10 w-10 ${accent ? "text-brand-primary" : "text-slate-400"}`} />
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </section>
 
-        <section className="rounded-3xl border border-neutral-200 bg-white shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-200 px-6 py-5">
+        <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-5">
             <div className="flex flex-wrap gap-2">
               {STATUS_FILTERS.map(({ value, label }) => (
                 <button
@@ -441,11 +442,11 @@ const AdminDashboard = () => {
                     "rounded-full px-4 py-2 text-sm font-semibold transition-all",
                     filterStatus === value
                       ? "bg-black text-white shadow-sm"
-                      : "bg-neutral-100 text-neutral-600 hover:text-neutral-900",
+                      : "bg-slate-100 text-slate-600 hover:text-slate-900",
                   ].join(" ")}
                 >
                   {label}
-                  <span className="ml-2 text-xs text-neutral-500">
+                  <span className="ml-2 text-xs text-slate-500">
                     {value === "all"
                       ? counts.all
                       : counts[value as AdminStatus]}
@@ -454,7 +455,7 @@ const AdminDashboard = () => {
               ))}
             </div>
             <div className="relative w-full max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 placeholder="Rechercher un modèle"
                 value={search}
@@ -467,31 +468,31 @@ const AdminDashboard = () => {
           {isLoading ? (
             <div className="space-y-6 px-6 py-8">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 animate-pulse lg:grid-cols-[260px,1fr,220px]">
-                  <div className="h-52 rounded-2xl bg-neutral-100" />
+                <div key={i} className="grid gap-6 rounded-3xl border border-slate-100 bg-white/80 p-6 animate-pulse lg:grid-cols-[260px,1fr,220px]">
+                  <div className="h-52 rounded-2xl bg-slate-100" />
                   <div className="space-y-4">
-                    <div className="h-5 w-2/3 rounded-full bg-neutral-100" />
-                    <div className="h-4 w-1/3 rounded-full bg-neutral-100" />
+                    <div className="h-5 w-2/3 rounded-full bg-slate-100" />
+                    <div className="h-4 w-1/3 rounded-full bg-slate-100" />
                     <div className="flex gap-2">
-                      <div className="h-7 w-20 rounded-full bg-neutral-100" />
-                      <div className="h-7 w-16 rounded-full bg-neutral-100" />
+                      <div className="h-7 w-20 rounded-full bg-slate-100" />
+                      <div className="h-7 w-16 rounded-full bg-slate-100" />
                     </div>
-                    <div className="h-8 w-1/3 rounded-full bg-neutral-100" />
+                    <div className="h-8 w-1/3 rounded-full bg-slate-100" />
                     <div className="flex gap-2">
-                      <div className="h-9 w-28 rounded-lg bg-neutral-100" />
-                      <div className="h-9 w-20 rounded-lg bg-neutral-100" />
+                      <div className="h-9 w-28 rounded-lg bg-slate-100" />
+                      <div className="h-9 w-20 rounded-lg bg-slate-100" />
                     </div>
                   </div>
-                  <div className="rounded-3xl bg-neutral-50 p-4 space-y-3">
-                    <div className="h-8 rounded-xl bg-neutral-100" />
-                    <div className="h-8 rounded-xl bg-neutral-100" />
-                    <div className="h-8 rounded-xl bg-neutral-100" />
+                  <div className="rounded-3xl bg-slate-50 p-4 space-y-3">
+                    <div className="h-8 rounded-xl bg-slate-100" />
+                    <div className="h-8 rounded-xl bg-slate-100" />
+                    <div className="h-8 rounded-xl bg-slate-100" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredVehicles.length === 0 ? (
-            <div className="px-6 py-16 text-center text-sm text-neutral-500">
+            <div className="px-6 py-16 text-center text-sm text-slate-500">
               Aucune annonce ne correspond à vos filtres. Relancez une recherche
               ou ajoutez un véhicule.
             </div>
@@ -500,13 +501,13 @@ const AdminDashboard = () => {
               {filteredVehicles.map((vehicle, index) => (
                 <motion.article
                   key={vehicle.id}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: DISTANCE }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, ease: "easeOut", delay: Math.min(index * 0.06, 0.3) }}
-                  className="group grid gap-6 rounded-3xl border border-neutral-100 bg-white/80 p-6 shadow-sm transition-shadow hover:shadow-md lg:grid-cols-[260px,1fr,220px]"
+                  transition={{ duration: DURATION, ease: EASE, delay: Math.min(index * 0.06, 0.3) }}
+                  className="group grid gap-6 rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-sm transition-shadow hover:shadow-md lg:grid-cols-[260px,1fr,220px]"
                 >
                   <div className="space-y-3">
-                    <div className="relative h-52 w-full overflow-hidden rounded-2xl bg-neutral-100 border border-neutral-200">
+                    <div className="relative h-52 w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200">
                       <img
                         src={
                           (Array.isArray(vehicle.images) && vehicle.images[0]) ||
@@ -514,14 +515,14 @@ const AdminDashboard = () => {
                           FALLBACK_IMAGE
                         }
                         alt={vehicle.name || "Véhicule"}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500"
                       />
                     </div>
-                    <div className="flex items-center justify-between text-xs text-neutral-500">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
                       <span>
                         Mis à jour le {formatUpdatedLabel(vehicle.updatedAt)}
                       </span>
-                      <span className="rounded-full bg-neutral-100 px-3 py-1 font-semibold">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold">
                         Photo
                       </span>
                     </div>
@@ -547,26 +548,26 @@ const AdminDashboard = () => {
                             {STATUS_CONFIG[vehicle.status].label}
                           </Badge>
                         </div>
-                        <p className="mt-1 flex items-center text-sm text-neutral-500">
+                        <p className="mt-1 flex items-center text-sm text-slate-500">
                           <MapPin className="mr-1 h-4 w-4" />
                           {vehicle.city}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-neutral-600">
+                    <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-slate-600">
                       {vehicle.energy && (
-                        <span className="rounded-full bg-neutral-100 px-3 py-1">
+                        <span className="rounded-full bg-slate-100 px-3 py-1">
                           {vehicle.energy}
                         </span>
                       )}
                       {vehicle.year && (
-                        <span className="rounded-full bg-neutral-100 px-3 py-1">
+                        <span className="rounded-full bg-slate-100 px-3 py-1">
                           {vehicle.year}
                         </span>
                       )}
                       {vehicle.mileage && (
-                        <span className="rounded-full bg-neutral-100 px-3 py-1">
+                        <span className="rounded-full bg-slate-100 px-3 py-1">
                           {formatMileage(vehicle.mileage)}
                         </span>
                       )}
@@ -577,7 +578,7 @@ const AdminDashboard = () => {
                         {formatPrice(vehicle.price)}
                       </p>
                       {vehicle.monthly ? (
-                        <span className="rounded-full bg-neutral-900 px-4 py-1.5 text-sm font-medium text-white">
+                        <span className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white">
                           {formatMonthly(vehicle.monthly)}
                         </span>
                       ) : null}
@@ -596,7 +597,7 @@ const AdminDashboard = () => {
                       </Button>
                       <Button
                         variant="ghost"
-                        className="text-neutral-500"
+                        className="text-slate-500"
                         onClick={() => handleStatusToggle(vehicle)}
                       >
                         {STATUS_CONFIG[vehicle.status].cta}
@@ -604,30 +605,30 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col justify-between gap-4 rounded-3xl bg-neutral-50/80 p-4">
+                  <div className="flex flex-col justify-between gap-4 rounded-3xl bg-slate-50/80 p-4">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2 text-sm">
-                        <span className="text-neutral-500">Leads 30j</span>
+                        <span className="text-slate-500">Leads 30j</span>
                         <span className="font-semibold">{vehicle.leads}</span>
                       </div>
                       <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2 text-sm">
-                        <span className="text-neutral-500">Vues</span>
+                        <span className="text-slate-500">Vues</span>
                         <span className="font-semibold">{vehicle.visits}</span>
                       </div>
                       <div className="flex items-center justify-between rounded-2xl bg-white px-3 py-2 text-sm">
-                        <span className="text-neutral-500">Contacts directs</span>
+                        <span className="text-slate-500">Contacts directs</span>
                         <span className="font-semibold">
                           {Math.max(1, Math.round(vehicle.leads * 0.35))}
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Button className="bg-[#ff6e14] text-white hover:bg-[#e65d05]">
+                      <Button className="bg-brand-primary text-white hover:bg-brand-primary-dark">
                         Booster la visibilité
                       </Button>
                       <Button
                         variant="ghost"
-                        className="text-neutral-500"
+                        className="text-slate-500"
                         onClick={() => handleArchive(vehicle.id)}
                       >
                         Archiver
@@ -642,13 +643,13 @@ const AdminDashboard = () => {
       </main>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto border border-neutral-200 bg-white p-0 sm:max-w-4xl">
-          <DialogHeader className="border-b border-neutral-200 px-6 py-4 text-left">
+        <DialogContent className="max-h-[90vh] overflow-y-auto border border-slate-200 bg-white p-0 sm:max-w-4xl">
+          <DialogHeader className="border-b border-slate-200 px-6 py-4 text-left">
             <DialogTitle className="text-2xl font-semibold">
               {editingVehicle ? "Modifier l'annonce" : "Créer une annonce"}
             </DialogTitle>
           </DialogHeader>
-          <div className="bg-neutral-950 p-6 text-white">
+          <div className="bg-slate-950 p-6 text-white">
             <VehicleForm
               vehicle={editingVehicle ?? undefined}
               onSubmit={handleFormSubmit}

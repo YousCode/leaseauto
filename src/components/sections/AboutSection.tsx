@@ -202,7 +202,7 @@ export default function AboutSection() {
   ];
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gray-50 relative overflow-hidden">
+    <section ref={sectionRef} className="py-20 bg-slate-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="parallax-bg absolute inset-0 bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 opacity-60"></div>
       <div className="floating-element-1 absolute top-20 left-10 w-32 h-32 bg-red-100 rounded-full opacity-20"></div>
@@ -212,11 +212,11 @@ export default function AboutSection() {
         
         {/* Header */}
         <div ref={headerRef} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
             Leasing automobile
-            <span className="text-red-600 block">premium</span>
+            <span className="text-brand-primary block">premium</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed">
             Lease Auto est votre partenaire de confiance pour une expérience 
             de leasing automobile d'exception. Nous combinons expertise, 
             innovation et service personnalisé pour vous offrir les meilleures 
@@ -237,13 +237,13 @@ export default function AboutSection() {
                   className="text-center group cursor-pointer transform-gpu"
                   style={{ perspective: "1000px" }}
                 >
-                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-3xl mb-2 transition-transform duration-300">
                     {stat.icon}
                   </div>
-                  <div className="stat-number text-3xl font-bold text-gray-900 mb-1">
+                  <div className="stat-number text-3xl font-bold text-slate-900 mb-1">
                     {stat.number}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-slate-600">
                     {stat.label}
                   </div>
                 </div>
@@ -253,13 +253,13 @@ export default function AboutSection() {
             {/* Why Choose Us */}
             <div ref={featuresRef}>
               <div className="flex items-center mb-6">
-                <span className="text-red-600 font-bold text-sm tracking-wider">
+                <span className="text-brand-primary font-bold text-sm tracking-wider">
                   POURQUOI NOUS CHOISIR ?
                 </span>
-                <div className="ml-4 h-px bg-red-600 flex-1"></div>
+                <div className="ml-4 h-px bg-brand-primary flex-1"></div>
               </div>
               
-              <h3 className="text-3xl font-bold text-gray-900 mb-8">
+              <h3 className="text-3xl font-bold text-slate-900 mb-8">
                 L'excellence automobile à votre portée
               </h3>
 
@@ -269,8 +269,8 @@ export default function AboutSection() {
                     key={index}
                     className="feature-item flex items-start space-x-3 group cursor-pointer"
                   >
-                    <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-300" />
-                    <span className="text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors duration-300">
+                    <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5 transition-transform duration-300" />
+                    <span className="text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors duration-300">
                       {feature}
                     </span>
                   </div>
@@ -280,10 +280,10 @@ export default function AboutSection() {
 
             {/* CTA Buttons */}
             <div ref={buttonsRef} className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-bold hover:bg-red-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+              <button className="bg-brand-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-brand-primary-dark transform transition-all duration-300 shadow-lg hover:shadow-xl">
                 DÉCOUVRIR NOS VÉHICULES
               </button>
-              <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-bold hover:border-red-600 hover:text-red-600 transition-all duration-300">
+              <button className="border-2 border-slate-300 text-slate-700 px-8 py-4 rounded-lg font-bold hover:border-brand-primary hover:text-brand-primary transition-all duration-300">
                 EN SAVOIR PLUS →
               </button>
             </div>
@@ -291,7 +291,7 @@ export default function AboutSection() {
 
           {/* Right Images Grid */}
           <div ref={imagesRef} className="relative">
-            <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold z-10">
+            <div className="absolute top-4 right-4 bg-brand-primary text-white px-4 py-2 rounded-full text-sm font-bold z-10">
               #1 EN FRANCE
             </div>
             
@@ -307,14 +307,14 @@ export default function AboutSection() {
                   <img
                     src={image}
                     alt={`Véhicule premium ${index + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
                   {/* Hover Effect */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <span className="text-gray-900 font-semibold text-sm">
+                      <span className="text-slate-900 font-semibold text-sm">
                         Voir détails
                       </span>
                     </div>

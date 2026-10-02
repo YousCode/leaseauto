@@ -17,10 +17,10 @@ const PolitiqueConfidentialitePage = () => {
   );
 
   return (
-    <main className="bg-[#f7f9fb] min-h-screen pt-16 pb-20">
+    <main className="bg-[#F5F7FB] min-h-screen pt-16 pb-20">
       <div className="max-w-5xl mx-auto px-4 space-y-8">
         <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-[#DA1212]">Données personnelles</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-brand-primary">Données personnelles</p>
           <h1 className="text-3xl font-bold text-slate-900">Politique de confidentialité</h1>
           <p className="text-sm text-slate-600">
             Politique conforme au RGPD (UE) 2016/679 et à la loi Informatique et Libertés modifiée.

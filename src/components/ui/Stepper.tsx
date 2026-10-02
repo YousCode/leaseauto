@@ -11,7 +11,7 @@ interface StepperProps {
 export default function Stepper({
   steps,
   current,
-  accentColor = "#E10600",
+  accentColor = "#C41E20",
   completedColor = "#16a34a",
 }: StepperProps) {
   return (
