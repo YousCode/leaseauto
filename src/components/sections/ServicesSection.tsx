@@ -1,8 +1,8 @@
 import type { ComponentType } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Car, Users, Truck, CarFront, Zap, Award, ArrowRight, Check } from "lucide-react";
-import { fadeUp, viewportOnce, stagger } from "@/lib/motion";
+import { ArrowUpRight, Award, Car, CarFront, Check, Truck, Users, Zap } from "lucide-react";
+import { stagger } from "@/lib/motion";
+import { Reveal } from "@/components/ui/Reveal";
 
 type Service = {
   icon: ComponentType<{ className?: string }>;
@@ -12,142 +12,174 @@ type Service = {
   image?: string;
 };
 
-const SERVICES: Service[] = [
-  {
-    icon: Car,
-    title: "Leasing Longue Durée",
-    description: "Solutions flexibles de 12 à 60 mois avec maintenance planifiée et coûts maîtrisés.",
-    bullets: ["Maintenance préventive", "Suivi digitalisé", "Option assistance 24/7"],
-  },
-  {
-    icon: Users,
-    title: "Leasing Professionnel",
-    description: "Fiscalité optimisée, coût total réduit et outils de gestion de flotte.",
-    bullets: ["Avantages fiscaux", "Gestion de flotte", "Facturation simplifiée"],
-  },
-  {
-    icon: Zap,
-    title: "Véhicules Électriques",
-    description: "Électriques et hybrides : autonomie adaptée et écosystème de recharge.",
-    bullets: ["Bonus écologique", "Bornes de recharge", "Autonomie optimisée"],
-  },
-  {
-    icon: Award,
-    title: "Véhicules Premium",
-    description: "Sélection haut de gamme : finitions, équipements, accompagnement dédié.",
-    bullets: ["Marques premium", "Équipements haut de gamme", "Service dédié"],
-  },
-  {
-    icon: Truck,
-    title: "Utilitaires Sur Mesure",
-    description: "Fourgons, châssis cabine et transformations pour les pros exigeants.",
-    bullets: ["Volumes adaptés à vos métiers", "Aménagements atelier ou frigorifique", "Disponibilité rapide"],
-    image: "/images/services/utilitaires.webp",
-  },
-  {
-    icon: CarFront,
-    title: "Leasing VTC & Chauffeurs",
-    description: "Berlines confort et hybrides pour vos prestations, en leasing longue durée.",
-    bullets: ["Contrats dédiés VTC", "Toyota C-HR & hybrides", "Assistance chauffeur 24/7"],
-    image: "/images/services/vtc.webp",
-  },
-];
+const LEASING: Service = {
+  icon: Car,
+  title: "Leasing Longue Durée",
+  description: "Solutions flexibles de 12 à 60 mois avec maintenance planifiée et coûts maîtrisés.",
+  bullets: ["Maintenance préventive", "Suivi digitalisé", "Option assistance 24/7"],
+};
 
-function ServiceCard({ s, index }: { s: Service; index: number }) {
+const PRO: Service = {
+  icon: Users,
+  title: "Leasing Professionnel",
+  description: "Fiscalité optimisée, coût total réduit et outils de gestion de flotte.",
+  bullets: ["Avantages fiscaux", "Gestion de flotte", "Facturation simplifiée"],
+};
+
+const ELECTRIC: Service = {
+  icon: Zap,
+  title: "Véhicules Électriques",
+  description: "Électriques et hybrides : autonomie adaptée et écosystème de recharge.",
+  bullets: ["Bonus écologique", "Bornes de recharge", "Autonomie optimisée"],
+};
+
+const PREMIUM: Service = {
+  icon: Award,
+  title: "Véhicules Premium",
+  description: "Sélection haut de gamme : finitions, équipements, accompagnement dédié.",
+  bullets: ["Marques premium", "Équipements haut de gamme", "Service dédié"],
+};
+
+const UTILITY: Service = {
+  icon: Truck,
+  title: "Utilitaires Sur Mesure",
+  description: "Fourgons, châssis cabine et transformations pour les pros exigeants.",
+  bullets: ["Volumes adaptés à vos métiers", "Aménagements atelier ou frigorifique", "Disponibilité rapide"],
+  image: "/images/services/utilitaires.webp",
+};
+
+const VTC: Service = {
+  icon: CarFront,
+  title: "Leasing VTC & Chauffeurs",
+  description: "Berlines confort et hybrides pour vos prestations, en leasing longue durée.",
+  bullets: ["Contrats dédiés VTC", "Toyota C-HR & hybrides", "Assistance chauffeur 24/7"],
+  image: "/images/services/vtc.webp",
+};
+
+const cardBase =
+  "surface group relative h-full transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-slate-300";
+
+function ServiceBody({ s, large = false }: { s: Service; large?: boolean }) {
   const Icon = s.icon;
   return (
-    <motion.article
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={viewportOnce}
-      transition={{ delay: stagger(index) }}
-      className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
-    >
-      {s.image ? (
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
-          <img src={s.image} alt={s.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-        </div>
-      ) : null}
-      <div className="flex flex-1 flex-col p-6 sm:p-7">
-        <span className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-brand-primary-soft text-brand-primary">
-          <Icon className="h-5 w-5" />
-        </span>
-        <h3 className="text-lg font-semibold text-slate-900">{s.title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.description}</p>
-        <ul className="mt-4 space-y-2">
-          {s.bullets.map((b) => (
-            <li key={b} className="flex items-center gap-2 text-sm text-slate-700">
-              <Check className="h-4 w-4 shrink-0 text-brand-primary" />
-              <span>{b}</span>
-            </li>
-          ))}
-        </ul>
-        <Link
-          to="/contact"
-          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-primary transition-[gap] hover:gap-3"
-        >
-          Demander un devis <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </motion.article>
+    <>
+      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-primary-soft text-brand-primary">
+        <Icon className="h-5 w-5" />
+      </span>
+      <h2 className={`mt-6 font-display font-semibold text-night ${large ? "text-2xl md:text-[1.75rem] md:leading-tight" : "text-xl"}`}>
+        {s.title}
+      </h2>
+      <p className="mt-2 text-sm leading-relaxed text-slate-600 md:text-[15px]">{s.description}</p>
+      <ul className="mt-5 space-y-2.5">
+        {s.bullets.map((b) => (
+          <li key={b} className="flex items-start gap-2.5 text-sm text-slate-700">
+            <Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" />
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+      {/* Lien étiré : toute la carte est cliquable */}
+      <Link
+        to="/contact"
+        aria-label={`Demander un devis : ${s.title}`}
+        className="mt-auto inline-flex min-h-[44px] items-center gap-2 pt-6 text-sm font-semibold text-night after:absolute after:inset-0 after:rounded-[28px]"
+      >
+        Demander un devis
+        <ArrowUpRight
+          aria-hidden
+          className="h-4 w-4 text-brand-primary transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        />
+      </Link>
+    </>
   );
 }
 
+function ServiceCard({ s }: { s: Service }) {
+  return (
+    <article className={`${cardBase} flex flex-col p-7 md:p-8`}>
+      <ServiceBody s={s} />
+    </article>
+  );
+}
+
+function FeatureCard({ s, imageRight = false }: { s: Service; imageRight?: boolean }) {
+  return (
+    <article className={`${cardBase} grid gap-2 p-3 sm:grid-cols-2`}>
+      <div
+        className={`relative aspect-[16/11] overflow-hidden rounded-[20px] bg-slate-100 sm:aspect-auto sm:min-h-[380px] ${
+          imageRight ? "sm:order-last" : ""
+        }`}
+      >
+        <img
+          src={s.image}
+          alt={s.title}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+        />
+      </div>
+      <div className="flex flex-col p-4 sm:p-6 md:p-7">
+        <ServiceBody s={s} large />
+      </div>
+    </article>
+  );
+}
+
+/** Grille « bento » des services. Le titre de page (h1) est porté par le PageHero. */
 export function ServicesSection() {
   return (
-    <section id="services" className="bg-brand-light py-20 md:py-24 text-slate-900">
-      <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
-        <motion.header
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="mx-auto mb-12 max-w-3xl text-center"
-        >
-          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-slate-400">Nos services</p>
-          <h1 className="mt-2 font-heading text-3xl font-semibold text-brand-ink md:text-4xl">
-            Une gamme complète de services
-          </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-500 md:text-base">
-            Particuliers, VTC, artisans et sociétés : une solution par usage, un seul interlocuteur.
-          </p>
-        </motion.header>
+    <section id="services" aria-label="Nos services" className="bg-paper py-14 md:py-20">
+      <div className="container-x">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-12">
+          <Reveal className="md:col-span-2 lg:col-span-7">
+            <FeatureCard s={UTILITY} />
+          </Reveal>
+          <Reveal delay={stagger(1)} className="lg:col-span-5">
+            <ServiceCard s={LEASING} />
+          </Reveal>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {SERVICES.map((item, i) => (
-            <ServiceCard key={item.title} s={item} index={i} />
-          ))}
+          <Reveal className="lg:col-span-4">
+            <ServiceCard s={PRO} />
+          </Reveal>
+          <Reveal delay={stagger(1)} className="lg:col-span-4">
+            <ServiceCard s={ELECTRIC} />
+          </Reveal>
+          <Reveal delay={stagger(2)} className="lg:col-span-4">
+            <ServiceCard s={PREMIUM} />
+          </Reveal>
+
+          <Reveal className="md:col-span-2 lg:col-span-5">
+            <aside className="surface-night grain relative flex h-full flex-col overflow-hidden p-8 md:p-10">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-brand-ink/70 blur-[90px]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -bottom-32 -left-24 h-64 w-64 rounded-full bg-brand-primary/25 blur-[100px]"
+              />
+              <div className="relative z-10 flex h-full flex-col">
+                <p className="eyebrow eyebrow-dark">Sur mesure</p>
+                <h2 className="display-md mt-5">Besoin d’un service personnalisé ?</h2>
+                <p className="mt-4 max-w-md text-sm leading-relaxed text-white/65 md:text-base">
+                  Nos conseillers construisent une solution sur mesure pour vos usages et votre budget.
+                </p>
+                <div className="mt-auto flex flex-col gap-3 pt-10 sm:flex-row">
+                  <Link to="/vehicules" className="btn btn-primary">
+                    Voir les véhicules
+                    <ArrowUpRight />
+                  </Link>
+                  <Link to="/contact" className="btn btn-ghost-dark">
+                    Nous contacter
+                  </Link>
+                </div>
+              </div>
+            </aside>
+          </Reveal>
+          <Reveal delay={stagger(1)} className="md:col-span-2 lg:col-span-7">
+            <FeatureCard s={VTC} imageRight />
+          </Reveal>
         </div>
-
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="mt-14 flex flex-col items-center justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-8 text-center sm:p-10 lg:flex-row lg:text-left"
-        >
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900 md:text-2xl">Besoin d’un service personnalisé ?</h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
-              Nos conseillers construisent une solution sur mesure pour vos usages et votre budget.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              to="/vehicules"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-dark"
-            >
-              Voir les véhicules <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50"
-            >
-              Nous contacter
-            </Link>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

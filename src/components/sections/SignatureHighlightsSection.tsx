@@ -1,6 +1,8 @@
-import type { CSSProperties } from "react";
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { ArrowUpRight, Star } from "lucide-react";
+import { Marquee } from "@/components/ui/Marquee";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 type Review = { author: string; timing: string; body: string };
 
@@ -39,148 +41,104 @@ const getInitials = (name: string) => {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 };
 
-const gradientMask: CSSProperties = {
-  maskImage: "linear-gradient(90deg, transparent 0%, black 4%, black 96%, transparent 100%)",
-  WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 4%, black 96%, transparent 100%)",
-};
+const HALF = Math.ceil(REVIEWS.length / 2);
+const ROWS = [REVIEWS.slice(0, HALF), REVIEWS.slice(HALF)];
+
+/** Le bandeau défilant n'existe que sur écran large et si les animations sont acceptées. */
+const MARQUEE_QUERY = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
+
+function useMarqueeEnabled() {
+  const [enabled, setEnabled] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(MARQUEE_QUERY).matches,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia(MARQUEE_QUERY);
+    const onChange = () => setEnabled(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return enabled;
+}
+
+function ReviewCard({ review, className = "" }: { review: Review; className?: string }) {
+  const name = toTitleCase(review.author);
+  return (
+    <figure className={`surface flex h-[248px] shrink-0 flex-col p-6 ${className}`}>
+      <figcaption className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            aria-hidden
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-night font-display text-sm font-semibold text-white"
+          >
+            {getInitials(name)}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate font-display text-base font-semibold text-night">{name}</p>
+            <p className="text-xs text-slate-500">{review.timing}</p>
+          </div>
+        </div>
+        <span className="chip num shrink-0">
+          <Star aria-hidden className="h-3.5 w-3.5 fill-brand-primary text-brand-primary" />
+          4,9
+        </span>
+      </figcaption>
+      <blockquote className="mt-5 line-clamp-4 text-sm leading-relaxed text-slate-600 md:text-[15px]">
+        {review.body}
+      </blockquote>
+      <p className="mt-auto pt-4 text-xs font-medium text-slate-400">Avis Google</p>
+    </figure>
+  );
+}
 
 export function SignatureHighlightsSection() {
-  const looped = useMemo(() => [...REVIEWS, ...REVIEWS], []);
-  const [isPaused, setIsPaused] = useState(false);
+  const marquee = useMarqueeEnabled();
 
   return (
-    <section className="relative bg-white text-slate-900 overflow-hidden">
-      <style>
-        {`
-          @keyframes review-marquee-x {
-            0% { transform: translate3d(0,0,0); }
-            100% { transform: translate3d(-50%,0,0); }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            .marquee-track { animation: none !important; transform: none !important; }
-          }
-
-          /* clamp texte (si tu n’as pas le plugin line-clamp) */
-          .clamp-4 {
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-          }
-        `}
-      </style>
-
-      <div className="relative w-full px-4 md:px-10 lg:px-16 py-16 md:py-20">
-        {/* header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <p className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-[0.25em] text-brand-primary">
-              <span className="h-2 w-2 rounded-full bg-brand-primary" />
-              avis clients
-            </p>
-            <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-              Ils nous font confiance.
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm md:text-base text-slate-600">
-              Une sélection d’avis authentiques : transparence, accueil, délais, accompagnement personnalisé.
-              Faites défiler pour voir comment nous travaillons au quotidien.
-            </p>
-          </div>
-
-          <div className="md:text-right text-sm text-slate-500">
-            <p className="font-semibold text-slate-900">4,9/5</p>
-            <p className="text-slate-500">moyenne Google sur l’année</p>
-            <a
-              href={REVIEWS_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
-            >
-              Voir tous les avis Google <span aria-hidden>↗</span>
-            </a>
-          </div>
-        </div>
-
-        {/* marquee container */}
-        <div className="relative mt-10 md:mt-12 rounded-3xl bg-gradient-to-r from-white via-white to-slate-50 shadow-[0_25px_60px_rgba(17,24,39,0.12)] overflow-hidden">
-          <div className="pointer-events-none absolute inset-0" style={gradientMask} />
-          {/* halos */}
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-24 top-10 h-52 w-52 rounded-full bg-brand-primary/10 blur-[120px]" />
-            <div className="absolute right-0 bottom-0 h-56 w-56 rounded-full bg-[#2563eb]/10 blur-[130px]" />
-          </div>
-
-          <div
-            className="marquee relative"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onFocusCapture={() => setIsPaused(true)}
-            onBlurCapture={() => setIsPaused(false)}
-          >
-            {/* padding pour éviter la carte coupée */}
-            <div
-              className="marquee-track flex w-[200%] gap-4 md:gap-6 py-10 pl-6 pr-6 md:pl-10 md:pr-10"
-              style={{
-                animation: "review-marquee-x 28s linear infinite",
-                animationPlayState: isPaused ? "paused" : "running",
-              }}
-            >
-              {looped.map((review, idx) => {
-                const name = toTitleCase(review.author);
-                const initials = getInitials(name);
-
-                return (
-                <a
-                  key={`${review.author}-${idx}`}
-                  href={REVIEWS_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group relative min-w-[280px] md:min-w-[340px] max-w-[360px] rounded-2xl bg-white shadow-[0_14px_28px_rgba(2,6,23,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(196,30,32,0.14)]"
-                >
-                    {/* barre rouge */}
-                    <span className="absolute left-0 top-6 h-12 w-[3px] rounded-full bg-brand-primary transition-all duration-300 group-hover:h-16" />
-
-                    <div className="flex h-full flex-col px-6 py-7">
-                      {/* header fixe */}
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
-                            {initials}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold uppercase tracking-[0.08em] text-slate-900">
-                              {name}
-                            </p>
-                            <p className="text-xs text-slate-500">{review.timing}</p>
-                          </div>
-                        </div>
-
-                        <span className="flex-shrink-0 rounded-full bg-brand-primary/10 px-2 py-1 text-[11px] font-semibold text-brand-primary">
-                          ★ 4,9
-                        </span>
-                      </div>
-
-                      {/* body homogène */}
-                      <p className="mt-4 text-sm md:text-base leading-relaxed text-slate-700 clamp-4">
-                        {review.body}
-                      </p>
-
-                      {/* footer fixe */}
-                      <div className="mt-auto pt-5">
-                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                          Avis Google <span className="text-brand-primary">↗</span>
-                        </span>
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
+    <section className="section overflow-hidden bg-paper text-night">
+      <div className="container-x">
+        <SectionHeading
+          eyebrow="Avis clients"
+          title="Ils nous font confiance."
+          subtitle="Une sélection d’avis authentiques : transparence, accueil, délais, accompagnement personnalisé. Faites défiler pour voir comment nous travaillons au quotidien."
+          action={
+            <div className="flex flex-col items-start gap-4 md:items-end">
+              <p className="flex items-baseline gap-2">
+                <span className="num font-display text-3xl font-bold text-night">4,9/5</span>
+                <span className="text-sm text-slate-600">moyenne Google sur l’année</span>
+              </p>
+              <a href={REVIEWS_URL} target="_blank" rel="noreferrer" className="btn btn-ghost">
+                Voir tous les avis Google
+                <ArrowUpRight />
+              </a>
             </div>
-          </div>
-        </div>
-
+          }
+        />
       </div>
+
+      {marquee ? (
+        <Reveal className="space-y-4">
+          {ROWS.map((row, i) => (
+            <Marquee key={i} duration={i === 0 ? 70 : 62} reverse={i === 1} pauseOnHover className="mask-fade-x">
+              {row.map((review) => (
+                <ReviewCard key={review.author} review={review} className="mr-4 w-[380px]" />
+              ))}
+            </Marquee>
+          ))}
+        </Reveal>
+      ) : (
+        <ul
+          tabIndex={0}
+          aria-label="Avis clients"
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 max-md:no-scrollbar md:px-8"
+        >
+          {REVIEWS.map((review) => (
+            <li key={review.author} className="shrink-0 snap-center">
+              <ReviewCard review={review} className="w-[82vw] max-w-[360px]" />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

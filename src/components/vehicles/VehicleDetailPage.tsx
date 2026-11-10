@@ -26,6 +26,7 @@ import { useVehicleBySlug } from "@/hooks/useVehicleBySlug";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { BrandLogo } from "@/lib/BrandLogo";
 import { estimateVehicleMonthly } from "@/lib/finance";
+import { FooterSection } from "@/components/sections/FooterSection";
 
 const ACCENT = "#C41E20";
 const DEFAULT_FINANCE_DURATION_MONTHS = 60;
@@ -249,10 +250,10 @@ const VehicleDetailPage = () => {
           </div>
         </main>
       ) : (
-        <main className="bg-white min-h-screen pb-28 md:pb-12">
+        <main className="bg-paper min-h-screen -mt-[var(--header-offset)] pt-[var(--header-offset)] pb-28 md:pb-16">
           {/* Breadcrumb */}
-          <div className="border-b border-slate-100">
-            <div className="mx-auto max-w-6xl px-4 md:px-6 h-11 flex items-center gap-2 text-sm">
+          <div>
+            <div className="container-x flex h-14 items-center gap-2 pt-4 text-sm">
               <button
                 onClick={goBack}
                 className="flex items-center gap-1.5 text-slate-400 hover:text-slate-800 transition-colors font-medium"
@@ -268,7 +269,7 @@ const VehicleDetailPage = () => {
           </div>
 
           {/* Main content */}
-          <div className="mx-auto max-w-6xl px-4 md:px-6 py-6 md:py-8 overflow-hidden">
+          <div className="container-x py-6 md:py-8 overflow-hidden">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10 lg:items-start">
 
               {/* ====== LEFT COLUMN ====== */}
@@ -352,7 +353,7 @@ const VehicleDetailPage = () => {
                 </div>
 
                 {/* Mobile: compact price + specs card */}
-                <div className="lg:hidden rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+                <div className="lg:hidden rounded-[24px] border border-slate-200/80 bg-white p-4 space-y-3">
                   <div className="text-center">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{displayVehicle.brand}</p>
                     <h1 className="text-lg font-bold text-slate-900 leading-tight mt-0.5">
@@ -369,7 +370,7 @@ const VehicleDetailPage = () => {
                   </div>
                   <div className="border-t border-slate-100 pt-3 text-center">
                     <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400">Prix du véhicule</p>
-                    <p className="text-2xl font-black leading-tight mt-0.5" style={{ color: ACCENT }}>{priceLabel}</p>
+                    <p className="text-2xl font-display font-bold leading-tight mt-0.5" style={{ color: ACCENT }}>{priceLabel}</p>
                     <p className="text-xs text-slate-500 mt-1">
                       Loyer mensuel <span className="font-bold text-slate-800">{displayedMonthlyLabel}</span>
                     </p>
@@ -395,7 +396,7 @@ const VehicleDetailPage = () => {
                 </div>
 
                 {/* Description */}
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 md:p-5 space-y-3 overflow-hidden">
+                <div className="rounded-[24px] border border-slate-200/80 bg-white p-4 md:p-5 space-y-3 overflow-hidden">
                   <div className="flex items-center gap-2">
                     <Shield size={12} className="text-slate-300" />
                     <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
@@ -420,7 +421,7 @@ const VehicleDetailPage = () => {
 
                 {/* Options + Equipment */}
                 {(optionsList.length > 0 || equipmentList.length > 0) && (
-                  <div className="rounded-2xl border border-slate-100 bg-white p-4 md:p-5 space-y-5 overflow-hidden">
+                  <div className="rounded-[24px] border border-slate-200/80 bg-white p-4 md:p-5 space-y-5 overflow-hidden">
                     {optionsList.length > 0 && (
                       <div className="space-y-3">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
@@ -481,7 +482,7 @@ const VehicleDetailPage = () => {
                 transition={{ duration: DURATION, ease: EASE, delay: 0.08 }}
                 className="space-y-5 lg:self-start"
               >
-                <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-[0_10px_34px_rgba(15,23,42,0.08)] bg-white">
+                <div className="rounded-[28px] border border-slate-200/80 overflow-hidden bg-white">
                   {/* Brand + model + specs (hidden on mobile, shown in mobile price card instead) */}
                   <div className="hidden lg:block p-5 space-y-4 bg-white">
                     <div className="flex items-center gap-3">
@@ -490,7 +491,7 @@ const VehicleDetailPage = () => {
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">
                           {displayVehicle.brand}
                         </p>
-                        <h1 className="font-heading text-[20px] font-bold text-slate-900 leading-tight tracking-tight">
+                        <h1 className="font-display text-[20px] font-bold text-slate-900 leading-tight tracking-tight">
                           {displayVehicle.model}
                           {displayVehicle.version ? ` ${displayVehicle.version}` : ""}
                         </h1>
@@ -515,12 +516,12 @@ const VehicleDetailPage = () => {
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                       Prix du véhicule
                     </p>
-                    <p className="font-heading text-[2.2rem] font-extrabold leading-none tracking-tight [font-variant-numeric:tabular-nums]" style={{ color: ACCENT }}>
+                    <p className="font-display text-[2.2rem] font-extrabold leading-none tracking-tight [font-variant-numeric:tabular-nums]" style={{ color: ACCENT }}>
                       {priceLabel}
                     </p>
                     <div className="flex items-baseline gap-2 pt-1.5">
                       <span className="text-xs text-slate-400 whitespace-nowrap">Loyer mensuel</span>
-                      <span className="font-heading text-2xl font-bold text-slate-900 whitespace-nowrap tracking-tight [font-variant-numeric:tabular-nums]">
+                      <span className="font-display text-2xl font-bold text-slate-900 whitespace-nowrap tracking-tight [font-variant-numeric:tabular-nums]">
                         {displayedMonthlyLabel}
                       </span>
                     </div>
@@ -600,18 +601,18 @@ const VehicleDetailPage = () => {
                   </div>
 
                   {/* CTA section — dark */}
-                  <div className="bg-slate-900 px-5 py-5 space-y-3.5 rounded-b-2xl">
+                  <div className="grain relative bg-night px-6 py-6 space-y-3.5">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/80 mb-1">
+                      <p className="eyebrow eyebrow-dark mb-2">
                         Votre mensualité estimée
                       </p>
-                      <p className="font-heading text-[2.35rem] font-extrabold text-white leading-none tracking-tight [font-variant-numeric:tabular-nums]">
+                      <p className="font-display num text-[2.6rem] font-bold text-white leading-none tracking-tight">
                         {displayedMonthlyLabel}
                       </p>
                     </div>
                     <a
                       href="tel:0184218393"
-                      className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-brand-primary text-white font-semibold hover:bg-[#b80f0f] active:scale-[0.98] transition-all text-sm shadow-[0_4px_20px_rgba(218,18,18,0.45)]"
+                      className="btn btn-primary w-full"
                     >
                       <Phone size={15} />
                       Appeler pour un devis
@@ -620,19 +621,19 @@ const VehicleDetailPage = () => {
                       href={`https://wa.me/${WHATSAPP_PHONE}?text=${whatsappMsg}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-slate-700 text-white bg-slate-800 font-semibold hover:bg-slate-700 transition-colors text-sm"
+                      className="btn btn-ghost-dark w-full"
                     >
                       <MessageCircle size={15} />
                       WhatsApp
                     </a>
-                    <p className="text-[11px] text-slate-500 text-center">
+                    <p className="num text-[11px] text-white/50 text-center">
                       +33 7 67 79 31 06
                     </p>
                   </div>
                 </div>
 
                 {/* Delivery (mobile — shown in right column) */}
-                <div className="lg:hidden rounded-2xl border border-slate-100 bg-white p-4 space-y-2.5">
+                <div className="lg:hidden rounded-[24px] border border-slate-200/80 bg-white p-4 space-y-2.5">
                   {[
                     { Icon: Shield, text: "Garantie 12 mois incluse" },
                     { Icon: MoveRight, text: "Dossier traité en 48h" },
@@ -650,13 +651,13 @@ const VehicleDetailPage = () => {
 
           {/* Sticky mobile CTA */}
           <div
-            className="fixed inset-x-0 bottom-0 z-30 bg-white/96 backdrop-blur-sm border-t border-slate-100 px-4 py-3 md:hidden"
+            className="fixed inset-x-0 bottom-0 z-30 bg-white/95 backdrop-blur-xl border-t border-slate-200 px-4 py-3 md:hidden"
             style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
           >
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400">Prix TTC</p>
-                <p className="text-xl font-black leading-tight" style={{ color: ACCENT }}>
+                <p className="text-xl font-display font-bold leading-tight" style={{ color: ACCENT }}>
                   {priceLabel}
                 </p>
                 <p className="text-xs text-slate-500 truncate">
@@ -665,7 +666,7 @@ const VehicleDetailPage = () => {
               </div>
               <a
                 href="tel:0184218393"
-                className="flex items-center gap-2 h-11 px-5 rounded-full bg-brand-primary text-white font-semibold text-sm flex-shrink-0 shadow-[0_4px_16px_rgba(218,18,18,0.4)]"
+                className="btn btn-primary btn-sm h-11 flex-shrink-0"
               >
                 <Phone size={14} />
                 Appeler
@@ -674,6 +675,7 @@ const VehicleDetailPage = () => {
           </div>
         </main>
       )}
+      <FooterSection />
 
       {/* Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>

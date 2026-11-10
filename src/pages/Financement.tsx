@@ -1,34 +1,28 @@
-// src/pages/FinancementPage.tsx
-import React, { useMemo, useState, useDeferredValue } from "react";
+// src/pages/Financement.tsx
+import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   ArrowRight,
+  ArrowUpRight,
   BadgeCheck,
   BriefcaseBusiness,
   CarFront,
+  Check,
   Clock3,
   HandCoins,
-  Receipt,
-  ShieldCheck,
-  Zap,
-  Check,
-  Calculator,
   Search,
+  Zap,
 } from "lucide-react";
+import { PageHero } from "@/components/ui/PageHero";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Reveal } from "@/components/ui/Reveal";
+import { FooterSection } from "@/components/sections/FooterSection";
+import { AnimatedNumber, RangeField } from "@/components/sections/FinancingSection";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { getLenis } from "@/lib/lenis";
 import { clampNumber, simulateLinearLoa } from "@/lib/finance";
+import { stagger } from "@/lib/motion";
 
 type Solution = {
   title: string;
@@ -37,6 +31,7 @@ type Solution = {
   accent: string;
   icon: React.ComponentType<{ className?: string }>;
   titleClass: string;
+  iconClass: string;
   dotClass: string;
   highlightClass: string;
   items: string[];
@@ -51,6 +46,7 @@ const SOLUTIONS: Solution[] = [
     accent: "Flexibilité + option d’achat",
     icon: CarFront,
     titleClass: "text-brand-primary",
+    iconClass: "bg-brand-primary-soft text-brand-primary",
     dotClass: "bg-brand-primary",
     highlightClass: "text-brand-primary font-semibold",
     items: [
@@ -67,13 +63,83 @@ const SOLUTIONS: Solution[] = [
     subtitle: "Mensualités fixes, budget maîtrisé",
     accent: "Vous devenez propriétaire",
     icon: HandCoins,
-    titleClass: "text-slate-900",
-    dotClass: "bg-slate-900",
-    highlightClass: "text-slate-900 font-semibold",
+    titleClass: "text-night",
+    iconClass: "bg-slate-100 text-night",
+    dotClass: "bg-night",
+    highlightClass: "text-night font-semibold",
     items: ["Vous êtes propriétaire", "Mensualités fixes", "Durée 12 à 72 mois", "Possibilité pro / société"],
     accentKeys: ["propriétaire", "fixes", "pro", "société"],
   },
 ];
+
+const HERO_CHIPS = [
+  { icon: Clock3, label: "Réponse 24–48h" },
+  { icon: Zap, label: "Sans apport possible" },
+  { icon: BriefcaseBusiness, label: "Offres VTC / Pro" },
+];
+
+const HERO_STATS = [
+  { label: "Délai moyen", value: "24–48h", helper: "Dossier complet", accent: false },
+  { label: "Sans apport", value: "Possible", helper: "Selon profil", accent: true },
+  { label: "Durée LOA", value: "12–84", helper: "Mois", accent: false },
+  { label: "Formules", value: "LOA • Crédit", helper: "Conseil & montage", accent: false },
+];
+
+const PROCESS_STEPS = [
+  { title: "Simuler", desc: "Budget et durée posés en quelques minutes." },
+  { title: "Monter le dossier", desc: "Check-list courte, dépôt en ligne, traitement express." },
+  { title: "Accord & signature", desc: "Accord de principe, signature électronique." },
+  { title: "Mise à disposition", desc: "Retrait ou livraison, rappel des conditions de fin." },
+];
+
+const HOW_TO_STEPS = [
+  {
+    title: "1. Choisir & simuler",
+    desc: "Sélectionnez votre véhicule et simulez (LOA 12–84 mois ou crédit 12–72 mois).",
+  },
+  {
+    title: "2. Dossier complet",
+    desc: "CNI/passeport, domicile < 3 mois, 3 bulletins, avis d'imposition, RIB. Pros : Kbis + bilans.",
+  },
+  {
+    title: "3. Accord & signature",
+    desc: "Analyse, accord de principe, signature électronique, puis livraison ou retrait.",
+  },
+];
+
+const WHY_ITEMS = [
+  "Conseil pro/VTC : formule, kilométrage et garanties adaptés à l’usage.",
+  "Process rapide : dossier digitalisé, retour sous 24–48h après réception.",
+  "Sans apport possible selon profil pour préserver la trésorerie.",
+  "Partenaires finance : on propose la solution LOA ou crédit la plus cohérente.",
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "Quel délai pour un accord ?",
+    a: "Après dossier complet, l’accord peut tomber sous 24–48h ouvrées selon le partenaire.",
+  },
+  {
+    q: "Faut-il un apport ?",
+    a: "LOA sans apport possible selon profil et véhicule.",
+  },
+  {
+    q: "Fin de LOA : comment ça se passe ?",
+    a: "Vous rachetez (option d’achat) ou restituez selon le contrat.",
+  },
+  {
+    q: "VTC / Pro : c’est adapté ?",
+    a: "Oui. Durée, kilométrage, garanties ajustés à l’usage pro/VTC.",
+  },
+];
+
+const DEPOSIT_PRESETS = [0, 10, 20, 30];
+
+/** Bornes des curseurs ; la saisie au clavier garde les bornes du simulateur (prix ≥ 0, 12–84 mois, 0–100 %). */
+const PRICE_RANGE = { min: 5000, max: 120000, step: 500 };
+const DURATION_RANGE = { min: 12, max: 84, step: 12 };
+const DEPOSIT_RANGE = { min: 0, max: 50, step: 1 };
+const DEFAULT_LOA_DURATION_MONTHS = 60;
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -100,12 +166,21 @@ const emphasize = (text: string, keys: string[], highlightClass: string) => {
   );
 };
 
+/** Hauteur réservée au header flottant quand on défile vers une ancre. */
+const ANCHOR_OFFSET = 96;
+
 const scrollToId = (id: string) => {
   const el = document.getElementById(id);
   if (!el) return;
+  // Cible calculée sur la position réelle : reste juste même si Lenis n'a pas encore vu un défilement natif.
+  const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - ANCHOR_OFFSET);
   const lenis = getLenis();
-  if (lenis) lenis.scrollTo(el, { offset: -96 });
-  else el.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (lenis) {
+    lenis.scrollTo(top);
+    return;
+  }
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
 };
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -116,99 +191,70 @@ const toNumber = (v: string, fallback: number) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
 };
-const DEFAULT_LOA_DURATION_MONTHS = 60;
 
-const Container = ({ children }: { children: React.ReactNode }) => (
-  <section className="mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8">{children}</section>
-);
+const finiteOr = (n: unknown, fallback: number) => (typeof n === "number" && Number.isFinite(n) ? n : fallback);
+const formatEuro = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} €`;
 
-const SectionHeader = ({
-  eyebrow,
-  title,
-  description,
-  align = "center",
-}: {
-  eyebrow: string;
-  title: React.ReactNode;
-  description?: React.ReactNode;
-  align?: "left" | "center";
-}) => (
-  <div
-    className={cn(
-      "space-y-3",
-      align === "center" ? "text-center max-w-3xl mx-auto" : "text-left max-w-3xl",
-    )}
-  >
-    <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{eyebrow}</p>
-    <h2 className="font-premium text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-[1.08]">
-      {title}
-    </h2>
-    {description ? (
-      <p className="text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed font-inter">{description}</p>
-    ) : null}
-  </div>
-);
-
-const Pill = ({
-  icon: Icon,
-  label,
-  tone = "neutral",
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  tone?: "neutral" | "accent";
-}) => (
-  <div
-    className={cn(
-      "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.14em] ring-1",
-      tone === "accent"
-        ? "bg-brand-primary/10 text-brand-primary-dark ring-brand-primary/20"
-        : "bg-white/70 text-slate-700 ring-slate-200",
-    )}
-  >
-    <Icon className={cn("h-4 w-4", tone === "accent" ? "text-brand-primary" : "text-slate-500")} />
-    {label}
-  </div>
-);
-
-const Stat = ({
-  label,
+/**
+ * Saisie numérique sur fond nuit. La valeur est appliquée en direct tant qu'elle reste dans les bornes,
+ * puis ramenée dans les bornes à la sortie du champ (on peut donc taper « 48 » sans que « 4 » soit corrigé).
+ */
+const NumberBox = ({
   value,
-  helper,
-  tone = "neutral",
+  min,
+  max,
+  unit,
+  label,
+  onCommit,
 }: {
+  value: number;
+  min: number;
+  max: number;
+  unit: string;
   label: string;
-  value: string;
-  helper: string;
-  tone?: "neutral" | "accent";
-}) => (
-  <div
-    className={cn(
-      "rounded-2xl border p-4 shadow-[0_14px_34px_rgba(15,23,42,0.06)]",
-      tone === "accent" ? "bg-brand-primary/10 border-brand-primary/15" : "bg-slate-50 border-slate-100",
-    )}
-  >
-    <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">{label}</p>
-    <p className={cn("mt-1 text-2xl font-black", tone === "accent" ? "text-brand-primary-dark" : "text-slate-900")}>
-      {value}
-    </p>
-    <p className={cn("mt-1 text-xs", tone === "accent" ? "text-brand-primary-dark/90" : "text-slate-500")}>{helper}</p>
-  </div>
-);
+  onCommit: (value: number) => void;
+}) => {
+  const [draft, setDraft] = useState(String(value));
 
-const Card = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div
-    className={cn(
-      "rounded-3xl border border-slate-100 bg-white shadow-[0_18px_44px_rgba(15,23,42,0.06)]",
-      className,
-    )}
-  >
-    {children}
-  </div>
-);
+  useEffect(() => {
+    setDraft((current) => (Number(current) === value && current !== "" ? current : String(value)));
+  }, [value]);
+
+  const commit = () => {
+    const next = clampNumber(toNumber(draft === "" ? String(value) : draft, value), min, max);
+    onCommit(next);
+    setDraft(String(next));
+  };
+
+  return (
+    <span className="flex items-center gap-2">
+      <input
+        type="number"
+        inputMode="numeric"
+        aria-label={label}
+        value={draft}
+        min={min}
+        max={Number.isFinite(max) ? max : undefined}
+        onChange={(e) => {
+          const raw = e.target.value;
+          setDraft(raw);
+          const n = Number(raw);
+          if (raw !== "" && Number.isFinite(n) && n >= min && n <= max) onCommit(n);
+        }}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+        }}
+        className="num h-11 w-28 rounded-full border border-white/15 bg-white/5 px-4 text-right font-display text-lg font-semibold text-white transition-colors [appearance:textfield] focus:border-white focus:outline-none focus-visible:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      />
+      <span aria-hidden className="w-9 text-sm font-medium text-white/65">
+        {unit}
+      </span>
+    </span>
+  );
+};
 
 const FinancementPage = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [price, setPrice] = useLocalStorage<number>("leaseauto:simu:price", 32000);
   const [duration, setDuration] = useLocalStorage<number>("leaseauto:simu:duration", DEFAULT_LOA_DURATION_MONTHS);
   const [depositPercent, setDepositPercent] = useLocalStorage<number>("leaseauto:simu:depositPercent", 20);
@@ -217,15 +263,20 @@ const FinancementPage = () => {
   const { data: vehicles = [] } = useVehicles("published");
   const [query, setQuery] = useState("");
 
+  const safePrice = Math.max(0, finiteOr(price, 32000));
+  const safeDuration = clampNumber(finiteOr(duration, DEFAULT_LOA_DURATION_MONTHS), 12, 84);
+  const safeDeposit = clampNumber(finiteOr(depositPercent, 20), 0, 100);
+  const safeResidual = finiteOr(residualPercent, 30);
+
   const simulation = useMemo(
     () =>
       simulateLinearLoa({
-        price,
-        durationMonths: duration,
-        depositPercent,
-        residualPercent,
+        price: safePrice,
+        durationMonths: safeDuration,
+        depositPercent: safeDeposit,
+        residualPercent: safeResidual,
       }),
-    [depositPercent, duration, price, residualPercent],
+    [safeDeposit, safeDuration, safePrice, safeResidual],
   );
 
   const deferredQuery = useDeferredValue(query);
@@ -243,8 +294,9 @@ const FinancementPage = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!normalizedQuery) return;
-    navigate(`/vehicules?q=${encodeURIComponent(query.trim())}`);
+    const term = query.trim();
+    if (!term) return;
+    navigate(`/vehicules?q=${encodeURIComponent(term)}`);
   };
 
   const handleSelectSuggestion = (slug?: string | null) => {
@@ -253,83 +305,112 @@ const FinancementPage = () => {
   };
 
   return (
-    <div id="top" className="relative text-slate-900 font-premium">
-      {/* Background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#f4f7fb] via-white to-[#f8fbff]" />
-      <div
-        className="absolute inset-0 -z-10 opacity-[0.35]"
-        aria-hidden
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 10% 0%, rgba(196,30,32,0.12), transparent 38%), radial-gradient(circle at 90% 10%, rgba(15,23,42,0.08), transparent 40%), radial-gradient(circle at 30% 100%, rgba(196,30,32,0.10), transparent 42%)",
-        }}
-      />
+    <div id="top" className="bg-white text-night">
+      <main>
+        <PageHero
+          eyebrow="Financement sur mesure"
+          title="Trouvez votre financement auto"
+          subtitle={
+            <>
+              Particulier, <span className="font-semibold text-white">VTC</span> ou société : LOA ou crédit auto, on
+              prépare et on obtient l’accord vite.
+            </>
+          }
+          aside={
+            <div>
+              <dl className="grid grid-cols-2 gap-3">
+                {HERO_STATS.map((stat) => (
+                  <div key={stat.label} className="rounded-[20px] border border-white/10 bg-white/5 p-5">
+                    <dt className="text-xs font-medium text-white/60">{stat.label}</dt>
+                    <dd className="mt-3">
+                      <span
+                        className={cn(
+                          "num block font-display text-2xl font-bold leading-none tracking-tight sm:text-[1.7rem]",
+                          stat.accent ? "text-brand-primary-bright" : "text-white",
+                        )}
+                      >
+                        {stat.value}
+                      </span>
+                      <span className="mt-2 block text-xs text-white/60">{stat.helper}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-4 text-xs leading-relaxed text-white/55">
+                * Estimations indicatives. Conditions selon profil, véhicule et partenaire financier.
+              </p>
+            </div>
+          }
+        >
+          <ul className="flex w-full flex-wrap gap-2">
+            {HERO_CHIPS.map(({ icon: Icon, label }) => (
+              <li key={label} className="chip-dark">
+                <Icon aria-hidden className="h-3.5 w-3.5 text-brand-primary-bright" />
+                {label}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex w-full flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={() => scrollToId("simulation")} className="btn btn-primary btn-lg">
+              Lancer la simulation
+              <ArrowRight />
+            </button>
+            <Link to="/contact" className="btn btn-ghost-dark btn-lg">
+              Parler à un conseiller
+            </Link>
+          </div>
+        </PageHero>
 
-      <div className="py-10 sm:py-12 md:py-16">
-        <Container>
-          {/* HERO */}
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
-            <div className="lg:col-span-7 space-y-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="bg-white text-slate-800 border border-slate-200 shadow-sm">
-                  Financement sur mesure
-                </Badge>
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  LOA • Crédit auto (sans LLD)
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.02] text-slate-900">
-                  Trouvez votre <span className="text-brand-primary">financement</span> auto
-                </h1>
-                <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-inter">
-                  Particulier, <span className="font-semibold text-slate-800">VTC</span> ou société : LOA ou crédit
-                  auto, on prépare et on obtient l’accord vite.
-                </p>
-              </div>
-
-              <div className="relative w-full max-w-2xl">
-                <div className="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-[0_16px_44px_rgba(15,23,42,0.10)] p-2 relative z-20">
-                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
-                      <Search className="h-5 w-5" />
+        {/* RECHERCHE + MONTAGE VTC / PRO */}
+        <section className="relative z-20 bg-white pt-12 md:pt-16">
+          <div className="container-x grid gap-4 lg:grid-cols-12 lg:gap-5">
+            <Reveal className="lg:col-span-7">
+              <div className="surface h-full p-6 sm:p-8">
+                <h2 className="font-display text-xl font-semibold text-night">
+                  <label htmlFor="financement-search">Rechercher un véhicule</label>
+                </h2>
+                <div className="relative mt-5">
+                  <form onSubmit={handleSearchSubmit} role="search" className="flex flex-col gap-3 sm:flex-row">
+                    <div className="relative flex-1">
+                      <Search
+                        aria-hidden
+                        className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+                      />
+                      <input
+                        id="financement-search"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Rechercher un véhicule (ex : Audi RS3, GLC, Model 3)"
+                        className="field h-14 rounded-full pl-14 pr-5 text-base"
+                      />
                     </div>
-                    <input
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      type="text"
-                      autoComplete="off"
-                      placeholder="Rechercher un véhicule (ex : Audi RS3, GLC, Model 3)"
-                      className="h-12 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none"
-                    />
-                    <Button
-                      type="submit"
-                      className="h-12 rounded-xl bg-brand-primary px-4 text-white hover:bg-brand-primary-dark"
-                    >
+                    <button type="submit" className="btn btn-primary btn-lg">
                       Rechercher
-                    </Button>
+                    </button>
                   </form>
                   {normalizedQuery ? (
-                    <div className="absolute top-full left-0 right-0 mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 bg-white/95 shadow-lg overflow-hidden max-h-72 overflow-y-auto z-30">
+                    <div
+                      data-lenis-prevent
+                      className="absolute left-0 right-0 top-full z-30 mt-2 max-h-72 divide-y divide-slate-100 overflow-y-auto rounded-[20px] border border-slate-200 bg-white"
+                    >
                       {suggestions.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-slate-600">Aucun véhicule trouvé pour “{query}”.</p>
+                        <p className="px-5 py-4 text-sm text-slate-600">Aucun véhicule trouvé pour “{query}”.</p>
                       ) : (
                         suggestions.map((v: any) => (
                           <button
                             key={v.slug || v.id}
                             type="button"
                             onClick={() => handleSelectSuggestion(v.slug || v.id)}
-                            className="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-center justify-between gap-3"
+                            className="flex min-h-[52px] w-full items-center justify-between gap-3 px-5 py-3 text-left transition-colors hover:bg-paper"
                           >
-                            <span className="text-sm font-semibold text-slate-900">
-                              {(v.brand || "Marque")} {(v.model || v.title || "")}
+                            <span className="text-sm font-semibold text-night">
+                              {v.brand || "Marque"} {v.model || v.title || ""}
                             </span>
-                            <span className="text-xs text-slate-500">
+                            <span className="num shrink-0 text-xs text-slate-500">
                               {v.city ? `${v.city} • ` : ""}
-                              {typeof v.price === "number"
-                                ? `${v.price.toLocaleString("fr-FR")} €`
-                                : "Voir le détail"}
+                              {typeof v.price === "number" ? `${v.price.toLocaleString("fr-FR")} €` : "Voir le détail"}
                             </span>
                           </button>
                         ))
@@ -338,489 +419,372 @@ const FinancementPage = () => {
                   ) : null}
                 </div>
               </div>
+            </Reveal>
 
-              <div className="flex flex-wrap gap-2">
-                <Pill icon={Clock3} label="Réponse 24–48h" />
-                <Pill icon={Zap} label="Sans apport possible" tone="accent" />
-                <Pill icon={BriefcaseBusiness} label="Offres VTC / Pro" />
-              </div>
-
-              <div className="flex flex-wrap gap-3 pt-1">
-                <Button
-                  onClick={() => scrollToId("simulation")}
-                  className="h-11 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary-dark"
+            <Reveal delay={0.08} className="lg:col-span-5">
+              <div className="flex h-full items-start gap-4 rounded-[28px] bg-paper p-6 sm:p-8">
+                <span
+                  aria-hidden
+                  className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand-primary-soft text-brand-primary"
                 >
-                  Lancer la simulation <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Link to="/contact">
-                  <Button
-                    variant="outline"
-                    className="h-11 rounded-full border-slate-300 text-slate-900 hover:bg-slate-100"
-                  >
-                    Parler à un conseiller
-                  </Button>
-                </Link>
+                  <BadgeCheck className="h-6 w-6" />
+                </span>
+                <div>
+                  <h2 className="font-display text-xl font-semibold text-night">Montage optimisé VTC / Pro</h2>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                    Durée, kilométrage, garanties adaptés à l’usage.
+                  </p>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {["VTC", "Pro / société", "Kilométrage"].map((tag) => (
+                      <li key={tag} className="chip">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-
-              <p className="text-xs text-slate-400 leading-relaxed">
-                * Estimations indicatives. Conditions selon profil, véhicule et partenaire financier.
-              </p>
-            </div>
-
-            {/* RIGHT PANEL */}
-            <div className="lg:col-span-5">
-              <Card className="p-4 sm:p-5 bg-white/80 backdrop-blur-xl">
-                <div className="grid grid-cols-2 gap-3">
-                  <Stat label="Délai moyen" value="24–48h" helper="Dossier complet" />
-                  <Stat label="Sans apport" value="Possible" helper="Selon profil" tone="accent" />
-                  <Stat label="Durée LOA" value="12–84" helper="Mois" />
-                  <Stat label="Formules" value="LOA • Crédit" helper="Conseil & montage" />
-                </div>
-
-                <div className="mt-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-primary/10">
-                      <BadgeCheck className="h-5 w-5 text-brand-primary" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-900">Montage optimisé VTC / Pro</p>
-                      <p className="text-sm text-slate-600">Durée, kilométrage, garanties adaptés à l’usage.</p>
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                          VTC
-                        </span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                          Pro / société
-                        </span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                          Kilométrage
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            </Reveal>
           </div>
+        </section>
 
-          {/* SOLUTIONS */}
-          <div className="mt-14 sm:mt-16">
-            <SectionHeader
+        {/* FORMULES */}
+        <section className="section bg-white">
+          <div className="container-x">
+            <SectionHeading
               eyebrow="Choisir la bonne formule"
-              title={
-                <>
-                  Deux options, <span className="text-brand-primary">très claires</span>
-                </>
-              }
-              description={
-                <>LOA = flexibilité. Crédit auto = propriété. On choisit selon budget et usage.</>
-              }
+              title="Deux options, très claires"
+              subtitle="LOA = flexibilité. Crédit auto = propriété. On choisit selon budget et usage."
+              action={<span className="chip">LOA • Crédit auto (sans LLD)</span>}
             />
 
-            <div className="mt-8 grid gap-5 md:gap-6 md:grid-cols-2">
-              {SOLUTIONS.map((solution) => (
-                <div
-                  key={solution.title}
-                  className="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white p-6 shadow-[0_16px_44px_rgba(15,23,42,0.07)] transition hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)]"
-                >
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-brand-primary/[0.07] blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                  />
-
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 shadow-inner">
+            <div className="grid gap-4 md:grid-cols-2 lg:gap-5">
+              {SOLUTIONS.map((solution, idx) => (
+                <Reveal key={solution.title} delay={stagger(idx)}>
+                  <article className="flex h-full flex-col rounded-[28px] bg-paper p-6 sm:p-9">
+                    <div className="flex items-start justify-between gap-4">
+                      <span
+                        aria-hidden
+                        className={cn("grid h-12 w-12 shrink-0 place-items-center rounded-2xl", solution.iconClass)}
+                      >
                         <solution.icon className="h-6 w-6" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <p className={cn("text-xl font-black", solution.titleClass)}>{solution.title}</p>
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                            {solution.pill}
-                          </span>
-                        </div>
-                        <p className="text-sm text-slate-600">{solution.subtitle}</p>
-                      </div>
+                      </span>
+                      <span className="chip">{solution.pill}</span>
                     </div>
-                  </div>
 
-                  <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
-                    <ul className="space-y-2 text-sm text-slate-700">
+                    <h3 className={cn("mt-8 font-display text-3xl font-bold tracking-tight", solution.titleClass)}>
+                      {solution.title}
+                    </h3>
+                    <p className="mt-2 text-base text-slate-600">{solution.subtitle}</p>
+
+                    <ul className="mb-8 mt-6 divide-y divide-slate-300/60 border-y border-slate-300/60 text-base text-slate-700">
                       {solution.items.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
-                          <span className={cn("mt-1 h-2 w-2 rounded-full", solution.dotClass)} />
+                        <li key={item} className="flex items-center gap-3 py-3.5">
+                          <span aria-hidden className={cn("h-2 w-2 shrink-0 rounded-full", solution.dotClass)} />
                           <span>{emphasize(item, solution.accentKeys, solution.highlightClass)}</span>
                         </li>
                       ))}
                     </ul>
-                  </div>
 
-                  <div className="mt-4">
-                    <div className="rounded-xl bg-gradient-to-r from-slate-500/12 to-slate-400/12 text-center text-sm font-semibold text-slate-800 py-2">
+                    <p className="mt-auto rounded-2xl bg-white px-5 py-3.5 text-center text-sm font-semibold text-night">
                       {solution.accent}
-                    </div>
-                  </div>
-                </div>
+                    </p>
+                  </article>
+                </Reveal>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* SIMULATION CTA */}
-          <div className="mt-10 sm:mt-12" id="simulation">
-            <div className="overflow-hidden rounded-3xl bg-brand-primary p-[1px] shadow-[0_22px_54px_rgba(196,30,32,0.28)]">
-              <div className="relative rounded-3xl bg-brand-primary px-6 py-10 sm:px-10 sm:py-12 text-center text-white">
+        {/* SIMULATION */}
+        <section id="simulation" className="bg-white pb-20 md:pb-28">
+          <div className="container-x">
+            <Reveal>
+              <div className="surface-night grain relative overflow-hidden p-6 sm:p-10 lg:p-14">
                 <div
                   aria-hidden
-                  className="absolute inset-0 opacity-[0.25]"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.35), transparent 40%), radial-gradient(circle at 80% 90%, rgba(255,255,255,0.18), transparent 42%)",
-                  }}
+                  className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-brand-ink/70 blur-[120px]"
                 />
-                <div className="relative mx-auto max-w-2xl space-y-3">
-                  <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Simulation rapide</p>
-                  <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                    2 minutes pour voir la mensualité en LOA ou crédit auto. On ajuste si vous êtes VTC / pro.
-                  </p>
-                  <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                    <Button
-                      onClick={() => setDialogOpen(true)}
-                      className="h-11 rounded-full bg-white px-6 text-brand-primary hover:bg-white/90"
+
+                <div className="relative z-10 grid gap-10 lg:grid-cols-12 lg:gap-14">
+                  <div className="lg:col-span-7">
+                    <p className="eyebrow eyebrow-dark">Simulation LOA</p>
+                    <h2 className="display-md mt-4 text-white">Simulation rapide</h2>
+                    <p className="mt-4 max-w-xl text-base leading-relaxed text-white/65">
+                      2 minutes pour voir la mensualité en LOA ou crédit auto. On ajuste si vous êtes VTC / pro.
+                    </p>
+                    <ul className="mt-5 flex flex-wrap gap-2">
+                      {["VTC / Pro", "Sans apport", "24–48h"].map((tag) => (
+                        <li key={tag} className="chip-dark">
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-8 grid gap-5 border-t border-white/10 pt-8">
+                      <RangeField
+                        id="simu-price"
+                        label="Prix véhicule"
+                        value={safePrice}
+                        {...PRICE_RANGE}
+                        display={formatEuro(safePrice)}
+                        minLabel={formatEuro(PRICE_RANGE.min)}
+                        maxLabel={formatEuro(PRICE_RANGE.max)}
+                        onChange={(v) => setPrice(Math.max(0, v))}
+                        valueSlot={
+                          <NumberBox
+                            label="Prix véhicule, saisie en euros"
+                            unit="€"
+                            value={safePrice}
+                            min={0}
+                            max={Number.POSITIVE_INFINITY}
+                            onCommit={(v) => setPrice(Math.max(0, v))}
+                          />
+                        }
+                      />
+                      <RangeField
+                        id="simu-duration"
+                        label="Durée (mois)"
+                        value={safeDuration}
+                        {...DURATION_RANGE}
+                        display={`${safeDuration} mois`}
+                        minLabel={`${DURATION_RANGE.min} mois`}
+                        maxLabel={`${DURATION_RANGE.max} mois`}
+                        onChange={(v) => setDuration(clampNumber(v, 12, 84))}
+                        valueSlot={
+                          <NumberBox
+                            label="Durée, saisie en mois"
+                            unit="mois"
+                            value={safeDuration}
+                            min={12}
+                            max={84}
+                            onCommit={(v) => setDuration(clampNumber(v, 12, 84))}
+                          />
+                        }
+                      />
+                      <div>
+                        <RangeField
+                          id="simu-deposit"
+                          label="Apport (%)"
+                          value={safeDeposit}
+                          {...DEPOSIT_RANGE}
+                          display={`${safeDeposit} %`}
+                          minLabel={`${DEPOSIT_RANGE.min} %`}
+                          maxLabel={`${DEPOSIT_RANGE.max} %`}
+                          onChange={(v) => setDepositPercent(clampNumber(v, 0, 100))}
+                          valueSlot={
+                            <NumberBox
+                              label="Apport, saisie en pourcentage"
+                              unit="%"
+                              value={safeDeposit}
+                              min={0}
+                              max={100}
+                              onCommit={(v) => setDepositPercent(clampNumber(v, 0, 100))}
+                            />
+                          }
+                        />
+                        <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Apport, valeurs rapides">
+                          {DEPOSIT_PRESETS.map((p) => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => setDepositPercent(p)}
+                              aria-pressed={safeDeposit === p}
+                              className={cn(
+                                "num h-11 min-w-[3.5rem] rounded-full border px-4 text-sm font-semibold transition-colors duration-300",
+                                safeDeposit === p
+                                  ? "border-white bg-white text-night"
+                                  : "border-white/20 text-white/80 hover:border-white hover:text-white",
+                              )}
+                            >
+                              {p}%
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5">
+                    <div className="flex h-full flex-col rounded-[20px] border border-white/10 bg-white/5 p-6 sm:p-8">
+                      <p className="num text-sm font-medium text-white/65">
+                        LOA · apport {safeDeposit}% · VR {safeResidual}%
+                      </p>
+                      <p className="mt-4 flex flex-wrap items-baseline gap-x-3" aria-live="polite" aria-atomic="true">
+                        <span className="sr-only">{formatEuro(simulation.monthly)} par mois</span>
+                        <span aria-hidden className="display-lg num text-white">
+                          <AnimatedNumber value={simulation.monthly} />
+                          {" €"}
+                        </span>
+                        <span aria-hidden className="font-display text-lg font-semibold text-white/65">
+                          / mois
+                        </span>
+                      </p>
+
+                      <dl className="num mt-8 divide-y divide-white/10 border-y border-white/10 text-sm">
+                        {[
+                          { label: "Apport", value: formatEuro(simulation.depositAmount) },
+                          { label: "VR estimée", value: formatEuro(simulation.residual) },
+                          { label: "Prix véhicule", value: formatEuro(safePrice) },
+                          { label: "Durée", value: `${safeDuration} mois` },
+                        ].map((row) => (
+                          <div key={row.label} className="flex items-baseline justify-between gap-4 py-3.5">
+                            <dt className="text-white/65">{row.label}</dt>
+                            <dd className="font-display text-base font-semibold text-white">{row.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <p className="mt-4 text-xs leading-relaxed text-white/55">Simulation indicative hors frais.</p>
+
+                      <div className="mt-auto flex flex-col gap-3 pt-8">
+                        <button
+                          type="button"
+                          onClick={() => scrollToId("demande-financement")}
+                          className="btn btn-primary btn-lg w-full"
+                        >
+                          Déposer mon dossier
+                          <ArrowRight />
+                        </button>
+                        <Link to="/contact" className="btn btn-ghost-dark btn-lg w-full">
+                          Être rappelé
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ÉTAPES + DEMANDE DE FINANCEMENT */}
+        <section id="demande-financement" className="section bg-paper">
+          <div className="container-x">
+            <SectionHeading
+              eyebrow="Demande de financement auto"
+              title="Obtenir votre financement LOA / crédit auto"
+              subtitle="Parcours simple : simulation, dossier, accord, signature, livraison."
+              action={
+                <Link to="/dossier" className="btn btn-dark">
+                  Déposer un dossier
+                  <ArrowUpRight />
+                </Link>
+              }
+            />
+
+            <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+              {PROCESS_STEPS.map((step, idx) => (
+                <Reveal as="li" key={step.title} delay={stagger(idx)}>
+                  <div className="surface h-full p-6 sm:p-7">
+                    <span aria-hidden className="num font-display text-5xl font-bold leading-none text-brand-primary">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="mt-5 font-display text-xl font-semibold text-night sm:mt-8">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.desc}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+
+            <Reveal className="mt-4 lg:mt-5">
+              <div className="surface p-6 sm:p-10">
+                <ul className="flex flex-wrap gap-2">
+                  {["LOA", "Crédit auto", "Pro / VTC", "Réponse rapide"].map((tag, idx) => (
+                    <li
+                      key={tag}
+                      className={cn("chip", idx === 0 && "border-transparent bg-brand-primary-soft text-brand-primary")}
                     >
-                      Faire une simulation <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                    <Link to="/contact">
-                      <Button
-                        variant="outline"
-                        className="h-11 rounded-full border-white/40 bg-white/10 text-white hover:bg-white/15"
-                      >
-                        Être rappelé
-                      </Button>
-                    </Link>
-                  </div>
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
 
-                  <div className="mt-5 flex flex-wrap justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                    <span className="rounded-full bg-white/15 px-3 py-1">VTC / Pro</span>
-                    <span className="rounded-full bg-white/15 px-3 py-1">Sans apport</span>
-                    <span className="rounded-full bg-white/15 px-3 py-1">24–48h</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* PROCESS */}
-          <div className="mt-12 sm:mt-14 grid gap-4 lg:grid-cols-4 lg:items-stretch">
-            {[
-              { title: "Simuler", desc: "Budget et durée posés en quelques minutes." },
-              { title: "Monter le dossier", desc: "Check-list courte, dépôt en ligne, traitement express." },
-              { title: "Accord & signature", desc: "Accord de principe, signature électronique." },
-              { title: "Mise à disposition", desc: "Retrait ou livraison, rappel des conditions de fin." },
-            ].map((step, idx) => (
-              <div
-                key={step.title}
-                className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.10)]"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary-dark text-sm font-black">
-                    {idx + 1}
-                  </span>
-                  <p className="text-sm font-bold text-slate-900">{step.title}</p>
-                </div>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* HOW TO */}
-          <div className="mt-12 sm:mt-14" id="demande-financement">
-            <Card className="p-6 sm:p-8">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div className="max-w-2xl space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Demande de financement auto
-                  </p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900">
-                    Obtenir votre financement LOA / crédit auto
-                  </h3>
-                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                    Parcours simple : simulation, dossier, accord, signature, livraison.
-                  </p>
+                <div className="mt-8 grid gap-8 md:grid-cols-3 md:gap-0 md:divide-x md:divide-slate-200">
+                  {HOW_TO_STEPS.map((s) => (
+                    <div key={s.title} className="md:px-8 md:first:pl-0 md:last:pr-0">
+                      <h3 className="font-display text-xl font-semibold text-night">{s.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.desc}</p>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 border border-slate-200">
-                  <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-brand-primary">LOA</span>
-                  <span className="rounded-full bg-slate-200/60 px-3 py-1 text-slate-800">Crédit auto</span>
-                  <span className="rounded-full bg-slate-200/60 px-3 py-1 text-slate-800">Pro / VTC</span>
-                  <span className="rounded-full bg-slate-200/60 px-3 py-1 text-slate-800">Réponse rapide</span>
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  {
-                    title: "1. Choisir & simuler",
-                    desc: "Sélectionnez votre véhicule et simulez (LOA 12–84 mois ou crédit 12–72 mois).",
-                  },
-                  {
-                    title: "2. Dossier complet",
-                    desc: "CNI/passeport, domicile < 3 mois, 3 bulletins, avis d'imposition, RIB. Pros : Kbis + bilans.",
-                  },
-                  {
-                    title: "3. Accord & signature",
-                    desc: "Analyse, accord de principe, signature électronique, puis livraison ou retrait.",
-                  },
-                ].map((s) => (
-                  <div key={s.title} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                    <p className="text-sm font-bold text-slate-900">{s.title}</p>
-                    <p className="mt-2 text-sm text-slate-600 leading-relaxed">{s.desc}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Financement LOA</span>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Crédit auto</span>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">VTC / Pro</span>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Sans apport selon profil</span>
-              </div>
-            </Card>
-          </div>
-
-          {/* WHY + FAQ */}
-          <div className="mt-10 sm:mt-12 grid gap-6 lg:grid-cols-2">
-            <Card className="p-6 sm:p-8">
-              <div className="space-y-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                  Pourquoi choisir LeaseAuto
-                </p>
-                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">Pro & transparent</h3>
-
-                <ul className="space-y-3 text-sm sm:text-base text-slate-700">
-                  {[
-                    "Conseil pro/VTC : formule, kilométrage et garanties adaptés à l’usage.",
-                    "Process rapide : dossier digitalisé, retour sous 24–48h après réception.",
-                    "Sans apport possible selon profil pour préserver la trésorerie.",
-                    "Partenaires finance : on propose la solution LOA ou crédit la plus cohérente.",
-                  ].map((t) => (
-                    <li key={t} className="flex items-start gap-3">
-                      <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-brand-primary/10">
-                        <Check className="h-4 w-4 text-brand-primary" />
-                      </span>
-                      <span className="leading-relaxed">{t}</span>
+                <ul className="mt-8 flex flex-wrap gap-2 border-t border-slate-200 pt-6">
+                  {["Financement LOA", "Crédit auto", "VTC / Pro", "Sans apport selon profil"].map((tag) => (
+                    <li key={tag} className="chip bg-paper">
+                      {tag}
                     </li>
                   ))}
                 </ul>
               </div>
-            </Card>
-
-            <Card className="p-6 sm:p-8">
-              <div className="space-y-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">FAQ express</p>
-                <div className="space-y-4 text-sm sm:text-base text-slate-700">
-                  {[
-                    {
-                      q: "Quel délai pour un accord ?",
-                      a: "Après dossier complet, l’accord peut tomber sous 24–48h ouvrées selon le partenaire.",
-                    },
-                    {
-                      q: "Faut-il un apport ?",
-                      a: "LOA sans apport possible selon profil et véhicule.",
-                    },
-                    {
-                      q: "Fin de LOA : comment ça se passe ?",
-                      a: "Vous rachetez (option d’achat) ou restituez selon le contrat.",
-                    },
-                    {
-                      q: "VTC / Pro : c’est adapté ?",
-                      a: "Oui. Durée, kilométrage, garanties ajustés à l’usage pro/VTC.",
-                    },
-                  ].map((item) => (
-                    <div key={item.q} className="rounded-2xl border border-slate-100 bg-slate-50/40 p-4">
-                      <p className="font-bold text-slate-900">{item.q}</p>
-                      <p className="mt-1 text-slate-600 leading-relaxed">{item.a}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
+            </Reveal>
           </div>
+        </section>
 
-          {/* CTA */}
-          <div className="mt-10 sm:mt-12">
-            <Card className="p-6 sm:p-8">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-                <div className="space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Prêt à démarrer</p>
-                  <h4 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-                    Parlez à un expert financement
-                  </h4>
-                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                    Analyse rapide, montage du dossier et simulation LOA / crédit auto.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <Link to="/contact">
-                    <Button className="h-11 rounded-full bg-brand-primary px-5 text-white hover:bg-brand-primary-dark">
-                      Contact rapide
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    className="h-11 rounded-full border-slate-300 text-slate-900 hover:bg-slate-100"
-                    onClick={() => setDialogOpen(true)}
-                  >
-                    Revoir la simulation
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </Container>
-      </div>
-
-      {/* Simulation dialog — même expérience que la FinancingSection */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl border border-slate-200 bg-white shadow-2xl shadow-black/15 max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="px-8 pt-10 pb-6 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center shadow-lg">
-                <Calculator className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <DialogTitle className="text-3xl font-black text-slate-900">Simulation LOA</DialogTitle>
-                <DialogDescription className="text-base text-slate-600 font-medium">
-                  Obtenez votre estimation personnalisée en 30 secondes
-                </DialogDescription>
-              </div>
-            </div>
-          </DialogHeader>
-
-          <div className="px-8 pb-10 space-y-8">
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Prix véhicule</label>
-                <Input
-                  type="number"
-                  value={price}
-                  min={0}
-                  onChange={(e) => setPrice(Math.max(0, toNumber(e.target.value, 0)))}
-                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-                  placeholder="32000"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Durée (mois)</label>
-                <Input
-                  type="number"
-                  value={duration}
-                  onChange={(e) =>
-                    setDuration(clampNumber(toNumber(e.target.value, DEFAULT_LOA_DURATION_MONTHS), 12, 84))
-                  }
-                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-brand-primary"
-                  placeholder="60"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Apport (%)</label>
-                <Input
-                  type="number"
-                  value={depositPercent}
-                  min={0}
-                  max={100}
-                  onChange={(e) => setDepositPercent(clampNumber(toNumber(e.target.value, 20), 0, 100))}
-                  className="h-14 text-lg border-slate-200 shadow-sm focus:border-brand-primary"
-                  placeholder="20"
-                />
-                <input
-                  type="range"
-                  min={0}
-                  max={50}
-                  value={depositPercent}
-                  onChange={(e) => setDepositPercent(clampNumber(Number(e.target.value), 0, 100))}
-                  className="w-full accent-[#C41E20]"
-                />
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {[0, 10, 20, 30].map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setDepositPercent(p)}
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                        depositPercent === p
-                          ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
-                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-                      }`}
+        {/* POURQUOI + FAQ */}
+        <section className="section bg-white">
+          <div className="container-x grid gap-16 lg:grid-cols-12 lg:gap-12">
+            <Reveal className="lg:col-span-5">
+              <p className="eyebrow">Pourquoi choisir LeaseAuto</p>
+              <h2 className="display-md mt-4 text-night">Pro & transparent</h2>
+              <ul className="mt-8 space-y-5 text-base text-slate-700">
+                {WHY_ITEMS.map((t) => (
+                  <li key={t} className="flex items-start gap-3">
+                    <span
+                      aria-hidden
+                      className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-primary text-white"
                     >
-                      {p}%
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+                      <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                    </span>
+                    <span className="leading-relaxed">{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
 
-            <div className="bg-gradient-to-r from-[#C41E20]/6 to-[#C41E20]/12 rounded-3xl p-8 border border-brand-primary/20 shadow-xl">
-              <div className="flex items-center justify-between gap-6 mb-4">
-                <div className="space-y-1">
-                  <p className="text-sm uppercase tracking-wider font-bold text-slate-600">
-                    LOA · apport {depositPercent}% · VR {residualPercent}%
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-brand-primary">{simulation.monthly.toLocaleString("fr-FR")}</span>
-                    <span className="text-xl font-semibold text-brand-primary">€ / mois</span>
+            <Reveal delay={0.08} className="lg:col-span-7">
+              <p className="eyebrow">Questions fréquentes</p>
+              <h2 className="display-md mt-4 text-night">FAQ express</h2>
+              <div className="mt-8 grid gap-3">
+                {FAQ_ITEMS.map((item) => (
+                  <div key={item.q} className="rounded-[20px] bg-paper p-5 sm:p-6">
+                    <h3 className="font-display text-lg font-semibold text-night">{item.q}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-slate-600 sm:text-base">{item.a}</p>
                   </div>
-                </div>
-                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-                  <CarFront className="w-10 h-10 text-brand-primary" />
-                </div>
+                ))}
               </div>
-
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Apport :{" "}
-                <span className="font-bold text-brand-primary">{simulation.depositAmount.toLocaleString("fr-FR")}€</span>{" "}
-                · VR estimée :{" "}
-                <span className="font-bold text-brand-primary">{simulation.residual.toLocaleString("fr-FR")}€</span>. Simulation
-                indicative hors frais.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-              <div className="text-center py-4">
-                <div className="text-2xl font-black text-slate-900">{price.toLocaleString("fr-FR")} €</div>
-                <div className="text-xs uppercase tracking-wider text-slate-500">Prix véhicule</div>
-              </div>
-              <div className="text-center py-4">
-                <div className="text-2xl font-black text-slate-900">{duration} mois</div>
-                <div className="text-xs uppercase tracking-wider text-slate-500">Durée</div>
-              </div>
-              <div className="text-center py-4">
-                <div className="text-2xl font-black text-slate-900">{depositPercent} %</div>
-                <div className="text-xs uppercase tracking-wider text-slate-500">Apport</div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-end">
-              <Button
-                variant="outline"
-                className="h-12 px-6 text-sm sm:text-base border-slate-200"
-                onClick={() => setDialogOpen(false)}
-              >
-                Fermer
-              </Button>
-              <Button
-                className="h-12 px-8 text-sm sm:text-base bg-brand-primary hover:bg-brand-primary-dark"
-                onClick={() => scrollToId("demande-financement")}
-              >
-                Déposer mon dossier <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            </Reveal>
           </div>
-        </DialogContent>
-      </Dialog>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-paper py-16 md:py-20">
+          <div className="container-x">
+            <Reveal>
+              <div className="surface flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-end lg:justify-between lg:p-14">
+                <div className="max-w-2xl">
+                  <p className="eyebrow">Prêt à démarrer</p>
+                  <h2 className="display-md mt-4 text-night">Parlez à un expert financement</h2>
+                  <p className="lead mt-4">Analyse rapide, montage du dossier et simulation LOA / crédit auto.</p>
+                </div>
+
+                <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                  <Link to="/contact" className="btn btn-primary btn-lg">
+                    Contact rapide
+                    <ArrowUpRight />
+                  </Link>
+                  <button type="button" onClick={() => scrollToId("simulation")} className="btn btn-ghost btn-lg">
+                    Revoir la simulation
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      </main>
+
+      {/* flow-root : la marge haute du pied de page reste sur fond papier */}
+      <div className="flow-root bg-paper">
+        <FooterSection />
+      </div>
     </div>
   );
 };

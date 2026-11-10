@@ -1,6 +1,9 @@
-import { motion } from "framer-motion";
-import { DURATION, EASE, DISTANCE } from "@/lib/motion";
+import { useRef } from "react";
 import { Search, FileText, CheckCircle2, Car } from "lucide-react";
+import { gsap, useGSAP, MQ } from "@/lib/gsap";
+import { stagger } from "@/lib/motion";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const STEPS = [
   {
@@ -26,51 +29,66 @@ const STEPS = [
 ];
 
 export default function ProcessSection() {
-  return (
-    <section className="relative bg-white py-20 md:py-24">
-      <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: DISTANCE }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: DURATION, ease: EASE}}
-          className="mb-12 text-center"
-        >
-          <p className="text-[11px] tracking-[0.28em] uppercase text-slate-400 font-medium">Comment ça marche</p>
-          <h2 className="mt-2 text-3xl md:text-4xl font-heading font-semibold text-brand-navy">
-            Votre parcours en 4 étapes
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm md:text-base text-slate-500">
-            Louer ou acheter : on s’occupe de tout, du premier échange à la remise des clés.
-          </p>
-        </motion.div>
+  const root = useRef<HTMLElement>(null);
 
-        <ol className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <motion.li
-                key={step.title}
-                initial={{ opacity: 0, y: DISTANCE }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: DURATION, ease: EASE, delay: index * 0.08 }}
-                className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-              >
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="text-[11px] font-semibold tracking-[0.18em] text-slate-400">
-                    ÉTAPE {index + 1}
-                  </span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.description}</p>
-              </motion.li>
-            );
-          })}
-        </ol>
+  // Le fil rouge se trace avec le scroll (desktop + animations acceptées) ; sinon il reste plein.
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add(`${MQ.motion} and ${MQ.desktop}`, () => {
+        gsap.fromTo(
+          "[data-process-line]",
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            ease: "none",
+            scrollTrigger: { trigger: "[data-process-track]", start: "top 85%", end: "top 30%", scrub: 0.6 },
+          },
+        );
+      });
+    },
+    { scope: root },
+  );
+
+  return (
+    <section ref={root} className="section rounded-t-[36px] bg-white md:rounded-t-[48px]">
+      <div className="container-x">
+        <SectionHeading
+          eyebrow="Comment ça marche"
+          title="Votre parcours en 4 étapes"
+          subtitle="Louer ou acheter : on s’occupe de tout, du premier échange à la remise des clés."
+        />
+
+        <div data-process-track>
+          <div aria-hidden className="mb-8 hidden h-px bg-slate-200 lg:block">
+            <div data-process-line className="h-px origin-left bg-brand-primary" />
+          </div>
+
+          <ol className="grid gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-4">
+            {STEPS.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <Reveal as="li" key={step.title} delay={stagger(index)}>
+                  <div className="surface flex h-full flex-col border-transparent bg-paper p-7 md:p-8">
+                    <div className="flex items-start justify-between">
+                      <span aria-hidden className="display-xl num text-[4.5rem] text-night md:text-[5.5rem]">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-brand-primary">
+                        <Icon aria-hidden className="h-5 w-5" />
+                      </span>
+                    </div>
+                    <h3 className="mt-6 font-display text-xl font-semibold text-night lg:mt-10">
+                      <span className="sr-only">Étape {index + 1} : </span>
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600 md:text-[15px]">{step.description}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </ol>
+        </div>
       </div>
     </section>
   );

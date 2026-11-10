@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { DURATION, EASE, DISTANCE } from "@/lib/motion";
-import { VehicleCard } from "./VehicleCard";
+import { Search } from "lucide-react";
+import { baseTransition, DISTANCE, stagger } from "@/lib/motion";
+import { VehicleCard, VehicleCardSkeleton } from "./VehicleCard";
 import type { Vehicle } from "@/types/vehicle";
 import { useVehicles } from "@/hooks/useVehicles";
 import { Helmet } from "react-helmet-async";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSearchParams } from "react-router-dom";
+import { PageHero } from "@/components/ui/PageHero";
+import { FooterSection } from "@/components/sections/FooterSection";
 
 const CATEGORY_SECTIONS = [
   "Utilitaire",
@@ -71,18 +73,19 @@ const normalizeCategory = (raw: unknown): string | null => {
   return aliases[base] ?? raw.trim();
 };
 
-export const CATEGORY_CONFIG: Record<string, { pill: string; active: string; badge: string; dot: string }> = {
-  "SUV":        { pill: "bg-sky-50 text-sky-700 border-sky-200 hover:border-sky-400",         active: "bg-sky-600 text-white border-sky-600",         badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500" },
-  "Citadine":   { pill: "bg-rose-50 text-rose-700 border-rose-200 hover:border-rose-400",       active: "bg-rose-500 text-white border-rose-500",       badge: "bg-rose-100 text-rose-700",     dot: "bg-rose-500" },
-  "Utilitaire": { pill: "bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-400",   active: "bg-amber-500 text-white border-amber-500",     badge: "bg-amber-100 text-amber-700",   dot: "bg-amber-500" },
-  "Berline":    { pill: "bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-400",  active: "bg-slate-600 text-white border-slate-600",     badge: "bg-slate-200 text-slate-700",   dot: "bg-slate-500" },
-  "Break":      { pill: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:border-emerald-400", active: "bg-emerald-600 text-white border-emerald-600", badge: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
-  "Coupé":      { pill: "bg-violet-50 text-violet-700 border-violet-200 hover:border-violet-400", active: "bg-violet-600 text-white border-violet-600", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500" },
-  "Cabriolet":  { pill: "bg-pink-50 text-pink-700 border-pink-200 hover:border-pink-400",       active: "bg-pink-500 text-white border-pink-500",       badge: "bg-pink-100 text-pink-700",     dot: "bg-pink-500" },
-  "Crossover":  { pill: "bg-cyan-50 text-cyan-700 border-cyan-200 hover:border-cyan-400",       active: "bg-cyan-600 text-white border-cyan-600",       badge: "bg-cyan-100 text-cyan-700",     dot: "bg-cyan-500" },
-  "Monospace":  { pill: "bg-indigo-50 text-indigo-700 border-indigo-200 hover:border-indigo-400", active: "bg-indigo-600 text-white border-indigo-600", badge: "bg-indigo-100 text-indigo-700", dot: "bg-indigo-500" },
-  "4x4":        { pill: "bg-stone-100 text-stone-700 border-stone-300 hover:border-stone-500",  active: "bg-stone-600 text-white border-stone-600",     badge: "bg-stone-200 text-stone-700",   dot: "bg-stone-500" },
-};
+/**
+ * Un seul style neutre pour toutes les catégories (DA v2).
+ * L'export et sa forme sont conservés : l'admin (VehicleForm) lit encore `dot`.
+ */
+const NEUTRAL_CATEGORY_STYLE = {
+  pill: "chip",
+  active: "border-night bg-night text-white",
+  badge: "text-slate-400",
+  dot: "bg-slate-400",
+} as const;
+
+export const CATEGORY_CONFIG: Record<string, { pill: string; active: string; badge: string; dot: string }> =
+  Object.fromEntries(CATEGORY_SECTIONS.map((category) => [category, NEUTRAL_CATEGORY_STYLE]));
 
 type VehicleListingProps = {
   vehicles?: Vehicle[];
@@ -90,6 +93,30 @@ type VehicleListingProps = {
 
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80&auto=format&fit=crop";
+
+type CategoryChipProps = {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+};
+
+/** Puce de filtre : un seul style neutre, actif = fond nuit. */
+function CategoryChip({ label, count, active, onClick }: CategoryChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`chip h-11 shrink-0 gap-2 px-4 text-sm transition-colors duration-300 ease-out ${
+        active ? NEUTRAL_CATEGORY_STYLE.active : "hover:border-slate-400"
+      }`}
+    >
+      {label}
+      <span className={`num text-xs ${active ? "text-white/60" : NEUTRAL_CATEGORY_STYLE.badge}`}>{count}</span>
+    </button>
+  );
+}
 
 export function VehicleListing({ vehicles: override }: VehicleListingProps) {
   const { data: fetchedVehicles = [], isLoading } = useVehicles("published");
@@ -191,6 +218,8 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
     return list;
   }, [vehicles, search, sort, activeCategory]);
 
+  const hasActiveFilters = search.trim().length > 0 || activeCategory !== "Tous";
+
   return (
     <>
       <Helmet>
@@ -201,104 +230,104 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
         />
       </Helmet>
 
-      <section className="bg-brand-light min-h-screen py-12 md:py-16">
-        <div className="container mx-auto px-4 lg:px-8">
-          <header className="mb-10 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-[11px] tracking-[0.28em] uppercase text-slate-400">Sélection Lease Auto</p>
-              <h1 className="text-2xl md:text-3xl font-heading font-semibold text-brand-navy mt-1">
-                Nos véhicules prêts à partir
-              </h1>
-              <p className="text-sm text-slate-500">
-                Sélection issue de notre parc et de notre boutique Leboncoin, présentée simplement.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher marque ou modèle"
-                className="bg-white border-slate-200 focus-visible:ring-brand-red"
-              />
-              <Select value={sort} onValueChange={(v) => setSort(v as typeof sort)}>
-                <SelectTrigger className="w-full md:w-52 bg-white border-slate-200">
-                  <SelectValue placeholder="Trier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Mise en avant</SelectItem>
-                  <SelectItem value="price-asc">Prix ↑</SelectItem>
-                  <SelectItem value="price-desc">Prix ↓</SelectItem>
-                  <SelectItem value="year-desc">Année ↓</SelectItem>
-                  <SelectItem value="km-asc">Kilométrage ↑</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </header>
+      <PageHero
+        eyebrow="Sélection Lease Auto"
+        title="Nos véhicules prêts à partir"
+        subtitle="Sélection issue de notre parc et de notre boutique Leboncoin, présentée simplement."
+      >
+        <div className="relative min-w-0 flex-1 basis-64">
+          <Search aria-hidden className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher marque ou modèle"
+            aria-label="Rechercher marque ou modèle"
+            className="field rounded-full border-transparent pl-12 pr-5"
+          />
+        </div>
+        <Select value={sort} onValueChange={(v) => setSort(v as typeof sort)}>
+          <SelectTrigger
+            aria-label="Trier"
+            className="h-12 w-full gap-3 rounded-full border-white/25 bg-white/5 px-5 text-sm font-medium text-white shadow-none transition-colors hover:border-white/50 focus:ring-white/60 sm:w-56"
+          >
+            <SelectValue placeholder="Trier" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl">
+            <SelectItem value="featured">Mise en avant</SelectItem>
+            <SelectItem value="price-asc">Prix ↑</SelectItem>
+            <SelectItem value="price-desc">Prix ↓</SelectItem>
+            <SelectItem value="year-desc">Année ↓</SelectItem>
+            <SelectItem value="km-asc">Kilométrage ↑</SelectItem>
+          </SelectContent>
+        </Select>
+      </PageHero>
 
-          {availableCategories.length > 0 && (
-            <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap">
-              <button
-                onClick={() => setActiveCategory("Tous")}
-                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                  activeCategory === "Tous"
-                    ? "bg-brand-navy text-white border-brand-navy"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                }`}
+      <section className="bg-paper pb-20 pt-8 md:pb-28 md:pt-10">
+        <div className="container-x">
+          <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-center md:justify-between">
+            {availableCategories.length > 0 ? (
+              <div
+                role="group"
+                aria-label="Catégories"
+                className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
               >
-                Tous
-                <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${activeCategory === "Tous" ? "bg-white/20" : "bg-slate-100 text-slate-500"}`}>
-                  {(vehicles as any[]).length}
-                </span>
-              </button>
-              {displayedCategories.map((cat) => {
-                const cfg = CATEGORY_CONFIG[cat] ?? {
-                  pill: "bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400",
-                  active: "bg-slate-500 text-white border-slate-500",
-                  badge: "bg-slate-100 text-slate-600",
-                  dot: "bg-slate-400",
-                };
-                const count = (vehicles as any[]).filter(
-                  (v) => normalizeCategory(v.category || v.type || v.vehicle_type) === cat
-                ).length;
-                const isActive = activeCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(isActive ? "Tous" : cat)}
-                    className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                      isActive ? cfg.active : cfg.pill
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? "bg-white/70" : cfg.dot}`} />
-                    {CATEGORY_LABELS[cat] ?? cat}
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${isActive ? "bg-white/20" : cfg.badge}`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                <CategoryChip
+                  label="Tous"
+                  count={(vehicles as any[]).length}
+                  active={activeCategory === "Tous"}
+                  onClick={() => setActiveCategory("Tous")}
+                />
+                {displayedCategories.map((cat) => {
+                  const count = (vehicles as any[]).filter(
+                    (v) => normalizeCategory(v.category || v.type || v.vehicle_type) === cat,
+                  ).length;
+                  const isActive = activeCategory === cat;
+                  return (
+                    <CategoryChip
+                      key={cat}
+                      label={CATEGORY_LABELS[cat] ?? cat}
+                      count={count}
+                      active={isActive}
+                      onClick={() => setActiveCategory(isActive ? "Tous" : cat)}
+                    />
+                  );
+                })}
+              </div>
+            ) : (
+              <span />
+            )}
+            {!isLoading ? (
+              <p className="num shrink-0 text-sm text-slate-500" aria-live="polite">
+                {filtered.length} {filtered.length > 1 ? "véhicules" : "véhicule"}
+              </p>
+            ) : null}
+          </div>
 
           {isLoading ? (
-            <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-white border border-slate-200 overflow-hidden animate-pulse">
-                  <div className="aspect-[4/3] bg-slate-100" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-2.5 bg-slate-100 rounded-full w-1/4" />
-                    <div className="h-4 bg-slate-100 rounded-full w-2/3" />
-                    <div className="h-2.5 bg-slate-100 rounded-full w-full" />
-                    <div className="h-2.5 bg-slate-100 rounded-full w-3/4" />
-                    <div className="h-10 bg-slate-100 rounded-xl w-full mt-3" />
-                  </div>
-                </div>
+                <VehicleCardSkeleton key={i} />
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <p className="text-sm text-slate-500">Aucun véhicule disponible pour le moment.</p>
+            <div className="surface flex flex-col items-start gap-5 p-7 md:p-10">
+              <p className="lead">Aucun véhicule disponible pour le moment.</p>
+              {hasActiveFilters ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveCategory("Tous");
+                  }}
+                >
+                  Réinitialiser les filtres
+                </button>
+              ) : null}
+            </div>
           ) : (
-            <div className="grid gap-6 md:gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {filtered.map((v: any, index: number) => {
                 const monthlyRaw =
                   v.monthly ?? v.monthly_price ?? v.price_loa ?? v.price ?? null;
@@ -325,11 +354,11 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                     : "—";
 
                 return (
-                  <motion.div
+                  <motion.li
                     key={v.slug || v.id || `${v.brand}-${v.model}`}
                     initial={{ opacity: 0, y: DISTANCE }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: DURATION, ease: EASE, delay: Math.min(index * 0.06, 0.4) }}
+                    transition={{ ...baseTransition, delay: stagger(index, 0.06, 0.4) }}
                   >
                     <VehicleCard
                       slug={v.slug || String(v.id)}
@@ -352,13 +381,15 @@ export function VehicleListing({ vehicles: override }: VehicleListingProps) {
                           : null)
                       }
                     />
-                  </motion.div>
+                  </motion.li>
                 );
               })}
-            </div>
+            </ul>
           )}
         </div>
       </section>
+
+      <FooterSection />
     </>
   );
 }

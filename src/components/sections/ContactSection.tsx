@@ -1,16 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { DURATION, EASE, DISTANCE } from "@/lib/motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { User, Mail, Phone, MessageCircle, MapPin, Clock, Instagram, Star, ExternalLink, Send } from "lucide-react";
+import { ArrowUpRight, Clock, Instagram, Mail, MapPin, Phone, Star } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const schema = z.object({
   nom: z.string().min(1, "Nom requis"),
@@ -28,22 +26,36 @@ const REVIEWS_URL =
 const MAPS_URL =
   "https://www.google.com/maps/search/?api=1&query=Lease%20Auto%2042%20Boulevard%20Foch%2093800%20%C3%89pinay-sur-Seine";
 
-const FieldError = ({ msg }: { msg?: string }) =>
-  msg ? <p className="text-red-500 text-xs mt-1 font-medium">{msg}</p> : null;
+const labelClass = "mb-2 block text-sm font-medium text-night";
+const fieldState = (invalid: boolean) => (invalid ? "border-red-500 focus:border-red-500" : "");
 
-type ContactSectionProps = { headingTag?: "h1" | "h2" };
+const FieldError = ({ id, msg }: { id: string; msg?: string }) =>
+  msg ? (
+    <p id={id} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+      {msg}
+    </p>
+  ) : null;
 
-export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
-  const Heading = headingTag;
+const infoLabel = "text-[11px] font-semibold uppercase tracking-[0.22em] text-white/50";
+
+type ContactSectionProps = {
+  /** Affiche l'en-tête (h2) de la section. À désactiver quand un PageHero porte déjà le titre. */
+  showHeading?: boolean;
+};
+
+export const ContactSection = ({ showHeading = true }: ContactSectionProps) => {
+  const uid = useId();
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const { toast } = useToast();
+  const projet = watch("projet") ?? "";
 
   const onSubmit = async (data: FormData) => {
     const subject = encodeURIComponent(`Demande contact Lease Auto - ${data.nom}`);
@@ -55,296 +67,306 @@ export const ContactSection = ({ headingTag = "h2" }: ContactSectionProps) => {
       await navigator.clipboard.writeText(
         `To: leaseauto.epinay@gmail.com\nSubject: ${decodeURIComponent(subject)}\n\n${decodeURIComponent(body)}`
       );
-    } catch {}
+    } catch {
+      // Presse-papiers indisponible : le brouillon d'email s'ouvre quand même.
+    }
 
     window.location.href = `mailto:leaseauto.epinay@gmail.com?subject=${subject}&body=${body}`;
 
     toast({
       title: "Brouillon ouvert",
-      description: "Un email prérempli vers leaseauto.epinay@gmail.com a été généré. Vérifie et envoie.",
+      description: "Un email prérempli vers leaseauto.epinay@gmail.com a été généré. Vérifiez puis envoyez.",
       duration: 4500,
     });
 
     reset();
   };
 
+  const ids = {
+    nom: `${uid}-nom`,
+    email: `${uid}-email`,
+    tel: `${uid}-tel`,
+    projet: `${uid}-projet`,
+    message: `${uid}-message`,
+  };
+  const err = (name: keyof FormData) => `${ids[name]}-error`;
+  const describedBy = (name: keyof FormData) => (errors[name] ? err(name) : undefined);
+
   return (
-    <section className="w-full bg-gradient-to-b from-[#F8FAFC] to-white py-16 md:py-24 px-4 relative overflow-hidden">
-      {/* halos */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 top-10 h-72 w-72 rounded-full bg-[#c7d2fe]/40 blur-[110px]" />
-        <div className="absolute right-0 bottom-0 h-80 w-80 rounded-full bg-[#cfd9e9]/40 blur-[120px]" />
-      </div>
+    <section className="section bg-paper">
+      <div className="container-x">
+        {showHeading ? (
+          <SectionHeading
+            eyebrow="Contact"
+            title="Louer ou acheter votre prochain véhicule ?"
+            subtitle={
+              <>
+                Nos experts Lease Auto vous accompagnent du choix jusqu’à la clé en main.{" "}
+                <span className="font-semibold text-night">Financement 100% sur-mesure.</span>
+              </>
+            }
+          />
+        ) : null}
 
-      <div className="container mx-auto max-w-6xl xl:max-w-7xl relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: DISTANCE }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: DURATION, ease: EASE}}
-          viewport={{ once: true }}
-          className="text-center mb-10 md:mb-14"
-        >
-          <Heading className="text-3xl md:text-5xl font-light text-transparent bg-gradient-to-r from-[#06325E] to-[#06325E] bg-clip-text mb-4 md:mb-6 font-premium tracking-wide">
-            Louer ou acheter votre prochain véhicule ?
-          </Heading>
-          <p className="text-base md:text-xl text-slate-600 max-w-3xl mx-auto font-inter leading-relaxed">
-            Nos experts Lease Auto vous accompagnent du choix jusqu’à la clé en main.
-            <span className="font-semibold text-brand-ink"> Financement 100% sur-mesure.</span>
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 lg:gap-8 items-start lg:items-stretch">
-          {/* Form */}
-          <motion.div
-            initial={{ opacity: 0, y: DISTANCE }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: DURATION, ease: EASE}}
-            viewport={{ once: true }}
-            className="bg-white/90 backdrop-blur-sm p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-500 h-full flex flex-col"
-          >
-            <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
+          {/* Formulaire */}
+          <Reveal className="surface p-6 sm:p-8 lg:p-10">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-brand-ink">Formulaire</p>
-                <h3 className="mt-1 text-2xl font-semibold text-[#111]">Demande rapide</h3>
-                <p className="mt-1 text-sm text-slate-600">
-                  Réponse rapide • Financement • Livraison possible
-                </p>
+                <p className="eyebrow">Formulaire</p>
+                <h2 className="display-md mt-4 text-night">Demande rapide</h2>
               </div>
-
-              <a
-                href={REVIEWS_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="hidden md:inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-[#111] hover:bg-slate-200"
-              >
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                4,9/5 Google <ExternalLink className="w-4 h-4" />
+              <a href={REVIEWS_URL} target="_blank" rel="noreferrer" className="chip num min-h-[36px] hover:border-slate-300">
+                <Star aria-hidden className="h-3.5 w-3.5 fill-brand-primary text-brand-primary" />
+                4,9/5 Google
+                <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
               </a>
             </div>
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {["Réponse rapide", "Financement", "Livraison possible"].map((item) => (
+                <li key={item} className="chip">
+                  {item}
+                </li>
+              ))}
+            </ul>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <Input
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-8 space-y-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label htmlFor={ids.nom} className={labelClass}>
+                    Votre nom *
+                  </label>
+                  <input
+                    id={ids.nom}
+                    autoComplete="name"
+                    aria-invalid={!!errors.nom}
+                    aria-describedby={describedBy("nom")}
                     {...register("nom")}
-                    placeholder="Votre nom *"
-                    className={`h-12 pl-10 bg-white/60 border-slate-200 transition-all focus-visible:ring-brand-ink/20 ${
-                      errors.nom ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-brand-ink/30 focus-visible:border-brand-ink"
-                    }`}
+                    className={`field ${fieldState(!!errors.nom)}`}
                   />
-                  <FieldError msg={errors.nom?.message} />
+                  <FieldError id={err("nom")} msg={errors.nom?.message} />
                 </div>
 
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <Input
+                <div>
+                  <label htmlFor={ids.email} className={labelClass}>
+                    Votre e-mail *
+                  </label>
+                  <input
+                    id={ids.email}
                     type="email"
+                    autoComplete="email"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={describedBy("email")}
                     {...register("email")}
-                    placeholder="Votre e-mail *"
-                    className={`h-12 pl-10 bg-white/60 border-slate-200 transition-all focus-visible:ring-brand-ink/20 ${
-                      errors.email ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-brand-ink/30 focus-visible:border-brand-ink"
-                    }`}
+                    className={`field ${fieldState(!!errors.email)}`}
                   />
-                  <FieldError msg={errors.email?.message} />
+                  <FieldError id={err("email")} msg={errors.email?.message} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <Input
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label htmlFor={ids.tel} className={labelClass}>
+                    Votre téléphone *
+                  </label>
+                  <input
+                    id={ids.tel}
                     type="tel"
+                    autoComplete="tel"
+                    aria-invalid={!!errors.tel}
+                    aria-describedby={describedBy("tel")}
                     {...register("tel")}
-                    placeholder="Votre téléphone *"
-                    className={`h-12 pl-10 bg-white/60 border-slate-200 transition-all focus-visible:ring-brand-ink/20 ${
-                      errors.tel ? "border-red-500 focus-visible:ring-red-500/25" : "hover:border-brand-ink/30 focus-visible:border-brand-ink"
-                    }`}
+                    className={`field ${fieldState(!!errors.tel)}`}
                   />
-                  <FieldError msg={errors.tel?.message} />
+                  <FieldError id={err("tel")} msg={errors.tel?.message} />
                 </div>
 
-                <div className="relative">
+                <div>
+                  <label htmlFor={ids.projet} className={labelClass}>
+                    Type de projet *
+                  </label>
                   <input type="hidden" {...register("projet")} />
-                  <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none z-10" />
-                  <Select onValueChange={(value) => setValue("projet", value, { shouldValidate: true })}>
+                  <Select value={projet} onValueChange={(value) => setValue("projet", value, { shouldValidate: true })}>
                     <SelectTrigger
-                      className={`h-12 pl-10 bg-white/60 border-slate-200 hover:border-brand-ink/30 data-[state=open]:border-brand-ink ${
-                        errors.projet ? "border-red-500" : ""
-                      }`}
+                      id={ids.projet}
+                      aria-invalid={!!errors.projet}
+                      aria-describedby={describedBy("projet")}
+                      className={`h-12 rounded-2xl border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-none transition-colors focus:border-night focus:ring-0 data-[state=open]:border-night data-[placeholder]:text-slate-400 ${fieldState(
+                        !!errors.projet
+                      )}`}
                     >
-                      <SelectValue placeholder="Type de projet *" />
+                      <SelectValue placeholder="Choisir" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="loa-lld">Location (LOA / LLD)</SelectItem>
-                      <SelectItem value="achat">Achat comptant ou financement</SelectItem>
+                    <SelectContent className="rounded-2xl">
+                      <SelectItem value="loa-lld" className="rounded-xl py-2.5">
+                        Location (LOA / LLD)
+                      </SelectItem>
+                      <SelectItem value="achat" className="rounded-xl py-2.5">
+                        Achat comptant ou financement
+                      </SelectItem>
                     </SelectContent>
                   </Select>
-                  <FieldError msg={errors.projet?.message} />
+                  <FieldError id={err("projet")} msg={errors.projet?.message} />
                 </div>
               </div>
 
-              <div className="relative">
-                <MessageCircle className="absolute left-3 top-4 text-slate-400 w-5 h-5" />
-                <Textarea
+              <div>
+                <label htmlFor={ids.message} className={labelClass}>
+                  Votre message *
+                </label>
+                <textarea
+                  id={ids.message}
+                  rows={6}
+                  aria-invalid={!!errors.message}
+                  aria-describedby={describedBy("message")}
                   {...register("message")}
                   placeholder="Ex : BMW Série 3, budget 400€/mois, livraison mars…"
-                  className={`pl-12 pt-10 bg-white/60 border-slate-200 hover:border-brand-ink/30 focus-visible:ring-2 focus-visible:ring-brand-ink/20 min-h-[150px] ${
-                    errors.message ? "border-red-500" : "focus-visible:border-brand-ink"
-                  }`}
+                  className={`field h-auto min-h-[160px] resize-y py-3.5 leading-relaxed ${fieldState(!!errors.message)}`}
                 />
-                <FieldError msg={errors.message?.message} />
+                <FieldError id={err("message")} msg={errors.message?.message} />
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-12 md:h-14 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl font-inter font-medium text-base md:text-lg shadow-lg transition-colors duration-300"
-              >
-                <span className="inline-flex items-center gap-2">
-                  {isSubmitting ? (
-                    "Envoi en cours..."
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Envoyer ma demande gratuite
-                    </>
-                  )}
-                </span>
-              </Button>
+              <button type="submit" disabled={isSubmitting} className="btn btn-primary btn-lg w-full">
+                {isSubmitting ? (
+                  "Envoi en cours..."
+                ) : (
+                  <>
+                    Envoyer ma demande gratuite
+                    <ArrowUpRight />
+                  </>
+                )}
+              </button>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs leading-relaxed text-slate-500">
                 En cliquant, vous ouvrez un email prérempli. Vos informations ne sont pas stockées.
               </p>
             </form>
-          </motion.div>
+          </Reveal>
 
-          {/* Contacts */}
-          <motion.div
-            initial={{ opacity: 0, y: DISTANCE }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: DURATION, ease: EASE}}
-            viewport={{ once: true }}
-            className="lg:sticky lg:top-24 space-y-6 h-full"
-          >
-            <div className="bg-white/90 backdrop-blur-sm p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
-              <div className="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-r from-[#06325E] to-[#06325E] rounded-2xl flex items-center justify-center shadow-lg">
-                    <Phone className="w-7 h-7 text-white" />
-                  </div>
+          {/* Coordonnées */}
+          <Reveal delay={0.08} className="lg:sticky lg:top-24">
+            <div className="surface-night grain relative overflow-hidden p-6 sm:p-8 lg:p-10">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-brand-ink/70 blur-[100px]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -bottom-40 -left-28 h-72 w-72 rounded-full bg-brand-primary/20 blur-[110px]"
+              />
+
+              <div className="relative z-10">
+                <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h4 className="text-2xl font-premium text-[#111]">Contact direct</h4>
-                    <a
-                      href={REVIEWS_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-brand-ink"
-                    >
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                      ))}
-                      <span className="font-semibold">(4.9/5)</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                    <p className="eyebrow eyebrow-dark">Agence</p>
+                    <h2 className="display-md mt-4">Contact direct</h2>
                   </div>
+                  <a
+                    href={REVIEWS_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="4,9 sur 5 : voir les avis Google"
+                    className="chip-dark num min-h-[36px] transition-colors hover:border-white/40"
+                  >
+                    <Star aria-hidden className="h-3.5 w-3.5 fill-white text-white" />
+                    4,9/5
+                    <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
+                  </a>
                 </div>
-              </div>
 
-              {/* actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                <a
-                  href="tel:0184218393"
-                  className="h-12 rounded-xl bg-brand-primary hover:bg-brand-primary-dark text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-colors"
-                >
-                  <Phone className="w-4 h-4" />
-                  Appeler
-                </a>
-                <a 
-                  href="mailto:leaseauto.epinay@gmail.com"
-                  className="h-12 rounded-xl border border-[#f3b8b0] bg-white font-semibold flex items-center justify-center gap-2 text-[#b33527] hover:border-brand-primary hover:text-[#9f2b20] hover:bg-brand-primary-soft transition"
-                >
-                  <Mail className="w-4 h-4" />
-                  Email
-                </a>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <h5 className="text-sm font-semibold text-[#111] mb-1">Téléphone</h5>
+                <div className="mt-8">
+                  <p className={infoLabel}>Téléphone</p>
                   <a
                     href="tel:0184218393"
-                    className="text-2xl font-bold text-brand-ink hover:underline block"
+                    className="num mt-2 block font-display text-4xl font-bold tracking-tight text-white transition-colors hover:text-white/80 sm:text-[2.75rem]"
                   >
                     01 84 21 83 93
                   </a>
                 </div>
 
-                <div>
-                  <h5 className="text-sm font-semibold text-[#111] mb-1">Email</h5>
-                  <a
-                    href="mailto:leaseauto.epinay@gmail.com"
-                    className="text-brand-ink font-semibold hover:underline break-all block"
-                  >
-                    leaseauto.epinay@gmail.com
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  <a href="tel:0184218393" className="btn btn-primary">
+                    <Phone />
+                    Appeler
+                  </a>
+                  <a href="mailto:leaseauto.epinay@gmail.com" className="btn btn-ghost-dark">
+                    <Mail />
+                    Email
                   </a>
                 </div>
 
-                <div>
-                  <h5 className="text-sm font-semibold text-[#111] mb-2 flex items-center">
-                    <MapPin className="w-5 h-5 mr-2" /> Adresse
-                  </h5>
-                  <a
-                    href={MAPS_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block rounded-xl border border-slate-200 bg-slate-50 p-4 hover:border-brand-ink/25 transition"
-                  >
-                    <p className="font-semibold text-slate-900">Lease Auto</p>
-                    <p className="text-slate-700">42 Bd Foch</p>
-                    <p className="text-slate-700">93800 Épinay-sur-Seine</p>
-                    <p className="mt-2 text-sm font-semibold text-brand-primary inline-flex items-center gap-2">
-                      Ouvrir sur Google Maps <ExternalLink className="w-4 h-4" />
-                    </p>
-                  </a>
-                </div>
-
-                <div>
-                  <h5 className="text-sm font-semibold text-[#111] mb-2 flex items-center">
-                    <Clock className="w-5 h-5 mr-2" /> Horaires
-                  </h5>
-                  <p className="text-xl font-semibold text-slate-800">Lun–Sam 9h–19h</p>
-                </div>
-
-                <div>
-                  <h5 className="text-sm font-semibold text-[#111] mb-2">Nos réseaux</h5>
-                  <div className="flex gap-3">
-                    <a
-                      href="https://instagram.com/leaseauto.epinay"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
-                      aria-label="Instagram"
-                    >
-                      <Instagram className="w-6 h-6 text-brand-ink" />
-                    </a>
-                    <a
-                      href="https://tiktok.com/@leaseauto.epinay"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
-                      aria-label="TikTok"
-                    >
-                      <span className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-brand-ink">
-                        TikTok
-                      </span>
-                    </a>
+                <dl className="mt-8 divide-y divide-white/10 border-t border-white/10">
+                  <div className="py-5">
+                    <dt className={infoLabel}>Email</dt>
+                    <dd className="mt-2">
+                      <a
+                        href="mailto:leaseauto.epinay@gmail.com"
+                        className="break-all text-base font-medium text-white underline-offset-4 hover:underline"
+                      >
+                        leaseauto.epinay@gmail.com
+                      </a>
+                    </dd>
                   </div>
-                </div>
+
+                  <div className="py-5">
+                    <dt className={`flex items-center gap-2 ${infoLabel}`}>
+                      <MapPin aria-hidden className="h-3.5 w-3.5 text-brand-primary-bright" /> Adresse
+                    </dt>
+                    <dd className="mt-3">
+                      <a
+                        href={MAPS_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group block rounded-[20px] border border-white/10 bg-white/5 p-5 transition-colors duration-300 hover:border-white/30"
+                      >
+                        <span className="block font-display text-lg font-semibold text-white">Lease Auto</span>
+                        <span className="mt-1 block text-white/65">42 Bd Foch</span>
+                        <span className="block text-white/65">93800 Épinay-sur-Seine</span>
+                        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
+                          Ouvrir sur Google Maps
+                          <ArrowUpRight
+                            aria-hidden
+                            className="h-4 w-4 text-brand-primary-bright transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          />
+                        </span>
+                      </a>
+                    </dd>
+                  </div>
+
+                  <div className="py-5">
+                    <dt className={`flex items-center gap-2 ${infoLabel}`}>
+                      <Clock aria-hidden className="h-3.5 w-3.5 text-brand-primary-bright" /> Horaires
+                    </dt>
+                    <dd className="num mt-2 font-display text-xl font-semibold text-white">Lun–Sam 9h–19h</dd>
+                  </div>
+
+                  <div className="pt-5">
+                    <dt className={infoLabel}>Nos réseaux</dt>
+                    <dd className="mt-3 flex gap-3">
+                      <a
+                        href="https://instagram.com/leaseauto.epinay"
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Instagram"
+                        className="grid h-11 w-11 place-items-center rounded-full border border-white/15 text-white/80 transition-colors duration-300 hover:border-white hover:bg-white hover:text-night"
+                      >
+                        <Instagram aria-hidden className="h-[18px] w-[18px]" />
+                      </a>
+                      <a
+                        href="https://tiktok.com/@leaseauto.epinay"
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="TikTok"
+                        className="inline-flex h-11 items-center rounded-full border border-white/15 px-4 text-xs font-semibold text-white/80 transition-colors duration-300 hover:border-white hover:bg-white hover:text-night"
+                      >
+                        <span aria-hidden>TikTok</span>
+                      </a>
+                    </dd>
+                  </div>
+                </dl>
               </div>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>

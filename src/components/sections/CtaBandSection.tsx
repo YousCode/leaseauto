@@ -1,37 +1,53 @@
 import { Link } from "react-router-dom";
-import { Phone, ArrowRight } from "lucide-react";
+import { ArrowUpRight, Phone } from "lucide-react";
+import { Reveal } from "@/components/ui/Reveal";
 
 const PHONE_DISPLAY = "01 84 21 83 93";
 const PHONE_HREF = "tel:0184218393";
 
-export function CtaBandSection() {
+type CtaBandSectionProps = {
+  /** Fond autour du bloc : celui de la section qui précède. */
+  tone?: "paper" | "white";
+};
+
+/** Appel à l'action final : grand bloc « nuit » arrondi, posé sur le fond de la page. */
+export function CtaBandSection({ tone = "paper" }: CtaBandSectionProps) {
   return (
-    <section className="bg-brand-navy py-16 md:py-20 text-white">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-8 px-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-        <div className="max-w-xl">
-          <p className="text-[11px] tracking-[0.28em] uppercase text-white/50 font-medium">Prêt à démarrer ?</p>
-          <h2 className="mt-2 text-3xl md:text-4xl font-heading font-semibold">
-            Parlez-nous de votre projet
-          </h2>
-          <p className="mt-3 text-sm md:text-base text-white/70">
-            Réponse sous 24–48h ouvrées. Agence à Épinay-sur-Seine, du lundi au samedi.
-          </p>
-        </div>
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-          <a
-            href={PHONE_HREF}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors"
+    <section className={`${tone === "paper" ? "bg-paper" : "bg-white"} px-3 pb-3 md:px-6 md:pb-6`}>
+      <div className="grain relative mx-auto max-w-[1560px] overflow-hidden rounded-[36px] bg-night text-white md:rounded-[48px]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-40 -top-48 h-[520px] w-[520px] rounded-full bg-brand-ink/60 blur-[120px]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-56 -left-32 h-[440px] w-[440px] rounded-full bg-brand-primary/25 blur-[130px]"
+        />
+
+        <div className="container-x relative z-10 py-16 md:py-24 lg:py-28">
+          <Reveal>
+            <p className="eyebrow eyebrow-dark">Prêt à démarrer ?</p>
+            <h2 className="display-xl mt-6 max-w-[14ch]">Parlez-nous de votre projet</h2>
+          </Reveal>
+
+          <Reveal
+            delay={0.1}
+            className="mt-10 flex flex-col gap-8 border-t border-white/15 pt-8 md:mt-14 lg:flex-row lg:items-center lg:justify-between"
           >
-            <Phone className="h-4 w-4" />
-            {PHONE_DISPLAY}
-          </a>
-          <Link
-            to="/contact"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-7 py-3.5 text-sm font-bold hover:bg-brand-primary-dark transition-colors"
-          >
-            Demander une offre
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+            <p className="max-w-md text-base leading-relaxed text-white/65 md:text-lg">
+              Réponse sous 24–48h ouvrées. Agence à Épinay-sur-Seine, du lundi au samedi.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <a href={PHONE_HREF} className="btn btn-ghost-dark btn-lg">
+                <Phone />
+                <span className="num">{PHONE_DISPLAY}</span>
+              </a>
+              <Link to="/contact" className="btn btn-primary btn-lg">
+                Demander une offre
+                <ArrowUpRight />
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

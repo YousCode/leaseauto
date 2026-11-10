@@ -1,7 +1,9 @@
 // src/components/sections/FooterSection.tsx
 
-import { MapPin, Phone, Mail, Clock, Instagram } from "lucide-react";
+import { ArrowUpRight, Clock, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+
+const logoWhite = `${import.meta.env.BASE_URL}logo-lease-auto-white.png`;
 
 const navItems = [
   { label: "Catalogue", href: "/vehicules" },
@@ -23,161 +25,155 @@ const legalLinks = [
   { label: "Cookies", href: "/cookies" },
 ];
 
+const columnTitle = "font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-white/50";
+const columnLink =
+  "inline-flex min-h-[32px] items-center text-[15px] text-white/70 transition-colors duration-300 hover:text-white";
+const socialLink =
+  "grid h-11 w-11 place-items-center rounded-full border border-white/15 text-white/80 transition-colors duration-300 hover:border-white hover:bg-white hover:text-night";
+
+function LinkColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
+  return (
+    <nav aria-label={title}>
+      <h2 className={columnTitle}>{title}</h2>
+      <ul className="mt-5 space-y-1.5">
+        {links.map((item) => (
+          <li key={item.label}>
+            <Link to={item.href} className={columnLink}>
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 const FooterSection = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-24 text-slate-100">
+    <footer className="grain relative overflow-hidden bg-night text-white">
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#1f2937_0,transparent_55%),radial-gradient(circle_at_bottom,#020617_0,#020617_55%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-soft-light"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")",
-        }}
+        aria-hidden
+        className="pointer-events-none absolute -bottom-72 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-brand-ink/40 blur-[150px]"
       />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 pt-16 pb-10">
-        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_24px_80px_rgba(15,23,42,0.7)] px-6 md:px-10 py-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-            {/* Colonne 1 : marque + contact + horaires */}
-            <div>
-              <h3 className="text-2xl font-semibold mb-3">
-                <span className="text-brand-primary">Lease</span>
-                <span className="text-slate-100">Auto</span>
-              </h3>
-              <p className="text-sm text-slate-200 leading-relaxed mb-6 max-w-xs">
-                Votre partenaire de confiance pour la location de véhicules.
-                Des solutions claires et flexibles, pensées pour votre budget.
-              </p>
+      <div className="container-x relative z-10 pt-20 md:pt-28">
+        <div className="grid gap-x-8 gap-y-14 lg:grid-cols-12">
+          {/* Marque + réseaux */}
+          <div className="lg:col-span-3">
+            <Link to="/" aria-label="Lease Auto, accueil" className="inline-flex">
+              <img
+                src={logoWhite}
+                alt="Lease Auto"
+                width={457}
+                height={86}
+                loading="lazy"
+                decoding="async"
+                className="h-8 w-auto"
+              />
+            </Link>
+            <p className="mt-6 max-w-xs text-[15px] leading-relaxed text-white/65">
+              Votre partenaire de confiance pour la location de véhicules. Des solutions claires et flexibles, pensées
+              pour votre budget.
+            </p>
 
-              <div className="space-y-3 text-sm">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 text-brand-primary mt-0.5" />
-                  <span className="text-slate-200">
-                    Lease Auto, 42 Bd Foch
-                    <br />
-                    93800 Épinay-sur-Seine
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-brand-primary" />
-                  <a href="tel:0184218393" className="text-slate-200 hover:text-white">
-                    01&nbsp;84&nbsp;21&nbsp;83&nbsp;93
-                  </a>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-brand-primary" />
-                  <a
-                    href="mailto:leaseauto.epinay@gmail.com"
-                    className="text-slate-200 hover:text-white"
-                  >
-                    leaseauto.epinay@gmail.com
-                  </a>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Clock className="h-4 w-4 text-brand-primary mt-0.5" />
-                  <div>
-                    <p className="text-slate-100">Lundi – Samedi</p>
-                    <p className="text-slate-300 text-xs">09:30 – 19:30</p>
-                  </div>
-                </div>
-              </div>
+            <h2 className={`mt-10 ${columnTitle}`}>Suivez-nous</h2>
+            <div className="mt-4 flex items-center gap-3">
+              <a
+                href="https://www.instagram.com/lease_auto/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Lease Auto sur Instagram"
+                className={socialLink}
+              >
+                <Instagram aria-hidden className="h-[18px] w-[18px]" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@leaseauto?_r=1&_t=ZN-91kVouJaR2U"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Lease Auto sur TikTok"
+                className={socialLink}
+              >
+                <span aria-hidden className="text-[11px] font-semibold tracking-wide">
+                  Tik
+                </span>
+              </a>
             </div>
+          </div>
 
-            {/* Colonne 2 : navigation */}
-            <div>
-              <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
-                Navigation
-              </h4>
-              <ul className="space-y-2 text-sm">
-                {navItems.map((item) => (
-                  <li key={item.label}>
-                    <Link
-                      to={item.href}
-                      className="text-slate-300 hover:text-brand-primary transition-colors"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Colonne 3 : services */}
-            <div>
-              <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
-                Services
-              </h4>
-              <ul className="space-y-2 text-sm">
-                {serviceLinks.map((item) => (
-                  <li key={item.label}>
-                    <Link
-                      to={item.href}
-                      className="text-slate-300 hover:text-brand-primary transition-colors"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Colonne 4 : réseaux + légal */}
-            <div>
-              <h4 className="text-sm font-semibold uppercase tracking-[0.16em] mb-4 text-slate-200">
-                Suivez-nous
-              </h4>
-              <div className="flex items-center gap-3 mb-6">
-                <a
-                  href="https://www.instagram.com/lease_auto/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="h-9 w-9 rounded-full bg-brand-ink-deep/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-brand-primary hover:border-brand-primary hover:text-white transition-colors"
-                >
-                  <Instagram className="h-4 w-4" />
+          {/* Coordonnées + horaires */}
+          <div className="lg:col-span-3">
+            <h2 className={columnTitle}>Nous trouver</h2>
+            <ul className="mt-5 space-y-4 text-[15px] text-white/70">
+              <li className="flex items-start gap-3">
+                <MapPin aria-hidden className="mt-1 h-4 w-4 shrink-0 text-brand-primary-bright" />
+                <span>
+                  Lease Auto, 42 Bd Foch
+                  <br />
+                  93800 Épinay-sur-Seine
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone aria-hidden className="h-4 w-4 shrink-0 text-brand-primary-bright" />
+                <a href="tel:0184218393" className="num transition-colors duration-300 hover:text-white">
+                  01&nbsp;84&nbsp;21&nbsp;83&nbsp;93
                 </a>
-
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail aria-hidden className="h-4 w-4 shrink-0 text-brand-primary-bright" />
                 <a
-                  href="https://www.tiktok.com/@leaseauto?_r=1&_t=ZN-91kVouJaR2U"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="h-9 w-9 rounded-full bg-brand-ink-deep/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-brand-primary hover:border-brand-primary hover:text-white transition-colors"
+                  href="mailto:leaseauto.epinay@gmail.com"
+                  className="break-all transition-colors duration-300 hover:text-white"
                 >
-                  <span className="text-[11px] font-semibold tracking-wide">Tik</span>
+                  leaseauto.epinay@gmail.com
                 </a>
-              </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <Clock aria-hidden className="mt-1 h-4 w-4 shrink-0 text-brand-primary-bright" />
+                <span>
+                  Lundi – Samedi
+                  <br />
+                  <span className="num text-white/50">09:30 – 19:30</span>
+                </span>
+              </li>
+            </ul>
+          </div>
 
-              <h5 className="text-xs font-semibold text-slate-300 uppercase tracking-[0.16em] mb-3">
-                Informations légales
-              </h5>
-              <ul className="space-y-2 text-sm">
-                {legalLinks.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      className="text-slate-400 hover:text-slate-100 transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          {/* Liens */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-[1fr_1fr_1.3fr] lg:col-span-6">
+            <LinkColumn title="Navigation" links={navItems} />
+            <LinkColumn title="Services" links={serviceLinks} />
+            <div className="col-span-2 sm:col-span-1">
+              <LinkColumn title="Informations légales" links={legalLinks} />
             </div>
           </div>
         </div>
+
+        <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between md:mt-24">
+          <p>© {currentYear} LeaseAuto. Tous droits réservés.</p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-1.5 font-medium text-white/70 transition-colors duration-300 hover:text-white"
+          >
+            Demander une offre
+            <ArrowUpRight aria-hidden className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
 
-      <div className="relative border-t border-[#0b1220]/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 py-4">
-          <p className="text-center text-xs text-slate-500">
-            © {currentYear} LeaseAuto. Tous droits réservés.
-          </p>
-        </div>
+      {/* Mot-symbole géant : SVG calé sur la largeur, donc jamais de débordement horizontal. */}
+      <div aria-hidden className="pointer-events-none relative z-10 select-none px-3 pb-3 pt-10 md:px-6 md:pb-5 md:pt-14">
+        <svg
+          viewBox="0 0 1196 138"
+          focusable="false"
+          className="block h-auto w-full font-display font-extrabold text-white/[0.06]"
+        >
+          <text x="-10" y="136" fontSize="200" textLength="1210" lengthAdjust="spacingAndGlyphs" fill="currentColor">
+            LEASE AUTO
+          </text>
+        </svg>
       </div>
     </footer>
   );
