@@ -18,20 +18,25 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        montserrat: ["Poppins", "sans-serif"],
-        inter: ["Nunito Sans", "sans-serif"],
-        premium: ["Poppins", "Nunito Sans", "Helvetica Neue", "Arial", "sans-serif"],
-        heading: ["Poppins", "sans-serif"],
-        sans: ["Nunito Sans", "sans-serif"],
+        display: ["Bricolage Grotesque Variable", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        sans: ["Inter Variable", "Inter", "system-ui", "sans-serif"],
+        // alias conservés : tout pointe vers les deux familles de la DA
+        heading: ["Bricolage Grotesque Variable", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        premium: ["Bricolage Grotesque Variable", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        montserrat: ["Bricolage Grotesque Variable", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        inter: ["Inter Variable", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
+        night: "#070B14",
+        paper: "#F4F3EF",
         brand: {
           primary: "#C41E20",
+          "primary-bright": "#F0343B",
           "primary-dark": "#A3181A",
           "primary-soft": "#FBEAEA",
           ink: "#06325E",
           "ink-deep": "#031F3C",
-          light: "#F5F7FB",
+          light: "#F4F3EF",
           // alias conservés pour le code existant
           red: "#C41E20",
           navy: "#06325E",

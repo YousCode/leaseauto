@@ -1,7 +1,9 @@
 import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { DURATION, EASE, DISTANCE } from "@/lib/motion";
+import { EASE } from "@/lib/motion";
+import { ScrollTrigger } from "@/lib/gsap";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 import { Toaster } from "@/components/ui/toaster";
 import ComingSoon from "@/pages/ComingSoon";
@@ -16,6 +18,9 @@ function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
     scrollToTop(true);
+    // Les nouvelles sections épinglées se mesurent une fois la page montée.
+    const id = window.setTimeout(() => ScrollTrigger.refresh(), 450);
+    return () => window.clearTimeout(id);
   }, [pathname]);
   return null;
 }
@@ -48,17 +53,21 @@ const CookiesPage = lazy(() => import("@/pages/Cookies"));
 
 const PublicLayout = () => {
   const location = useLocation();
+  const isHome = location.pathname === "/";
   return (
     <>
+      <ScrollProgress />
       <HeaderSection />
-      <div className="pt-24">
+      {/* L'accueil démarre sous le header (scène plein écran) ; les autres pages sont décalées. */}
+      <div className={isHome ? "" : "pt-[var(--header-offset)]"}>
+        {/* Fondu seul : aucun transform sur l'ancêtre, sinon les sections épinglées (GSAP pin) se décalent. */}
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: DISTANCE }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: DURATION, ease: EASE}}
+            transition={{ duration: 0.3, ease: EASE }}
           >
             <Outlet />
           </motion.div>

@@ -1,21 +1,23 @@
 import {
-  HeroSection,
-  ScrollStorySection,
+  ImmersiveHero,
+  BrandBand,
   VehicleListingsSection,
+  FinancingSection,
+  StatsSection,
+  SignatureHighlightsSection,
   CtaBandSection,
   FooterSection,
-  SignatureHighlightsSection,
-  FinancingSection,
 } from "@/components/sections";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <main>
-        <HeroSection />
-        <ScrollStorySection />
+        <ImmersiveHero />
+        <BrandBand />
         <VehicleListingsSection />
         <FinancingSection />
+        <StatsSection />
         <SignatureHighlightsSection />
         <CtaBandSection />
       </main>

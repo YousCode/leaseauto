@@ -1,10 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Valeur de repli : sans variables d'environnement, le site s'affiche quand même (listes vides).
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
   console.warn('⚠️ Supabase credentials missing. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
 }
 

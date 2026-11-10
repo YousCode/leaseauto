@@ -1,143 +1,146 @@
-// src/components/layout/HeaderSection.tsx
-import { Menu, X, User } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { DISTANCE } from "@/lib/motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { EASE } from "@/lib/motion";
 
-const logoSrc = `${import.meta.env.BASE_URL}assets/brand-logos/logo-lease-auto.png`;
-const logoFallback = `${import.meta.env.BASE_URL}logo-lease-auto.png`;
+const logoWhite = `${import.meta.env.BASE_URL}logo-lease-auto-white.png`;
 
 const navItems = [
-  { name: "Accueil", href: "/" },
   { name: "Véhicules", href: "/vehicules" },
   { name: "Financement", href: "/financement" },
   { name: "Services", href: "/services" },
   { name: "Contact", href: "/contact" },
 ];
 
+/**
+ * Header flottant : une pilule « nuit » en verre dépoli, identique sur toutes les pages.
+ * Elle se resserre après quelques pixels de scroll.
+ */
 const HeaderSection = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
 
-  // Détection du scroll pour changer le style
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => setOpen(false), [pathname]);
+
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
+    document.documentElement.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
+  }, [open]);
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <>
-      <header
-        className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md py-3 shadow-sm transition-all duration-300 ease-in-out"
-      >
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="flex items-center justify-between">
-            
-            {/* --- LOGO LEASE AUTO --- */}
-            <Link to="/" className="flex items-center gap-3 shrink-0 z-50">
-              <motion.img
-                src={logoSrc}
-                alt="Lease Auto"
-                className="h-8 md:h-10 w-auto transition-all duration-300"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  // Fallback si l'hébergement réécrit les chemins absolus
-                  target.src = logoFallback;
-                }}
-              />
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-6 md:pt-4">
+        <div
+          className={`pointer-events-auto mx-auto flex items-center justify-between rounded-full border border-white/10 bg-night/80 text-white backdrop-blur-xl transition-[max-width,height,padding,box-shadow] duration-500 ease-out ${
+            scrolled
+              ? "h-14 max-w-[960px] pl-5 pr-2 shadow-[0_12px_40px_-12px_rgba(7,11,20,0.55)]"
+              : "h-16 max-w-[1320px] pl-6 pr-3"
+          }`}
+        >
+          <Link to="/" aria-label="Lease Auto, accueil" className="flex shrink-0 items-center">
+            <img src={logoWhite} alt="Lease Auto" width={457} height={86} className="h-6 w-auto md:h-7" />
+          </Link>
+
+          <nav aria-label="Navigation principale" className="hidden items-center gap-1 md:flex">
+            {navItems.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300 ${
+                    active ? "text-white" : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {active ? (
+                    <motion.span
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-full bg-white/10"
+                      transition={{ duration: 0.45, ease: EASE }}
+                    />
+                  ) : null}
+                  <span className="relative">{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <Link to="/contact" className="btn btn-primary btn-sm hidden sm:inline-flex">
+              Demander une offre
+              <ArrowUpRight />
             </Link>
-
-            {/* --- NAVIGATION DESKTOP --- */}
-            <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
-              {navItems.map((item) => {
-                const active = location.pathname === item.href;
-                const textColor = "text-slate-700 hover:text-brand-primary";
-                const activeColor = "text-brand-primary";
-
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`relative group transition-colors duration-200 ${
-                      active ? activeColor : textColor
-                    }`}
-                  >
-                    {item.name}
-                    {/* Soulignement rouge animé */}
-                    <span className={`absolute -bottom-2 left-0 h-0.5 bg-brand-primary transition-all duration-300 ${active ? "w-full" : "w-0 group-hover:w-full"}`} />
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* --- CTA DROITE + PILL BUTTON --- */}
-            <div className="hidden md:flex items-center gap-4">
-              
-              <Link
-                to="/contact"
-                className="rounded-full bg-brand-primary text-white text-xs md:text-sm font-bold px-6 py-2.5 hover:bg-brand-primary-dark transition-colors shadow-md"
-              >
-                Demander une offre
-              </Link>
-
-              {/* Bouton Menu/User qui s'adapte au fond (Blanc ou Noir) */}
-              
-            </div>
-
-            {/* --- BURGER MOBILE --- */}
             <button
-              className="md:hidden p-2 transition-colors text-slate-800"
-              onClick={() => setIsMenuOpen((v) => !v)}
-              aria-label="Ouvrir le menu"
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={open}
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20 md:hidden"
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
       </header>
 
-      {/* --- MENU MOBILE FULLSCREEN (Reste en Dark Mode pour le style Premium) --- */}
       <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: DISTANCE }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl pt-32 px-6 md:hidden"
+        {open ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="grain fixed inset-0 z-40 flex flex-col bg-night px-6 pb-10 pt-28 text-white md:hidden"
           >
-            <nav className="flex flex-col gap-6 text-center">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-2xl font-bold text-white hover:text-brand-primary transition-colors"
+            <nav aria-label="Navigation mobile" className="flex flex-1 flex-col justify-center gap-2">
+              {[{ name: "Accueil", href: "/" }, ...navItems].map((item, i) => (
+                <motion.div
+                  key={item.href}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: EASE, delay: 0.05 + i * 0.06 }}
                 >
-                  {item.name}
-                </Link>
+                  <Link
+                    to={item.href}
+                    className={`display-lg block py-1.5 ${
+                      (item.href === "/" ? pathname === "/" : isActive(item.href)) ? "text-white" : "text-white/45"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
               ))}
-              
-              <div className="mt-8 flex flex-col items-center gap-4">
-                <Link
-                  to="/contact"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="w-full max-w-xs rounded-full bg-brand-primary text-white font-bold px-6 py-4 text-lg shadow-lg"
-                >
-                  Demander une offre
-                </Link>
-              </div>
             </nav>
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: EASE, delay: 0.4 }}
+              className="space-y-3"
+            >
+              <Link to="/contact" className="btn btn-primary btn-lg w-full">
+                Demander une offre
+                <ArrowUpRight />
+              </Link>
+              <a href="tel:0184218393" className="btn btn-ghost-dark btn-lg w-full">
+                01 84 21 83 93
+              </a>
+            </motion.div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

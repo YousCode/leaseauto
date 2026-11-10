@@ -1,12 +1,12 @@
 /**
- * Réglages d'animation partagés : une seule courbe, une seule durée,
- * un seul déplacement. Tout composant animé importe d'ici.
+ * Réglages framer-motion partagés (apparitions simples).
+ * Les scènes pilotées par le scroll passent par GSAP : voir src/lib/gsap.ts.
  */
 import type { Transition, Variants } from "framer-motion";
 
 export const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-export const DURATION = 0.45;
-export const DISTANCE = 16;
+export const DURATION = 0.6;
+export const DISTANCE = 24;
 
 export const baseTransition: Transition = { duration: DURATION, ease: EASE };
 

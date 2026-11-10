@@ -1,10 +1,11 @@
 import { useEffect, type ReactNode } from "react";
 import Lenis from "lenis";
 import { setLenis } from "@/lib/lenis";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 /**
- * Défilement inertiel (Lenis) sur desktop. Sur tactile et quand l'utilisateur
- * demande moins d'animations, on reste sur le défilement natif.
+ * Défilement inertiel (Lenis) synchronisé avec GSAP ScrollTrigger.
+ * Tactile et « réduire les animations » : défilement natif, ScrollTrigger suit quand même.
  */
 export function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -12,23 +13,16 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     if (reduce || coarse) return;
 
-    const lenis = new Lenis({
-      lerp: 0.1,
-      wheelMultiplier: 1,
-      smoothWheel: true,
-      syncTouch: false,
-    });
+    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false });
     setLenis(lenis);
+    lenis.on("scroll", ScrollTrigger.update);
 
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
-      cancelAnimationFrame(raf);
+      gsap.ticker.remove(tick);
       lenis.destroy();
       setLenis(null);
     };
