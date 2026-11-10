@@ -1,3 +1,5 @@
+import { LegalLayout, type LegalSectionItem } from "@/components/legal/LegalLayout";
+
 const MentionsLegalesPage = () => {
   const societe = "Lease Auto";
   const forme = "SARL";
@@ -10,61 +12,78 @@ const MentionsLegalesPage = () => {
   const directeur = "Nom Prénom, Gérant";
   const hebergeur = "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA";
 
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <section className="space-y-2">
-      <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-      <div className="text-sm leading-relaxed text-slate-700 space-y-1">{children}</div>
-    </section>
-  );
+  const sections: LegalSectionItem[] = [
+    {
+      title: "Éditeur du site",
+      content: (
+        <>
+          <p>{societe} ({forme}) au capital de {capital}</p>
+          <p>RCS {rcs} {siren}</p>
+          <p>Siège : {adresse}</p>
+          <p>Tél : {tel} — Email : {email}</p>
+        </>
+      ),
+    },
+    {
+      title: "Direction de la publication",
+      content: (
+        <>
+          <p>{directeur}</p>
+        </>
+      ),
+    },
+    {
+      title: "Hébergement",
+      content: (
+        <>
+          <p>{hebergeur}</p>
+        </>
+      ),
+    },
+    {
+      title: "Propriété intellectuelle",
+      content: (
+        <>
+          <p>
+            L’ensemble du site (textes, visuels, logos, code) est protégé par le droit d’auteur.
+            Toute reproduction ou diffusion nécessite l’autorisation écrite préalable de l’éditeur.
+          </p>
+        </>
+      ),
+    },
+    {
+      title: "Responsabilité",
+      content: (
+        <>
+          <p>
+            Les informations fournies le sont à titre indicatif et peuvent évoluer. L’éditeur ne peut être tenu
+            responsable d’erreurs ou d’indisponibilités temporaires du service.
+          </p>
+        </>
+      ),
+    },
+    {
+      title: "Contact signalement",
+      content: (
+        <>
+          <p>Pour tout signalement de contenu illicite : {email}</p>
+        </>
+      ),
+    },
+  ];
 
   return (
-    <main className="bg-[#F5F7FB] min-h-screen pt-16 pb-20">
-      <div className="max-w-5xl mx-auto px-4 space-y-8">
-        <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-brand-primary">Informations légales</p>
-          <h1 className="text-3xl font-bold text-slate-900">Mentions légales</h1>
-          <p className="text-sm text-slate-600">
-            Conformément aux articles 6-III et 19 de la loi n°2004-575 du 21 juin 2004 pour la confiance dans
-            l’économie numérique (LCEN).
-          </p>
-        </header>
-
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-          <Section title="Éditeur du site">
-            <p>{societe} ({forme}) au capital de {capital}</p>
-            <p>RCS {rcs} {siren}</p>
-            <p>Siège : {adresse}</p>
-            <p>Tél : {tel} — Email : {email}</p>
-          </Section>
-
-          <Section title="Direction de la publication">
-            <p>{directeur}</p>
-          </Section>
-
-          <Section title="Hébergement">
-            <p>{hebergeur}</p>
-          </Section>
-
-          <Section title="Propriété intellectuelle">
-            <p>
-              L’ensemble du site (textes, visuels, logos, code) est protégé par le droit d’auteur.
-              Toute reproduction ou diffusion nécessite l’autorisation écrite préalable de l’éditeur.
-            </p>
-          </Section>
-
-          <Section title="Responsabilité">
-            <p>
-              Les informations fournies le sont à titre indicatif et peuvent évoluer. L’éditeur ne peut être tenu
-              responsable d’erreurs ou d’indisponibilités temporaires du service.
-            </p>
-          </Section>
-
-          <Section title="Contact signalement">
-            <p>Pour tout signalement de contenu illicite : {email}</p>
-          </Section>
-        </div>
-      </div>
-    </main>
+    <LegalLayout
+      eyebrow="Informations légales"
+      title="Mentions légales"
+      subtitle={
+        <>
+          Conformément aux articles 6-III et 19 de la loi n°2004-575 du 21 juin 2004 pour la confiance dans
+          l’économie numérique (LCEN).
+        </>
+      }
+      sections={sections}
+    />
   );
 };
 

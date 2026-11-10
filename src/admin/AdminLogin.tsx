@@ -1,17 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DURATION, EASE, DISTANCE } from "@/lib/motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Lock, User } from "lucide-react";
+import { ArrowRight, Lock, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+
+const logoWhite = `${import.meta.env.BASE_URL}logo-lease-auto-white.png`;
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -41,95 +34,129 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="grain relative flex min-h-screen items-center justify-center overflow-hidden bg-night px-4 py-12 text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-brand-ink/60 blur-[120px]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-52 -left-32 h-[420px] w-[420px] rounded-full bg-brand-primary/25 blur-[130px]"
+      />
+
       <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: DURATION, ease: EASE}}
-        className="w-full max-w-md"
+        initial={{ opacity: 0, y: DISTANCE }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: DURATION, ease: EASE }}
+        className="relative z-10 w-full max-w-md"
       >
-        <Card className="bg-slate-900 border-slate-800 shadow-2xl">
-          <CardHeader className="space-y-1 pb-6">
-            <motion.div
-              initial={{ opacity: 0, y: DISTANCE }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: DURATION, ease: EASE, delay: 0.15 }}
-            >
-              <CardTitle className="text-2xl font-bold text-center text-white">
-                Lease<span className="text-brand-primary">Auto</span> Admin
-              </CardTitle>
-              <CardDescription className="text-center text-slate-400 mt-1">
-                Connectez-vous pour accéder au panneau d'administration
-              </CardDescription>
-            </motion.div>
-          </CardHeader>
-          <CardContent>
+        <img
+          src={logoWhite}
+          alt="Lease Auto"
+          width={457}
+          height={86}
+          className="mx-auto mb-8 h-8 w-auto"
+        />
+
+        <div className="surface p-6 text-slate-900 sm:p-10">
+          <motion.div
+            initial={{ opacity: 0, y: DISTANCE }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: DURATION, ease: EASE, delay: 0.15 }}
+          >
+            <p className="eyebrow">Accès réservé</p>
+            <h1 className="display-md mt-3 text-night">Administration</h1>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              Connectez-vous pour accéder au panneau d'administration
+            </p>
+          </motion.div>
+
+          <div className="mt-8">
             <AnimatePresence>
               {error && (
                 <motion.div
+                  role="alert"
                   initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                   animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                  transition={{ duration: DURATION, ease: EASE}}
-                  className="bg-red-900/30 border border-red-800 text-red-300 px-4 py-2 rounded overflow-hidden"
+                  transition={{ duration: DURATION, ease: EASE }}
+                  className="overflow-hidden rounded-2xl border border-red-500/30 bg-red-50 text-sm text-red-600"
                 >
-                  {error}
+                  <p className="px-4 py-3">{error}</p>
                 </motion.div>
               )}
             </AnimatePresence>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-6">
               <motion.div
-                className="space-y-3"
+                className="space-y-4"
                 initial={{ opacity: 0, y: DISTANCE }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: DURATION, ease: EASE, delay: 0.22 }}
               >
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-brand-primary transition-colors h-11"
-                    required
-                  />
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <Input
-                    type="password"
-                    placeholder="Mot de passe"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-brand-primary transition-colors h-11"
-                    required
-                  />
-                </div>
+                <label className="block text-sm">
+                  <span className="font-medium text-slate-700">Email</span>
+                  <span className="relative mt-2 block">
+                    <User
+                      aria-hidden
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      autoComplete="username"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="field pl-11 text-base"
+                      required
+                    />
+                  </span>
+                </label>
+                <label className="block text-sm">
+                  <span className="font-medium text-slate-700">Mot de passe</span>
+                  <span className="relative mt-2 block">
+                    <Lock
+                      aria-hidden
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type="password"
+                      placeholder="Mot de passe"
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="field pl-11 text-base"
+                      required
+                    />
+                  </span>
+                </label>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: DURATION, ease: EASE, delay: 0.32 }}
               >
-                <Button
-                  type="submit"
-                  className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white h-11 transition-all duration-200"
-                  disabled={isLoading}
-                >
+                <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
                   {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <>
+                      <span
+                        aria-hidden
+                        className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                      />
                       Connexion…
-                    </span>
+                    </>
                   ) : (
-                    "Se connecter"
+                    <>
+                      Se connecter
+                      <ArrowRight />
+                    </>
                   )}
-                </Button>
+                </button>
               </motion.div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
